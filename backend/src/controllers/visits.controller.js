@@ -17,7 +17,7 @@ export const testDb = async (req, res) => {
 };
 
 /* =========================
-   GET NEXT S.NO (Stand-alone for frontend)
+   GET NEXT S.NO (Now pulling from B_Sno)
 ========================= */
 export const getNextSno = async (req, res) => {
   try {
@@ -34,13 +34,40 @@ export const getNextSno = async (req, res) => {
 };
 
 /* =========================
+   GET OLD RECORD BY NAME OR S.NO (Returns List for Modal)
+========================= */
+export const getOldRecord = async (req, res) => {
+  try {
+    const { name, sno } = req.query;
+    const pool = await poolPromise;
+    let query = "";
+    const request = pool.request();
+
+    if (sno) {
+      // Search specifically by the visible Serial Number
+      request.input("sno", sno);
+      query = "SELECT * FROM dbo.Pat_Master1 WHERE B_Sno = @sno";
+    } else {
+      // Search all visits for this name, ordered newest to oldest
+      request.input("patientName", name);
+      query = "SELECT * FROM dbo.Pat_Master1 WHERE B_PName = @patientName ORDER BY B_Date DESC, B_Sno DESC";
+    }
+
+    const result = await request.query(query);
+    res.json({ success: true, records: result.recordset });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+/* =========================
    SAVE VISIT
 ========================= */
 export const saveVisit = async (req, res) => {
   try {
     const pool = await poolPromise;
 
-    // Get the next serial number
+    // Get the next serial number based on B_Sno
     const bsnoResult = await pool
       .request()
       .query("SELECT ISNULL(MAX(B_Sno), 0) + 1 AS nextBsno FROM dbo.Pat_Master1");
@@ -49,7 +76,8 @@ export const saveVisit = async (req, res) => {
     const d = req.body;
 
     await pool.request()
-      .input("B_Sno", nextBsno)
+      .input("sno", nextBsno)             // Inserting B_Sno value into 'sno' column to keep them synced
+      .input("B_Sno", nextBsno)           // Our primary incremental counter
       .input("B_Date", d.date)
       .input("B_PName", d.patientName)
       .input("B_FName", d.fatherName)
@@ -65,13 +93,13 @@ export const saveVisit = async (req, res) => {
       .query(`
         INSERT INTO dbo.Pat_Master1
         (
-          B_Sno, B_Date, B_PName, B_FName, B_Sex, B_Age,
+          sno, B_Sno, B_Date, B_PName, B_FName, B_Sex, B_Age,
           B_To, B_Perticu1, B_Perticu2,
           B_PerticuAmt1, B_Cart, B_Conv, B_TotalAmt
         )
         VALUES
         (
-          @B_Sno, @B_Date, @B_PName, @B_FName, @B_Sex, @B_Age,
+          @sno, @B_Sno, @B_Date, @B_PName, @B_FName, @B_Sex, @B_Age,
           @B_To, @B_Perticu1, @B_Perticu2,
           @B_PerticuAmt1, @B_Cart, @B_Conv, @B_TotalAmt
         )

@@ -40,3 +40,29 @@
 .read-the-docs {
   color: #888;
 }
+/* History Modal Styles */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000;
+}
+.modal-content {
+    background: #ffffff; padding: 20px; border-radius: 12px; width: 450px; 
+    max-height: 80vh; overflow-y: auto; border: 2px solid #0891b2; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+.modal-header { 
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 2px solid #0891b2; margin-bottom: 15px; padding-bottom: 10px;
+}
+.modal-header h3 { color: #0891b2; margin: 0; font-family: sans-serif; }
+.close-modal { 
+    background: #0891b2; color: white; border: none; font-size: 20px; 
+    cursor: pointer; border-radius: 4px; width: 30px; height: 30px; 
+}
+.history-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.history-table th { background: #0891b2; color: white; padding: 10px; text-align: left; }
+.history-table td { padding: 10px; border-bottom: 1px solid #ddd; }
+.select-btn { 
+    background: #10b981; color: white; border: none; padding: 6px 12px; 
+    cursor: pointer; border-radius: 4px; font-weight: bold;
+}
+.select-btn:hover { background: #059669; }

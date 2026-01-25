@@ -1,5 +1,5 @@
 import express from "express";
-import { testDb, saveVisit, getNextSno } from "../controllers/visits.controller.js";
+import { testDb, saveVisit, getNextSno, getOldRecord } from "../controllers/visits.controller.js";
 
 const router = express.Router();
 
@@ -8,5 +8,6 @@ router.get("/next-sno", getNextSno);
 
 router.get("/test", testDb);
 router.post("/", saveVisit);
+router.get("/search", getOldRecord);
 
 export default router;

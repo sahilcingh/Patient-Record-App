@@ -32,12 +32,12 @@ function App() {
 
             <div className="grid">
               <div className="field">
-                <label>S.No</label>
-                <input
-                  type="text"
-                  id="sno"
-                  readOnly
-                />
+               <label>S.No</label>
+                  <input 
+  type="text" 
+  id="sno" 
+  placeholder="S.No"
+/>
               </div>
 
               <div className="field">
@@ -48,22 +48,22 @@ function App() {
                 />
               </div>
 
-              <div className="field wide patient-name-field">
-                <label>Patient Name</label>
-                <div className="patient-name-row">
-                  <input
-                    type="text"
-                    placeholder="Enter patient name"
-                    required
-                  />
-                  <button
-                    type="button"
-                    className="old-record-btn"
-                  >
-                    OLD RECORD
-                  </button>
-                </div>
-              </div>
+            
+<div className="field wide patient-name-field">
+  <label>Patient Name</label>
+  <div className="patient-name-row">
+    <input
+      type="text"
+      id="patientNameInput"  /* THIS ID MUST BE HERE */
+      name="patientName"
+      placeholder="Enter patient name"
+      required
+    />
+    <button type="button" id="oldRecordBtn" className="nav-button">
+      OLD RECORD
+    </button>
+  </div>
+</div>
 
               <div className="field">
                 <label>Sex</label>
@@ -75,9 +75,14 @@ function App() {
               </div>
 
               <div className="field wide">
-                <label>Father's Name</label>
-                <input type="text" required />
-              </div>
+  <label>Father's Name</label>
+  <input 
+  type="text" 
+  id="fName" // Add this
+  name="fatherName" 
+  placeholder="Enter father's name" 
+/>
+</div>
 
               <div className="field">
                 <label>Age</label>
@@ -171,6 +176,29 @@ function App() {
               <button type="button">Back</button>
             </div>
           </footer>
+          {/* History Modal */}
+<div id="historyModal" className="modal-overlay" style={{ display: 'none' }}>
+  <div className="modal-content">
+    <div className="modal-header">
+      <h3>Visit History</h3>
+      <button type="button" onClick={() => document.getElementById('historyModal').style.display='none'}>&times;</button>
+    </div>
+    <div className="modal-body">
+      <table className="history-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>S.No</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="historyTableBody">
+          {/* Rows will be injected here by app.js */}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
         </form>
       </div>
