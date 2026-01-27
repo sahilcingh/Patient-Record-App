@@ -33,7 +33,8 @@ function App() {
             <div className="grid">
               <div className="field">
                 <label>S.No</label>
-                <input type="text" id="sno" placeholder="S.No" readOnly />
+                {/* UPDATED: Added right-align */}
+                <input type="text" id="sno" placeholder="S.No" readOnly className="right-align" />
               </div>
 
               <div className="field">
@@ -58,7 +59,7 @@ function App() {
               </div>
 
               <div className="field">
-                <label>Sex</label>
+                <label>Gender</label> {/* UPDATED: Changed Sex to Gender */}
                 <select id="sex" required>
                   <option value="">Select</option>
                   <option>Male</option>
@@ -78,7 +79,8 @@ function App() {
 
               <div className="field">
                 <label>Age</label>
-                <input type="number" id="age" required />
+                {/* UPDATED: Added min="0" and right-align */}
+                <input type="number" id="age" required min="0" className="right-align" />
               </div>
             </div>
           </section>
@@ -108,22 +110,26 @@ function App() {
             <div className="grid billing">
               <div className="field">
                 <label>Total</label>
-                <input type="number" id="total" defaultValue="0" />
+                {/* UPDATED: Added right-align */}
+                <input type="number" id="total" defaultValue="0" className="right-align" />
               </div>
 
               <div className="field">
                 <label>Cartage</label>
-                <input type="number" id="cartage" defaultValue="0" />
+                {/* UPDATED: Added right-align */}
+                <input type="number" id="cartage" defaultValue="0" className="right-align" />
               </div>
 
               <div className="field">
                 <label>Conveyance</label>
-                <input type="number" id="conveyance" defaultValue="0" />
+                {/* UPDATED: Added right-align */}
+                <input type="number" id="conveyance" defaultValue="0" className="right-align" />
               </div>
 
               <div className="field highlight">
                 <label>Grand Total</label>
-                <input type="number" id="grandTotal" defaultValue="0" readOnly />
+                {/* UPDATED: Added right-align */}
+                <input type="number" id="grandTotal" defaultValue="0" readOnly className="right-align" />
               </div>
             </div>
           </section>
@@ -138,13 +144,8 @@ function App() {
             {/* Right: Action Buttons */}
             <div>
               <button type="button" id="cancelBtn">Cancel</button>
-              
-              {/* Save (New Mode) */}
               <button type="submit" id="saveBtn" className="primary">Save</button>
-              
-              {/* Update (Edit Mode - Hidden by default) */}
               <button type="button" id="updateBtn" className="primary hidden">Update</button>
-              
               <button type="button">Back</button>
             </div>
           </footer>
@@ -165,7 +166,7 @@ function App() {
                 <tr>
                   <th>Date</th>
                   <th>S.No</th>
-                  <th>Father's Name</th> {/* <--- NEW COLUMN */}
+                  <th>Father's Name</th>
                   <th>Grand Total</th>
                   <th>Action</th>
                 </tr>

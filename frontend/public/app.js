@@ -2,11 +2,9 @@
     // ============================================================
     //  API CONFIGURATION (Smart Switch)
     // ============================================================
-    // If we are on localhost, use localhost:5000. 
-    // If we are on Vercel, use the Render URL.
     const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
     
-    // ⚠️ REPLACE 'YOUR-APP-NAME' BELOW WITH YOUR ACTUAL RENDER URL AFTER DEPLOYING BACKEND ⚠️
+    // Your Render URL logic
     const API_BASE_URL = isLocal 
         ? "http://localhost:5000" 
         : "https://patient-record-app-drly.onrender.com"; 
@@ -20,12 +18,17 @@
         form.dataset.initialized = "true";
 
         const snoInput = getEl("sno");
+        const ageInput = getEl("age"); // <--- Needed for validation
         const total = getEl("total");
         const cartage = getEl("cartage");
         const conveyance = getEl("conveyance");
         const grandTotal = getEl("grandTotal");
         const visitDate = getEl("visitDate");
         const billingFields = [total, cartage, conveyance].filter(Boolean);
+
+        // Name Inputs for validation
+        const patientNameInput = getEl("patientNameInput");
+        const fatherNameInput = getEl("fatherNameInput");
 
         const saveBtn = form.querySelector('#saveBtn');
         const updateBtn = form.querySelector('#updateBtn'); 
@@ -39,7 +42,32 @@
 
         let isEditMode = false;
 
-        /* DATE VALIDATION */
+        /* ================= INPUT VALIDATION (NEW SECTION) ================= */
+
+        // 1. AGE: Prevent negative numbers and minus sign
+        if (ageInput) {
+            ageInput.addEventListener("input", function() {
+                if (this.value < 0) this.value = 0; 
+            });
+            ageInput.addEventListener("keydown", function(e) {
+                if (e.key === "-" || e.key === "e") {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        // 2. NAMES: Remove special characters (Allow only Letters & Spaces)
+        function cleanNameInput(input) {
+            input.addEventListener("input", function() {
+                // Regex: Replace anything that is NOT a-z, A-Z, or space
+                this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+            });
+        }
+
+        if (patientNameInput) cleanNameInput(patientNameInput);
+        if (fatherNameInput) cleanNameInput(fatherNameInput);
+
+        /* ================= DATE VALIDATION ================= */
         if (visitDate) {
             const now = new Date();
             const year = now.getFullYear();
@@ -54,6 +82,8 @@
                 }
             });
         }
+
+        /* ================= HELPERS ================= */
 
         function toggleEditMode(enable) {
             isEditMode = enable;
@@ -112,7 +142,7 @@
         if (cancelBtn) cancelBtn.addEventListener("click", resetForm);
         if (closeModalBtn) closeModalBtn.onclick = () => { modal.style.display = "none"; };
 
-        /* OLD RECORD SEARCH - UPDATED URL */
+        /* OLD RECORD SEARCH */
         if (oldRecordBtn) {
             oldRecordBtn.addEventListener("click", async () => {
                 const nameInput = document.getElementById("patientNameInput");
@@ -120,7 +150,6 @@
                 if (!patientName) { alert("Please enter a patient name first."); return; }
 
                 try {
-                    // UPDATED: Use API_BASE_URL
                     const res = await fetch(`${API_BASE_URL}/api/visits/search?name=${encodeURIComponent(patientName)}`);
                     const data = await res.json();
                     if (res.ok && data.records.length > 0) {
@@ -159,11 +188,10 @@
             grandTotal.value = record.B_TotalAmt || 0;
         }
 
-        /* CRUD OPERATIONS - UPDATED URLs */
+        /* CRUD OPERATIONS */
         async function loadNextSno() {
             if (!snoInput) return;
             try {
-                // UPDATED: Use API_BASE_URL
                 const res = await fetch(`${API_BASE_URL}/api/visits/next-sno`);
                 const data = await res.json();
                 if (res.ok) snoInput.value = data.nextSno;
@@ -192,7 +220,6 @@
                 e.preventDefault();
                 saveBtn.disabled = true; saveBtn.innerText = "Saving...";
                 try {
-                    // UPDATED: Use API_BASE_URL
                     const res = await fetch(`${API_BASE_URL}/api/visits`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -212,7 +239,6 @@
                 if (!currentSno) return;
                 updateBtn.disabled = true; updateBtn.innerText = "Updating...";
                 try {
-                    // UPDATED: Use API_BASE_URL
                     const res = await fetch(`${API_BASE_URL}/api/visits/${currentSno}`, {
                         method: "PUT",
                         headers: { "Content-Type": "application/json" },
@@ -232,7 +258,6 @@
                 if (!confirm(`Are you sure you want to delete record #${currentSno}?`)) return;
                 deleteBtn.disabled = true; deleteBtn.innerText = "Deleting...";
                 try {
-                    // UPDATED: Use API_BASE_URL
                     const res = await fetch(`${API_BASE_URL}/api/visits/${currentSno}`, {
                         method: "DELETE"
                     });
