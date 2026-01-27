@@ -1,335 +1,277 @@
-/* ================= GLOBAL RESET ================= */
+/* GLOBAL RESET */
 * {
   box-sizing: border-box;
 }
 
 body {
-  margin: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f0f4f8; /* Light blue-grey background */
-  color: #333;
+  background-color: #f4f4f9;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
 }
 
 .app {
-  display: flex;
-  justify-content: center;
-  padding: 40px 20px;
-  min-height: 100vh;
+  width: 100%;
+  max-width: 900px;
 }
 
-/* ================= MAIN CARD ================= */
 .card {
   background: white;
-  width: 100%;
-  max-width: 850px; /* Limits width so it doesn't stretch too far */
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1); /* Soft shadow */
-  overflow: hidden;
-  padding: 0; 
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
 }
 
-/* ================= HEADER ================= */
+/* HEADER */
 .header {
-  background: #0891b2; /* Teal Theme */
-  color: white;
-  padding: 20px 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
 }
 
 .header h1 {
   margin: 0;
   font-size: 1.5rem;
+  color: #333;
 }
 
-/* ================= FORM SECTIONS ================= */
-#patientForm {
-  padding: 30px;
-}
-
-.section {
-  margin-bottom: 30px;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 20px;
-}
-
-.section h2 {
-  color: #0891b2;
-  font-size: 1.2rem;
-  margin-bottom: 15px;
-  border-left: 4px solid #0891b2;
-  padding-left: 10px;
-}
-
-.section h3 {
+.date {
+  font-weight: bold;
   color: #555;
-  font-size: 1rem;
-  margin-bottom: 10px;
 }
 
-/* ================= GRID LAYOUT ================= */
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr; /* Two columns */
-  gap: 20px;
+/* SECTIONS */
+.section {
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #f9f9f9; /* Subtle background for groups */
+  border-radius: 5px;
+  border: 1px solid #eee;
 }
 
-.field {
+h2, h3 {
+  margin-top: 0;
+  color: #444;
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+}
+
+/* =========================================
+   NEW LAYOUT STYLES (MATCHING IMAGE)
+   ========================================= */
+
+.patient-data-box {
   display: flex;
   flex-direction: column;
+  gap: 15px;
 }
 
-/* Spans across both columns */
-.field.wide {
-  grid-column: span 2;
-}
-
-.field label {
-  font-weight: 600;
-  font-size: 0.9rem;
-  margin-bottom: 5px;
-  color: #444;
-}
-
-/* ================= INPUTS & BUTTONS ================= */
-input, select, textarea {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 1rem;
-  transition: border 0.3s;
-  width: 100%;
-}
-
-input:focus, select:focus, textarea:focus {
-  border-color: #0891b2;
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
-}
-
-textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-/* Patient Name Row (Input + Button) */
-.patient-name-row {
+.form-row {
   display: flex;
-  gap: 10px;
+  justify-content: space-between; /* Pushes Left/Right groups apart */
+  align-items: center;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Space between label and input */
+}
+
+/* Left side groups take up more space generally */
+.left-group {
+  flex: 1; 
+  margin-right: 20px;
+}
+
+/* Right side groups (Date, Sex, Age) have fixed width or shrink */
+.right-group {
+  min-width: 200px; /* Ensures right side aligns nicely */
+  justify-content: flex-end;
+}
+
+/* Labels layout - Fixed width ensures inputs align vertically */
+.input-group label, 
+.form-row > label {
+  width: 70px; /* Fixed width for labels (S.No, Patient, Father, Address) */
+  font-weight: 500;
+  color: #333;
+  text-align: left;
+}
+
+/* Specific Input Sizes from Image */
+.small-input {
+  width: 60px !important; /* For S.No and Age */
+}
+
+.wide-input {
+  flex: 1; /* Patient and Father inputs take remaining space */
 }
 
 .nav-button {
-  background: #333;
-  color: white;
-  border: none;
-  padding: 0 20px;
-  border-radius: 6px;
+  padding: 6px 12px;
+  background-color: #e0e0e0;
+  border: 1px solid #aaa;
   cursor: pointer;
-  white-space: nowrap;
   font-weight: bold;
-  font-size: 0.9rem;
+  white-space: nowrap;
 }
 
 .nav-button:hover {
-  background: #555;
+  background-color: #d0d0d0;
 }
 
-/* ================= TWO COLUMN TEXTAREAS ================= */
+/* Address Row Specifics */
+.address-row {
+  align-items: flex-start; /* Align label to top of textarea */
+}
+
+.address-box {
+  flex: 1;
+  height: 60px;
+  resize: vertical;
+}
+
+/* Right Align utility (for numbers) */
+.right-align {
+  text-align: right;
+}
+
+/* =========================================
+   STANDARD STYLES (RETAINED)
+   ========================================= */
+
+/* Common Inputs */
+input, select, textarea {
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 3px rgba(0, 123, 255, 0.3);
+}
+
+/* Two Column Layout for Meds/Complaint */
 .two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
-  margin-bottom: 30px;
 }
 
-/* ================= BILLING SECTION ================= */
+.large-box {
+  width: 100%;
+  height: 80px;
+  resize: none;
+}
+
+/* Billing Grid */
 .grid.billing {
-  grid-template-columns: 1fr 1fr 1fr 1fr; /* 4 columns for billing */
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
 }
 
-.field.highlight input {
-  background-color: #f0fdfa; /* Light teal bg */
-  border-color: #0891b2;
-  font-weight: bold;
-  color: #0e7490;
-}
-
-/* ================= FOOTER ================= */
-.footer {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 2px solid #eee;
-}
-
-.footer button {
-  padding: 10px 25px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  background: white;
-  cursor: pointer;
-  font-weight: 600;
-  margin-left: 10px;
-  transition: all 0.2s;
-}
-
-.footer button.primary {
-  background: #0891b2;
-  color: white;
-  border: none;
-}
-
-.footer button.primary:hover {
-  background: #0e7490;
-  transform: translateY(-1px);
-}
-
-.footer button.ghost {
-  border: none;
-  color: #0891b2;
-  background: transparent;
-  margin-left: 0;
-  padding-left: 0;
-}
-
-.footer button.ghost:hover {
-  text-decoration: underline;
-}
-
-/* =========================================
-   MODAL STYLES (Fixed & Professional)
-   ========================================= */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.6); /* Dimmed background */
-  display: none; /* Controlled by JS */
-  justify-content: center;
-  align-items: center;
-  z-index: 99999; /* Always on top */
-  backdrop-filter: blur(3px); /* Blur effect */
-}
-
-.modal-content {
-  background: white;
-  width: 90%;
-  max-width: 600px;
-  border-radius: 12px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  overflow: hidden;
-  border: 2px solid #0891b2;
-  animation: slideIn 0.3s ease-out;
+.billing .field {
   display: flex;
   flex-direction: column;
 }
 
-@keyframes slideIn {
-  from { transform: translateY(-20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+.highlight input {
+  background-color: #e8f5e9;
+  border-color: #2e7d32;
+  font-weight: bold;
+}
+
+/* Footer */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 2px solid #eee;
+}
+
+button {
+  padding: 10px 20px;
+  margin-left: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+button.primary {
+  background-color: #007bff;
+  color: white;
+}
+
+button.danger {
+  background-color: #dc3545;
+  color: white;
+  margin-left: 0;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: none; /* Hidden by default */
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 600px;
+  max-width: 90%;
 }
 
 .modal-header {
-  background: #0891b2;
-  padding: 15px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.modal-header h3 {
-  color: white;
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
+  margin-bottom: 15px;
 }
 
 .close-modal {
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 2rem;
-  line-height: 1;
+  background: none;
+  font-size: 24px;
   cursor: pointer;
   padding: 0;
-  transition: opacity 0.2s;
 }
 
-.close-modal:hover {
-  opacity: 0.8;
-}
-
-.modal-body {
-  padding: 0;
-  max-height: 60vh;
-  overflow-y: auto;
-}
-
-/* Modal Table */
 .history-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.history-table th {
+.history-table th, .history-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
   text-align: left;
-  padding: 15px;
-  background-color: #f8fafc;
-  border-bottom: 2px solid #e2e8f0;
-  color: #0891b2;
-  font-weight: 700;
-  position: sticky;
-  top: 0;
 }
 
-.history-table td {
-  padding: 12px 15px;
-  border-bottom: 1px solid #eee;
-  color: #4b5563;
-}
-
-.history-table tr:hover {
-  background-color: #f0f9ff;
-}
-
-.select-btn {
-  background-color: #0891b2;
-  color: white;
-  padding: 6px 14px;
-  border-radius: 4px;
-  border: none;
-  cursor: pointer;
-  font-size: 0.875rem;
-  font-weight: 600;
-  transition: background-color 0.2s;
-}
-
-.select-btn:hover {
-  background-color: #0e7490;
-}
-
-/* ================= CRITICAL UTILITY CLASSES ================= */
-
-/* Hides elements completely */
-.hidden {
-  display: none !important;
-}
-
-/* Red styling for Delete button */
-.danger {
-  background-color: #dc2626 !important;
-  color: white !important;
-  border: none !important;
-}
-
-.danger:hover {
-  background-color: #b91c1c !important;
-}
-
-.right-align {
-  text-align: right;
+.history-table th {
+  background-color: #f2f2f2;
 }

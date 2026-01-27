@@ -26,70 +26,82 @@ function App() {
 
         <form id="patientForm">
 
-          {/* ================= BASIC INFO ================= */}
-          <section className="section">
-            <h2>Basic Information</h2>
-
-            <div className="grid">
-              <div className="field">
-                <label>S.No</label>
-                {/* UPDATED: Added right-align */}
-                <input type="text" id="sno" placeholder="S.No" readOnly className="right-align" />
+          {/* ================= BASIC INFO (UPDATED LAYOUT) ================= */}
+          <section className="section patient-data-box">
+            
+            {/* Row 1: S.No (Left) -- Date (Right) */}
+            <div className="form-row">
+              <div className="input-group left-group">
+                <label>S.No.</label>
+                <input 
+                  type="text" 
+                  id="sno" 
+                  readOnly 
+                  className="right-align small-input" 
+                />
               </div>
-
-              <div className="field">
+              <div className="input-group right-group">
                 <label>Date</label>
                 <input type="date" id="visitDate" />
               </div>
+            </div>
 
-              <div className="field wide patient-name-field">
-                <label>Patient Name</label>
-                <div className="patient-name-row">
-                  <input
-                    type="text"
-                    id="patientNameInput"
-                    name="patientName"
-                    placeholder="Enter patient name"
-                    required
-                  />
-                  <button type="button" id="oldRecordBtn" className="nav-button">
-                    OLD RECORD
-                  </button>
-                </div>
+            {/* Row 2: Patient + Button (Left) -- Sex (Right) */}
+            <div className="form-row">
+              <div className="input-group left-group">
+                <label>Patient</label>
+                <input
+                  type="text"
+                  id="patientNameInput"
+                  name="patientName"
+                  className="wide-input"
+                  required
+                />
+                <button type="button" id="oldRecordBtn" className="nav-button">
+                  OLD Record
+                </button>
               </div>
-
-              <div className="field">
-                <label>Gender</label> {/* UPDATED: Changed Sex to Gender */}
+              <div className="input-group right-group">
+                <label>Sex</label>
                 <select id="sex" required>
                   <option value="">Select</option>
                   <option>Male</option>
                   <option>Female</option>
                 </select>
               </div>
+            </div>
 
-              <div className="field wide">
-                <label>Father's Name</label>
+            {/* Row 3: Father (Left) -- Age (Right) */}
+            <div className="form-row">
+              <div className="input-group left-group">
+                <label>Father</label>
                 <input 
                   type="text" 
                   id="fatherNameInput" 
                   name="fatherName" 
-                  placeholder="Enter father's name" 
+                  className="wide-input"
                 />
               </div>
-
-              <div className="field">
+              <div className="input-group right-group">
                 <label>Age</label>
-                {/* UPDATED: Added min="0" and right-align */}
-                <input type="number" id="age" required min="0" className="right-align" />
+                <input 
+                  type="number" 
+                  id="age" 
+                  required 
+                  min="0" 
+                  className="right-align small-input" 
+                />
               </div>
             </div>
+
+            {/* Row 4: Address (Full Width) */}
+            <div className="form-row address-row">
+              <label>Address</label>
+              <textarea id="address" className="address-box" required />
+            </div>
+
           </section>
 
-          {/* ================= ADDRESS ================= */}
-          <div className="section">
-            <h3>Address</h3>
-            <textarea id="address" className="address-box" required />
-          </div>
 
           {/* ================= COMPLAINT / MEDICINE ================= */}
           <div className="section two-col">
@@ -110,25 +122,21 @@ function App() {
             <div className="grid billing">
               <div className="field">
                 <label>Total</label>
-                {/* UPDATED: Added right-align */}
                 <input type="number" id="total" defaultValue="0" className="right-align" />
               </div>
 
               <div className="field">
                 <label>Cartage</label>
-                {/* UPDATED: Added right-align */}
                 <input type="number" id="cartage" defaultValue="0" className="right-align" />
               </div>
 
               <div className="field">
                 <label>Conveyance</label>
-                {/* UPDATED: Added right-align */}
                 <input type="number" id="conveyance" defaultValue="0" className="right-align" />
               </div>
 
               <div className="field highlight">
                 <label>Grand Total</label>
-                {/* UPDATED: Added right-align */}
                 <input type="number" id="grandTotal" defaultValue="0" readOnly className="right-align" />
               </div>
             </div>
@@ -136,12 +144,9 @@ function App() {
 
           {/* ================= FOOTER ================= */}
           <footer className="footer">
-            {/* Left: Delete Button (Only visible in Edit Mode) */}
             <div>
                <button type="button" id="deleteBtn" className="danger hidden">Delete</button>
             </div>
-
-            {/* Right: Action Buttons */}
             <div>
               <button type="button" id="cancelBtn">Cancel</button>
               <button type="submit" id="saveBtn" className="primary">Save</button>
@@ -171,9 +176,7 @@ function App() {
                   <th>Action</th>
                 </tr>
               </thead>
-              <tbody id="historyTableBody">
-                {/* JS Injects Rows Here */}
-              </tbody>
+              <tbody id="historyTableBody"></tbody>
             </table>
           </div>
         </div>
