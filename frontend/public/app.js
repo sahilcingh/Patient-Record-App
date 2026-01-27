@@ -34,17 +34,14 @@
 
         /* ================= DATE VALIDATION ================= */
         if (visitDate) {
-            // Get Today's Date
             const now = new Date();
             const year = now.getFullYear();
             const month = String(now.getMonth() + 1).padStart(2, '0');
             const day = String(now.getDate()).padStart(2, '0');
             const today = `${year}-${month}-${day}`;
 
-            // Disable future dates in picker
             visitDate.setAttribute("max", today);
 
-            // Exception Popup
             visitDate.addEventListener("change", () => {
                 if (visitDate.value > today) {
                     alert("⚠️ Future Date Error\n\nYou cannot select a future date. The date has been reset to today.");
@@ -54,23 +51,17 @@
         }
 
         /* ================= HELPERS ================= */
-        
         function toggleEditMode(enable) {
             isEditMode = enable;
             if (enable) {
-                // EDIT MODE: Show Update/Delete, Hide Save
                 if(saveBtn) saveBtn.classList.add("hidden");
                 if(updateBtn) updateBtn.classList.remove("hidden");
                 if(deleteBtn) deleteBtn.classList.remove("hidden");
-                
-                // Visual cue that we are editing an existing record
                 if(snoInput) snoInput.style.backgroundColor = "#e0e0e0"; 
             } else {
-                // NEW MODE: Show Save, Hide Update/Delete
                 if(saveBtn) saveBtn.classList.remove("hidden");
                 if(updateBtn) updateBtn.classList.add("hidden");
                 if(deleteBtn) deleteBtn.classList.add("hidden");
-                
                 if(snoInput) snoInput.style.backgroundColor = "white";
             }
         }
@@ -86,18 +77,15 @@
             form.reset();
             billingFields.forEach(f => f.value = "0");
             calculateGrandTotal();
-            toggleEditMode(false); // Go back to "Save" mode
-            loadNextSno(); // Fetch new S.No
+            toggleEditMode(false);
+            loadNextSno();
             
-            // Reset date to today
             const now = new Date();
             const today = now.toISOString().split('T')[0];
             if(visitDate) visitDate.value = today;
         }
 
         /* ================= LISTENERS ================= */
-
-        // 1. Navigation
         const allElements = Array.from(form.querySelectorAll("input, select, textarea"));
         allElements.forEach((field, index) => {
             field.addEventListener("keydown", (e) => {
@@ -110,7 +98,6 @@
             });
         });
 
-        // 2. Billing
         billingFields.forEach(field => {
             field.addEventListener("focus", () => { if (field.value === "0") field.value = ""; });
             field.addEventListener("blur", () => {
@@ -120,7 +107,6 @@
             field.addEventListener("input", calculateGrandTotal);
         });
 
-        // 3. Cancel Button -> Resets everything
         if (cancelBtn) {
             cancelBtn.addEventListener("click", resetForm);
         }
@@ -139,7 +125,8 @@
                 }
 
                 try {
-                    const res = await fetch(`http://localhost:5000/api/visits/search?name=${encodeURIComponent(patientName)}`);
+                    // UPDATED: Removed http://localhost:5000
+                    const res = await fetch(`/api/visits/search?name=${encodeURIComponent(patientName)}`);
                     const data = await res.json();
 
                     if (res.ok && data.records.length > 0) {
@@ -147,7 +134,6 @@
                         data.records.forEach(rec => {
                             const date = new Date(rec.B_Date).toLocaleDateString('en-GB'); 
                             const row = document.createElement("tr");
-                            // 5 Columns: Date | S.No | Father | Total | Action
                             row.innerHTML = `
                                 <td>${date}</td>
                                 <td>${rec.B_Sno}</td>
@@ -157,7 +143,7 @@
                             `;
                             row.querySelector(".select-btn").onclick = () => {
                                 fillForm(rec);
-                                toggleEditMode(true); // SWITCH TO EDIT MODE
+                                toggleEditMode(true);
                                 modal.style.display = "none";
                             };
                             tableBody.appendChild(row);
@@ -187,7 +173,6 @@
                 visitDate.value = new Date(record.B_Date).toISOString().split('T')[0];
             }
 
-            // Fill Billing
             total.value = record.B_PerticuAmt1 || 0;
             cartage.value = record.B_Cart || 0;
             conveyance.value = record.B_Conv || 0;
@@ -200,13 +185,13 @@
         async function loadNextSno() {
             if (!snoInput) return;
             try {
-                const res = await fetch("http://localhost:5000/api/visits/next-sno");
+                // UPDATED: Removed http://localhost:5000
+                const res = await fetch("/api/visits/next-sno");
                 const data = await res.json();
                 if (res.ok) snoInput.value = data.nextSno;
             } catch (err) { console.error(err); }
         }
         
-        // GATHER DATA HELPER
         function getPayload() {
             return {
                 date: visitDate.value,
@@ -230,7 +215,8 @@
                 e.preventDefault();
                 saveBtn.disabled = true; saveBtn.innerText = "Saving...";
                 try {
-                    const res = await fetch("http://localhost:5000/api/visits", {
+                    // UPDATED: Removed http://localhost:5000
+                    const res = await fetch("/api/visits", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(getPayload())
@@ -251,7 +237,8 @@
 
                 updateBtn.disabled = true; updateBtn.innerText = "Updating...";
                 try {
-                    const res = await fetch(`http://localhost:5000/api/visits/${currentSno}`, {
+                    // UPDATED: Removed http://localhost:5000
+                    const res = await fetch(`/api/visits/${currentSno}`, {
                         method: "PUT",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(getPayload())
@@ -272,7 +259,8 @@
 
                 deleteBtn.disabled = true; deleteBtn.innerText = "Deleting...";
                 try {
-                    const res = await fetch(`http://localhost:5000/api/visits/${currentSno}`, {
+                    // UPDATED: Removed http://localhost:5000
+                    const res = await fetch(`/api/visits/${currentSno}`, {
                         method: "DELETE"
                     });
                     if (res.ok) { alert("Deleted successfully!"); resetForm(); }
@@ -284,9 +272,8 @@
 
         // INITIALIZATION
         loadNextSno(); 
-        toggleEditMode(false); // Force default state (Save only)
+        toggleEditMode(false);
         
-        // Initialize date to today if empty
         if(visitDate && !visitDate.value) {
              const now = new Date();
              const year = now.getFullYear();
