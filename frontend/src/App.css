@@ -14,7 +14,7 @@ body {
 
 .app {
   width: 100%;
-  max-width: 950px; /* Slightly wider to fit 3 items */
+  max-width: 950px;
 }
 
 .card {
@@ -37,11 +37,8 @@ body {
   box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
 }
 
-.header h1 {
-  margin: 0;
-  font-size: 1.6rem;
-  font-weight: 600;
-}
+.header h1 { margin: 0; font-size: 1.6rem; font-weight: 600; }
+.date { font-weight: 600; color: #e3f2fd; font-size: 1rem; }
 
 /* SECTIONS */
 .section {
@@ -63,7 +60,7 @@ h2, h3 {
 }
 
 /* =========================================
-   NEW FLEXBOX LAYOUT SYSTEM
+   STRICT ALIGNMENT LAYOUT
    ========================================= */
 
 .patient-data-box {
@@ -74,59 +71,70 @@ h2, h3 {
 
 .form-row {
   display: flex;
-  align-items: center; /* Critical: Centers label with input vertically */
-  gap: 20px;
+  align-items: center;
+  gap: 15px; /* Consistent gap between all elements */
   width: 100%;
 }
 
-/* Group: Label + Input */
+/* Common Input Group */
 .input-group {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
-/* Helper to make input group expand */
-.grow {
-  flex: 1;
-  width: 100%;
+/* LABELS */
+.input-group label, .form-row > label {
+  font-weight: 600;
+  color: #495057;
+  white-space: nowrap; /* Prevents "Patient's Name" from breaking */
 }
 
-.grow input {
+/* Specific Label Widths for alignment */
+.long-label {
+    min-width: 110px; /* Ensures Patient/Father names align */
+}
+
+/* COLUMN 1: LEFT (S.No) */
+.fixed-left {
+    width: 130px; /* Fixed width container */
+    flex-shrink: 0;
+}
+.fixed-left input {
     width: 100%;
 }
 
-/* Helper to keep group tight (S.No, Age) */
-.shrink {
-  flex: 0 0 auto;
+/* COLUMN 2: MIDDLE (Date) */
+.col-date {
+    margin-left: auto; /* Pushes Date towards center/right */
+    margin-right: auto;
 }
 
-/* Labels: Fixed width for consistent alignment */
-.input-group label, 
-.form-row > label {
-  font-weight: 600;
-  color: #495057;
-  white-space: nowrap; /* Prevent wrapping */
-  min-width: 60px; /* Base width */
+/* COLUMN 3: RIGHT (Gender & Age) - CRITICAL FOR ALIGNMENT */
+.fixed-right {
+    width: 160px; /* Exact same width for Gender and Age blocks */
+    flex-shrink: 0;
+    justify-content: flex-end; /* Aligns content to the right */
 }
 
-/* Specific Adjustments */
-.three-col-row .input-group {
+.fixed-right select, 
+.fixed-right input {
+    width: 100px; /* Fixed input width ensures perfect stacking */
+}
+
+/* Flexible Middle (Names) */
+.grow {
     flex: 1;
+    display: flex;
 }
-
-.mixed-row {
-    /* Patient Row Layout */
-}
-
-.small-input {
-  width: 70px !important;
-  text-align: right;
+.grow input {
+    width: 100%; /* Input takes all remaining space */
 }
 
 /* BUTTON */
 .nav-button {
-  padding: 8px 15px;
+  padding: 0 15px;
+  height: 38px;
   background: linear-gradient(to bottom, #28a745, #218838);
   border: 1px solid #1e7e34;
   color: white;
@@ -134,145 +142,87 @@ h2, h3 {
   cursor: pointer;
   font-weight: 600;
   white-space: nowrap;
-  height: 38px; /* Match Input Height */
+  display: flex;
+  align-items: center;
 }
 
 /* ADDRESS */
-.address-row {
-  align-items: flex-start; /* Label at top */
-}
-
-.address-box {
-  flex: 1;
-  height: 70px;
-  resize: vertical;
-}
+.address-row { align-items: flex-start; }
+.address-box { flex: 1; height: 70px; resize: vertical; }
 
 /* =========================================
    INPUT STYLES
    ========================================= */
 input, select, textarea {
-  padding: 8px 12px;
+  padding: 8px 10px;
   border: 1px solid #ced4da;
   background-color: #fcfcfc;
   border-radius: 5px;
   font-size: 14px;
   color: #495057;
-  height: 38px; /* Uniform Height */
+  height: 38px; /* Consistent Height */
 }
 
 input:focus, select:focus, textarea:focus {
-  outline: none;
-  border-color: #4facfe;
-  box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.25);
+  outline: none; border-color: #4facfe; box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.25);
 }
+input[readOnly] { background-color: #e9ecef; color: #6c757d; cursor: not-allowed; }
+.right-align { text-align: right; }
 
 /* =========================================
    BILLING GRID FIX
    ========================================= */
 .grid.billing {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, 1fr); /* 4 Equal Columns */
   gap: 20px;
-  align-items: end; /* Aligns inputs to bottom */
+  align-items: end;
+  width: 100%; /* Ensures grid uses full width */
 }
 
 .billing .field {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  min-width: 0; /* Prevents overflow in flex/grid items */
 }
 
-/* Grand Total Specific Fix */
+.billing input {
+    width: 100%; /* Forces input to stay inside grid cell */
+}
+
+/* Grand Total Specifics */
 .highlight input {
   background-color: #d4edda;
   border-color: #c3e6cb;
   color: #155724;
   font-weight: 700;
   font-size: 1.1rem;
-  height: 45px; /* Slightly taller for emphasis */
+  height: 45px;
 }
 
 /* =========================================
-   OTHER STYLES (Footer, Modal, Two-Col)
+   OTHER STYLES
    ========================================= */
-.two-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 25px;
-}
-
-.large-box {
-  width: 100%;
-  height: 90px;
-  resize: none;
-}
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+.large-box { width: 100%; height: 90px; resize: none; }
 
 .footer {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 25px;
-  padding-top: 20px;
-  border-top: 2px solid #e9ecef;
+  display: flex; justify-content: space-between; margin-top: 25px; padding-top: 20px; border-top: 2px solid #e9ecef;
 }
 
 button {
-  padding: 10px 22px;
-  margin-left: 12px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: 600;
-  background-color: #f8f9fa;
-  color: #495057;
-  border: 1px solid #ced4da;
+  padding: 10px 22px; margin-left: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; background-color: #f8f9fa; color: #495057; border: 1px solid #ced4da;
 }
-
-button.primary {
-  background: linear-gradient(to bottom, #007bff, #0069d9);
-  color: white;
-  border: 1px solid #0062cc;
-}
-
-button.danger {
-  background: linear-gradient(to bottom, #dc3545, #c82333);
-  color: white;
-  border: 1px solid #bd2130;
-  margin-left: 0;
-}
-
+button.primary { background: linear-gradient(to bottom, #007bff, #0069d9); color: white; border: 1px solid #0062cc; }
+button.danger { background: linear-gradient(to bottom, #dc3545, #c82333); color: white; border: 1px solid #bd2130; margin-left: 0; }
 .hidden { display: none; }
-.right-align { text-align: right; }
 
-/* Modal Styles */
-.modal-overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.6);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  backdrop-filter: blur(3px);
-}
-.modal-content {
-  background: white;
-  padding: 25px;
-  border-radius: 12px;
-  width: 650px;
-  max-width: 95%;
-}
-.modal-header {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 20px; border-bottom: 2px solid #e9ecef; padding-bottom: 10px;
-}
-.history-table {
-  width: 100%; border-collapse: separate; border-spacing: 0;
-  border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden;
-}
-.history-table th, .history-table td {
-  padding: 12px 15px; text-align: left; border-bottom: 1px solid #dee2e6;
-}
+/* Modal */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(3px); }
+.modal-content { background: white; padding: 25px; border-radius: 12px; width: 650px; max-width: 95%; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #e9ecef; padding-bottom: 10px; }
+.history-table { width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; }
+.history-table th, .history-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #dee2e6; }
 .history-table th { background-color: #e3f2fd; color: #0056b3; font-weight: 600; }
 .close-modal { font-size: 28px; cursor: pointer; border: none; background: none; color: #adb5bd; }

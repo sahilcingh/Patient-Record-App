@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import "./App.css";
 
 function App() {
-  // Load app.js ONCE
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "/app.js";
@@ -28,23 +27,26 @@ function App() {
           <section className="section patient-data-box">
             
             {/* ROW 1: S.No | Date | Gender */}
-            <div className="form-row three-col-row">
-              <div className="input-group shrink">
+            <div className="form-row">
+              {/* S.No - Fixed Width Left */}
+              <div className="input-group fixed-left">
                 <label>S.No.</label>
                 <input 
                   type="text" 
                   id="sno" 
                   readOnly 
-                  className="right-align small-input" 
+                  className="right-align" 
                 />
               </div>
 
-              <div className="input-group">
+              {/* Date - Centered / Flexible */}
+              <div className="input-group col-date">
                 <label>Date</label>
                 <input type="date" id="visitDate" />
               </div>
 
-              <div className="input-group">
+              {/* Gender - Fixed Width Right (Aligns with Age) */}
+              <div className="input-group fixed-right">
                 <label>Gender</label>
                 <select id="sex" required>
                   <option value="">Select</option>
@@ -55,9 +57,10 @@ function App() {
             </div>
 
             {/* ROW 2: Patient Name | OLD Record | Age */}
-            <div className="form-row mixed-row">
+            <div className="form-row">
+              {/* Patient Name - Grows to fill space */}
               <div className="input-group grow">
-                <label>Patient's Name</label>
+                <label className="long-label">Patient's Name</label>
                 <input
                   type="text"
                   id="patientNameInput"
@@ -66,18 +69,20 @@ function App() {
                 />
               </div>
               
+              {/* Old Record Button - Fixed Size */}
               <button type="button" id="oldRecordBtn" className="nav-button">
                 OLD Record
               </button>
 
-              <div className="input-group shrink">
+              {/* Age - Fixed Width Right (Aligns with Gender) */}
+              <div className="input-group fixed-right">
                 <label>Age</label>
                 <input 
                   type="number" 
                   id="age" 
                   required 
                   min="0" 
-                  className="right-align small-input" 
+                  className="right-align" 
                 />
               </div>
             </div>
@@ -85,7 +90,7 @@ function App() {
             {/* ROW 3: Father's Name */}
             <div className="form-row">
               <div className="input-group grow">
-                <label>Father's Name</label>
+                <label className="long-label">Father's Name</label>
                 <input 
                   type="text" 
                   id="fatherNameInput" 
@@ -101,7 +106,6 @@ function App() {
             </div>
 
           </section>
-
 
           {/* ================= COMPLAINT / MEDICINE ================= */}
           <div className="section two-col">
@@ -135,7 +139,6 @@ function App() {
                 <input type="number" id="conveyance" defaultValue="0" className="right-align" />
               </div>
 
-              {/* Fixed Grand Total Block */}
               <div className="field highlight">
                 <label>Grand Total</label>
                 <input type="number" id="grandTotal" defaultValue="0" readOnly className="right-align" />
@@ -182,7 +185,6 @@ function App() {
           </div>
         </div>
       </div>
-
     </div>
   );
 }
