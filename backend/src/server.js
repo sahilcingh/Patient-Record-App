@@ -9,7 +9,7 @@ const app = express();
 
 // CORS: Allow connections from anywhere (including Vercel)
 app.use(cors({
-    origin: "*", 
+    origin: "https://patient-record-app.vercel.app/", 
     credentials: true
 }));
 
