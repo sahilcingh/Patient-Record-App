@@ -9,7 +9,7 @@
     // ⚠️ REPLACE 'YOUR-APP-NAME' BELOW WITH YOUR ACTUAL RENDER URL AFTER DEPLOYING BACKEND ⚠️
     const API_BASE_URL = isLocal 
         ? "http://localhost:5000" 
-        : "https://YOUR-APP-NAME.onrender.com"; 
+        : "https://patient-record-app-drly.onrender.com"; 
 
     const getEl = (id) => document.getElementById(id);
 
