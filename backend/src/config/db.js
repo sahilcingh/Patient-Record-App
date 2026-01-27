@@ -9,7 +9,7 @@ const config = {
   server: process.env.DB_SERVER,
   database: process.env.DB_NAME,
   options: {
-    encrypt: true,          // for cloud (Azure / RDS)
+    encrypt: true,          // REQUIRED for AWS RDS
     trustServerCertificate: true
   }
 };
