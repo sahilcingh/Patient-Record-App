@@ -5,7 +5,7 @@
 
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #eef2f7; /* Lighter, cooler background */
+  background-color: #eef2f7;
   margin: 0;
   display: flex;
   justify-content: center;
@@ -14,7 +14,7 @@ body {
 
 .app {
   width: 100%;
-  max-width: 900px;
+  max-width: 950px; /* Slightly wider to fit 3 items */
 }
 
 .card {
@@ -22,7 +22,6 @@ body {
   padding: 25px;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  border: none; /* Removed border for a cleaner look */
 }
 
 /* HEADER */
@@ -30,7 +29,6 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  /* Colorful gradient background for the header */
   background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
   padding: 15px 20px;
   border-radius: 8px;
@@ -43,30 +41,19 @@ body {
   margin: 0;
   font-size: 1.6rem;
   font-weight: 600;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-
-.date {
-  font-weight: 600;
-  color: #e3f2fd; /* Lighter blue for date */
-  font-size: 1rem;
 }
 
 /* SECTIONS */
 .section {
   margin-bottom: 25px;
   padding: 20px;
-  /* Clean white background for sections */
   background-color: #ffffff;
   border-radius: 10px;
-  /* Subtle colored border instead of gray */
   border: 1px solid #cce5ff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
 }
 
 h2, h3 {
   margin-top: 0;
-  /* Primary blue color for headers */
   color: #0056b3;
   font-size: 1.2rem;
   margin-bottom: 20px;
@@ -76,57 +63,70 @@ h2, h3 {
 }
 
 /* =========================================
-   LAYOUT STYLES (UNCHANGED FROM BEFORE)
+   NEW FLEXBOX LAYOUT SYSTEM
    ========================================= */
 
 .patient-data-box {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 20px;
 }
 
 .form-row {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  align-items: center; /* Critical: Centers label with input vertically */
+  gap: 20px;
+  width: 100%;
 }
 
+/* Group: Label + Input */
 .input-group {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.left-group {
-  flex: 1; 
-  margin-right: 25px;
+/* Helper to make input group expand */
+.grow {
+  flex: 1;
+  width: 100%;
 }
 
-.right-group {
-  min-width: 210px;
-  justify-content: flex-end;
+.grow input {
+    width: 100%;
 }
 
+/* Helper to keep group tight (S.No, Age) */
+.shrink {
+  flex: 0 0 auto;
+}
+
+/* Labels: Fixed width for consistent alignment */
 .input-group label, 
 .form-row > label {
-  width: 75px;
   font-weight: 600;
-  color: #495057; /* Slightly darker gray for better contrast */
-  text-align: left;
+  color: #495057;
+  white-space: nowrap; /* Prevent wrapping */
+  min-width: 60px; /* Base width */
+}
+
+/* Specific Adjustments */
+.three-col-row .input-group {
+    flex: 1;
+}
+
+.mixed-row {
+    /* Patient Row Layout */
 }
 
 .small-input {
-  width: 65px !important;
+  width: 70px !important;
+  text-align: right;
 }
 
-.wide-input {
-  flex: 1;
-}
-
-/* OLD Record Button - Colorful! */
+/* BUTTON */
 .nav-button {
-  padding: 8px 14px;
-  /* Vibrant green gradient */
+  padding: 8px 15px;
   background: linear-gradient(to bottom, #28a745, #218838);
   border: 1px solid #1e7e34;
   color: white;
@@ -134,63 +134,68 @@ h2, h3 {
   cursor: pointer;
   font-weight: 600;
   white-space: nowrap;
-  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
-  transition: all 0.2s ease-in-out;
+  height: 38px; /* Match Input Height */
 }
 
-.nav-button:hover {
-  background: linear-gradient(to bottom, #218838, #1e7e34);
-  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
-  transform: translateY(-1px);
-}
-
+/* ADDRESS */
 .address-row {
-  align-items: flex-start;
+  align-items: flex-start; /* Label at top */
 }
 
 .address-box {
   flex: 1;
-  height: 65px;
+  height: 70px;
   resize: vertical;
 }
 
-.right-align {
-  text-align: right;
-}
-
 /* =========================================
-   INPUTS & BUTTONS (COLORFUL UPDATES)
+   INPUT STYLES
    ========================================= */
-
-/* Common Inputs */
 input, select, textarea {
-  padding: 8px 10px;
-  /* Lighter border with a hint of blue */
+  padding: 8px 12px;
   border: 1px solid #ced4da;
   background-color: #fcfcfc;
   border-radius: 5px;
   font-size: 14px;
   color: #495057;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  height: 38px; /* Uniform Height */
 }
 
 input:focus, select:focus, textarea:focus {
   outline: none;
-  /* Brighter blue focus border */
   border-color: #4facfe;
-  background-color: #ffffff;
-  /* Subtle blue glow */
   box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.25);
 }
 
-/* Read-only inputs */
-input[readOnly] {
-  background-color: #e9ecef;
-  color: #6c757d;
-  cursor: not-allowed;
+/* =========================================
+   BILLING GRID FIX
+   ========================================= */
+.grid.billing {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  align-items: end; /* Aligns inputs to bottom */
 }
 
-/* Two Column Layout */
+.billing .field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Grand Total Specific Fix */
+.highlight input {
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+  color: #155724;
+  font-weight: 700;
+  font-size: 1.1rem;
+  height: 45px; /* Slightly taller for emphasis */
+}
+
+/* =========================================
+   OTHER STYLES (Footer, Modal, Two-Col)
+   ========================================= */
 .two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -203,36 +208,6 @@ input[readOnly] {
   resize: none;
 }
 
-/* Billing Grid */
-.grid.billing {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
-}
-
-.billing .field {
-  display: flex;
-  flex-direction: column;
-  gap: 8px; /* Space between label and input */
-}
-
-.billing .field label {
-    font-weight: 600;
-    color: #555;
-}
-
-/* Colorful Highlight for Grand Total */
-.highlight input {
-  /* Light green background */
-  background-color: #d4edda;
-  /* Darker green border */
-  border-color: #c3e6cb;
-  color: #155724;
-  font-weight: 700;
-  font-size: 1.1rem;
-}
-
-/* Footer */
 .footer {
   display: flex;
   justify-content: space-between;
@@ -247,137 +222,57 @@ button {
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 14px;
   font-weight: 600;
-  transition: all 0.2s ease;
-  /* Default secondary button style */
   background-color: #f8f9fa;
   color: #495057;
   border: 1px solid #ced4da;
 }
 
-button:hover {
-    background-color: #e2e6ea;
-    border-color: #dae0e5;
-}
-
-/* Primary Buttons (Save/Update) - Vibrant Blue */
 button.primary {
   background: linear-gradient(to bottom, #007bff, #0069d9);
   color: white;
   border: 1px solid #0062cc;
-  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
 }
 
-button.primary:hover {
-  background: linear-gradient(to bottom, #0069d9, #005cbf);
-  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
-  transform: translateY(-1px);
-}
-
-/* Danger Button (Delete) - Vibrant Red */
 button.danger {
   background: linear-gradient(to bottom, #dc3545, #c82333);
   color: white;
   border: 1px solid #bd2130;
   margin-left: 0;
-  box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
 }
 
-button.danger:hover {
-  background: linear-gradient(to bottom, #c82333, #bd2130);
-  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
-  transform: translateY(-1px);
-}
+.hidden { display: none; }
+.right-align { text-align: right; }
 
-.hidden {
-  display: none;
-}
-
-/* Modal - Cleaner look */
+/* Modal Styles */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0;
   width: 100%; height: 100%;
-  background: rgba(0,0,0,0.6); /* Darker overlay */
+  background: rgba(0,0,0,0.6);
   display: none;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  backdrop-filter: blur(3px); /* Subtle blur effect */
+  backdrop-filter: blur(3px);
 }
-
 .modal-content {
   background: white;
   padding: 25px;
   border-radius: 12px;
   width: 650px;
   max-width: 95%;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
-
 .modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  border-bottom: 2px solid #e9ecef;
-  padding-bottom: 10px;
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px; border-bottom: 2px solid #e9ecef; padding-bottom: 10px;
 }
-
-.modal-header h3 {
-    margin: 0;
-    border: none;
-    padding: 0;
-    color: #0056b3;
-}
-
-.close-modal {
-  background: none;
-  font-size: 28px;
-  cursor: pointer;
-  padding: 0;
-  color: #adb5bd;
-  transition: color 0.2s;
-  border: none;
-}
-
-.close-modal:hover {
-    color: #495057;
-    background: none;
-}
-
 .history-table {
-  width: 100%;
-  border-collapse: separate; /* Changed for border radius */
-  border-spacing: 0;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  overflow: hidden;
+  width: 100%; border-collapse: separate; border-spacing: 0;
+  border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden;
 }
-
 .history-table th, .history-table td {
-  padding: 12px 15px;
-  text-align: left;
-  border-bottom: 1px solid #dee2e6;
+  padding: 12px 15px; text-align: left; border-bottom: 1px solid #dee2e6;
 }
-
-.history-table th {
-  /* Colorful header for the table */
-  background-color: #e3f2fd;
-  color: #0056b3;
-  font-weight: 600;
-}
-
-.history-table tr:last-child td {
-    border-bottom: none;
-}
-
-/* Alternate row colors */
-.history-table tbody tr:nth-child(even) {
-    background-color: #f8f9fa;
-}
-
-.history-table tbody tr:hover {
-    background-color: #f1f3f5;
-}
+.history-table th { background-color: #e3f2fd; color: #0056b3; font-weight: 600; }
+.close-modal { font-size: 28px; cursor: pointer; border: none; background: none; color: #adb5bd; }

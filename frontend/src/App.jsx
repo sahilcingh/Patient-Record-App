@@ -2,14 +2,12 @@ import { useEffect } from "react";
 import "./App.css";
 
 function App() {
-
-  // Load app.js ONCE (imperative logic)
+  // Load app.js ONCE
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "/app.js";
     script.defer = true;
     document.body.appendChild(script);
-
     return () => {
       document.body.removeChild(script);
     };
@@ -26,12 +24,12 @@ function App() {
 
         <form id="patientForm">
 
-          {/* ================= BASIC INFO (UPDATED LAYOUT) ================= */}
+          {/* ================= BASIC INFO ================= */}
           <section className="section patient-data-box">
             
-            {/* Row 1: S.No (Left) -- Date (Right) */}
-            <div className="form-row">
-              <div className="input-group left-group">
+            {/* ROW 1: S.No | Date | Gender */}
+            <div className="form-row three-col-row">
+              <div className="input-group shrink">
                 <label>S.No.</label>
                 <input 
                   type="text" 
@@ -40,29 +38,14 @@ function App() {
                   className="right-align small-input" 
                 />
               </div>
-              <div className="input-group right-group">
+
+              <div className="input-group">
                 <label>Date</label>
                 <input type="date" id="visitDate" />
               </div>
-            </div>
 
-            {/* Row 2: Patient + Button (Left) -- Sex (Right) */}
-            <div className="form-row">
-              <div className="input-group left-group">
-                <label>Patient</label>
-                <input
-                  type="text"
-                  id="patientNameInput"
-                  name="patientName"
-                  className="wide-input"
-                  required
-                />
-                <button type="button" id="oldRecordBtn" className="nav-button">
-                  OLD Record
-                </button>
-              </div>
-              <div className="input-group right-group">
-                <label>Sex</label>
+              <div className="input-group">
+                <label>Gender</label>
                 <select id="sex" required>
                   <option value="">Select</option>
                   <option>Male</option>
@@ -71,18 +54,23 @@ function App() {
               </div>
             </div>
 
-            {/* Row 3: Father (Left) -- Age (Right) */}
-            <div className="form-row">
-              <div className="input-group left-group">
-                <label>Father</label>
-                <input 
-                  type="text" 
-                  id="fatherNameInput" 
-                  name="fatherName" 
-                  className="wide-input"
+            {/* ROW 2: Patient Name | OLD Record | Age */}
+            <div className="form-row mixed-row">
+              <div className="input-group grow">
+                <label>Patient's Name</label>
+                <input
+                  type="text"
+                  id="patientNameInput"
+                  name="patientName"
+                  required
                 />
               </div>
-              <div className="input-group right-group">
+              
+              <button type="button" id="oldRecordBtn" className="nav-button">
+                OLD Record
+              </button>
+
+              <div className="input-group shrink">
                 <label>Age</label>
                 <input 
                   type="number" 
@@ -94,7 +82,19 @@ function App() {
               </div>
             </div>
 
-            {/* Row 4: Address (Full Width) */}
+            {/* ROW 3: Father's Name */}
+            <div className="form-row">
+              <div className="input-group grow">
+                <label>Father's Name</label>
+                <input 
+                  type="text" 
+                  id="fatherNameInput" 
+                  name="fatherName" 
+                />
+              </div>
+            </div>
+
+            {/* ROW 4: Address */}
             <div className="form-row address-row">
               <label>Address</label>
               <textarea id="address" className="address-box" required />
@@ -135,6 +135,7 @@ function App() {
                 <input type="number" id="conveyance" defaultValue="0" className="right-align" />
               </div>
 
+              {/* Fixed Grand Total Block */}
               <div className="field highlight">
                 <label>Grand Total</label>
                 <input type="number" id="grandTotal" defaultValue="0" readOnly className="right-align" />
