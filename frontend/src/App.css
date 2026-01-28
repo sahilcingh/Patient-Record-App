@@ -72,11 +72,10 @@ h2, h3 {
 .form-row {
   display: flex;
   align-items: center;
-  gap: 15px; /* Consistent gap between all elements */
+  gap: 15px;
   width: 100%;
 }
 
-/* Common Input Group */
 .input-group {
   display: flex;
   align-items: center;
@@ -87,17 +86,20 @@ h2, h3 {
 .input-group label, .form-row > label {
   font-weight: 600;
   color: #495057;
-  white-space: nowrap; /* Prevents "Patient's Name" from breaking */
+  white-space: nowrap;
 }
 
-/* Specific Label Widths for alignment */
-.long-label {
-    min-width: 110px; /* Ensures Patient/Father names align */
+/* NEW: Force these labels to be the exact same width 
+  so the Input boxes start at the exact same vertical line 
+*/
+.aligned-label {
+    min-width: 130px; 
+    display: inline-block;
 }
 
 /* COLUMN 1: LEFT (S.No) */
 .fixed-left {
-    width: 130px; /* Fixed width container */
+    width: 130px; 
     flex-shrink: 0;
 }
 .fixed-left input {
@@ -106,20 +108,20 @@ h2, h3 {
 
 /* COLUMN 2: MIDDLE (Date) */
 .col-date {
-    margin-left: auto; /* Pushes Date towards center/right */
+    margin-left: auto; 
     margin-right: auto;
 }
 
-/* COLUMN 3: RIGHT (Gender & Age) - CRITICAL FOR ALIGNMENT */
+/* COLUMN 3: RIGHT (Gender & Age) */
 .fixed-right {
-    width: 160px; /* Exact same width for Gender and Age blocks */
+    width: 160px;
     flex-shrink: 0;
-    justify-content: flex-end; /* Aligns content to the right */
+    justify-content: flex-end;
 }
 
 .fixed-right select, 
 .fixed-right input {
-    width: 100px; /* Fixed input width ensures perfect stacking */
+    width: 100px;
 }
 
 /* Flexible Middle (Names) */
@@ -128,7 +130,7 @@ h2, h3 {
     display: flex;
 }
 .grow input {
-    width: 100%; /* Input takes all remaining space */
+    width: 100%;
 }
 
 /* BUTTON */
@@ -147,8 +149,16 @@ h2, h3 {
 }
 
 /* ADDRESS */
-.address-row { align-items: flex-start; }
-.address-box { flex: 1; height: 70px; resize: vertical; }
+.address-row { 
+    align-items: flex-start; /* Label at top */
+    /* Ensure address box stretches full width minus label */
+    display: flex; 
+}
+.address-box { 
+    flex: 1; 
+    height: 70px; 
+    resize: vertical; 
+}
 
 /* =========================================
    INPUT STYLES
@@ -160,7 +170,7 @@ input, select, textarea {
   border-radius: 5px;
   font-size: 14px;
   color: #495057;
-  height: 38px; /* Consistent Height */
+  height: 38px;
 }
 
 input:focus, select:focus, textarea:focus {
@@ -170,28 +180,25 @@ input[readOnly] { background-color: #e9ecef; color: #6c757d; cursor: not-allowed
 .right-align { text-align: right; }
 
 /* =========================================
-   BILLING GRID FIX
+   BILLING GRID
    ========================================= */
 .grid.billing {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 4 Equal Columns */
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   align-items: end;
-  width: 100%; /* Ensures grid uses full width */
+  width: 100%;
 }
 
 .billing .field {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-width: 0; /* Prevents overflow in flex/grid items */
+  min-width: 0;
 }
 
-.billing input {
-    width: 100%; /* Forces input to stay inside grid cell */
-}
+.billing input { width: 100%; }
 
-/* Grand Total Specifics */
 .highlight input {
   background-color: #d4edda;
   border-color: #c3e6cb;

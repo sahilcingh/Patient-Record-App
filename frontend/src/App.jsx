@@ -28,7 +28,7 @@ function App() {
             
             {/* ROW 1: S.No | Date | Gender */}
             <div className="form-row">
-              {/* S.No - Fixed Width Left */}
+              {/* S.No */}
               <div className="input-group fixed-left">
                 <label>S.No.</label>
                 <input 
@@ -39,13 +39,13 @@ function App() {
                 />
               </div>
 
-              {/* Date - Centered / Flexible */}
+              {/* Date */}
               <div className="input-group col-date">
                 <label>Date</label>
                 <input type="date" id="visitDate" />
               </div>
 
-              {/* Gender - Fixed Width Right (Aligns with Age) */}
+              {/* Gender */}
               <div className="input-group fixed-right">
                 <label>Gender</label>
                 <select id="sex" required>
@@ -58,9 +58,9 @@ function App() {
 
             {/* ROW 2: Patient Name | OLD Record | Age */}
             <div className="form-row">
-              {/* Patient Name - Grows to fill space */}
+              {/* Patient Name - Added aligned-label */}
               <div className="input-group grow">
-                <label className="long-label">Patient's Name</label>
+                <label className="aligned-label">Patient's Name</label>
                 <input
                   type="text"
                   id="patientNameInput"
@@ -69,12 +69,10 @@ function App() {
                 />
               </div>
               
-              {/* Old Record Button - Fixed Size */}
               <button type="button" id="oldRecordBtn" className="nav-button">
                 OLD Record
               </button>
 
-              {/* Age - Fixed Width Right (Aligns with Gender) */}
               <div className="input-group fixed-right">
                 <label>Age</label>
                 <input 
@@ -89,8 +87,9 @@ function App() {
 
             {/* ROW 3: Father's Name */}
             <div className="form-row">
+              {/* Father Name - Added aligned-label */}
               <div className="input-group grow">
-                <label className="long-label">Father's Name</label>
+                <label className="aligned-label">Father's Name</label>
                 <input 
                   type="text" 
                   id="fatherNameInput" 
@@ -101,7 +100,8 @@ function App() {
 
             {/* ROW 4: Address */}
             <div className="form-row address-row">
-              <label>Address</label>
+              {/* Address - Added aligned-label */}
+              <label className="aligned-label">Address</label>
               <textarea id="address" className="address-box" required />
             </div>
 
