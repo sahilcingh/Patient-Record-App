@@ -3,15 +3,17 @@
   box-sizing: border-box;
 }
 
+/* =========================================
+   DESKTOP DEFAULT (FIXED SCREEN, NO SCROLL)
+   ========================================= */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #eef2f7;
   margin: 0;
   padding: 0;
-  /* DESKTOP DEFAULT: Fixed Screen, No Scroll */
-  height: 100vh;
+  height: 100vh; /* Fixed height */
   width: 100vw;
-  overflow: hidden; 
+  overflow: hidden; /* No scroll on desktop */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -29,7 +31,7 @@ body {
   padding: 1.5vh 2vw;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  height: 98vh; 
+  height: 98vh; /* Fixed height card */
   display: flex;
   flex-direction: column;
 }
@@ -226,28 +228,33 @@ button.danger { background: linear-gradient(to bottom, #dc3545, #c82333); color:
 .hidden { display: none; }
 
 /* =========================================
-   MOBILE RESPONSIVENESS FIXES
+   MOBILE RESPONSIVENESS (SCROLLABLE FIX)
    ========================================= */
 @media (max-width: 768px) {
-  /* 1. ENABLE SCROLLING ON MOBILE */
-  body {
-    display: block; /* Remove center flex */
-    height: auto;
-    min-height: 100vh;
-    overflow-y: auto;
-    padding: 10px;
+  /* 1. ALLOW SCROLLING ON MOBILE */
+  html, body {
+    height: auto !important; /* Allow growing */
+    overflow-y: auto !important; /* Enable Scroll */
+    display: block;
+    padding: 5px;
   }
 
   .app {
+    height: auto !important;
     padding: 0;
-    height: auto;
+    /* Add extra padding at bottom so footer isn't hidden by browser nav bar */
+    padding-bottom: 50px; 
   }
 
+  /* 2. ALLOW CARD TO GROW */
   .card {
-    height: auto;
+    height: auto !important;
+    min-height: 100vh;
     overflow: visible;
+    padding: 15px;
   }
 
+  /* 3. RESET FORM LAYOUT */
   #patientForm {
     overflow: visible;
     gap: 15px;
@@ -257,23 +264,23 @@ button.danger { background: linear-gradient(to bottom, #dc3545, #c82333); color:
     padding: 15px;
   }
 
-  /* 2. STACK INPUTS VERTICALLY */
+  /* 4. STACK ELEMENTS */
   .form-row {
     flex-direction: column;
     align-items: stretch;
     gap: 15px;
   }
 
-  /* 3. RESET WIDTHS TO FILL SCREEN */
-  .input-group,
-  .fixed-left,
-  .fixed-right,
-  .col-date,
+  .input-group, 
+  .fixed-left, 
+  .fixed-right, 
+  .col-date, 
   .grow {
     width: 100% !important;
+    margin: 0;
   }
 
-  /* 4. LABELS ABOVE INPUTS */
+  /* Labels above inputs */
   .input-group {
     flex-direction: column;
     align-items: flex-start;
@@ -285,42 +292,26 @@ button.danger { background: linear-gradient(to bottom, #dc3545, #c82333); color:
     min-width: auto;
   }
 
-  /* 5. MAKE INPUTS EASIER TO TAP */
   input, select, textarea {
     width: 100%;
-    height: 45px; /* Taller touch target */
+    height: 45px;
   }
 
-  .address-box {
-      height: 80px;
-  }
+  .address-box { height: 80px; }
+  .right-align { text-align: left; }
 
-  .right-align {
-    text-align: left;
-  }
+  /* Buttons */
+  .nav-button { width: 100%; justify-content: center; margin-top: 5px; }
 
-  /* 6. OLD RECORD BUTTON */
-  .nav-button {
-    width: 100%;
-    justify-content: center;
-    margin-top: 5px;
-  }
+  .grid.billing { grid-template-columns: 1fr 1fr; }
+  .two-col { grid-template-columns: 1fr; }
 
-  /* 7. BILLING GRID - 2 Columns */
-  .grid.billing {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  /* 8. COMPLAINT/MEDICINE - 1 Column */
-  .two-col {
-    grid-template-columns: 1fr;
-  }
-
-  /* 9. FOOTER - Stack Buttons */
+  /* 5. FOOTER VISIBILITY */
   .footer {
     flex-direction: column;
     gap: 15px;
     height: auto;
+    margin-top: 20px;
   }
   
   .footer > div {
@@ -333,6 +324,6 @@ button.danger { background: linear-gradient(to bottom, #dc3545, #c82333); color:
   button {
     margin-left: 0;
     width: 100%;
-    padding: 12px; /* Bigger buttons */
+    padding: 12px;
   }
 }
