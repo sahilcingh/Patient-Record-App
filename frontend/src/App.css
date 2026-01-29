@@ -7,66 +7,87 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #eef2f7;
   margin: 0;
+  padding: 0;
+  /* FORCE FULL SCREEN - NO SCROLLING */
+  height: 100vh; 
+  width: 100vw;
+  overflow: hidden; 
   display: flex;
   justify-content: center;
-  padding: 20px;
+  align-items: center;
 }
 
 .app {
   width: 100%;
-  max-width: 950px;
+  max-width: 1100px; /* Slightly wider to fit content comfortably */
+  height: 100%;
+  padding: 1vh; /* Tiny padding around the edge */
 }
 
 .card {
   background: #ffffff;
-  padding: 25px;
+  padding: 1.5vh 2vw; /* Dynamic padding based on viewport */
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  /* Card takes full height available */
+  height: 98vh; 
+  display: flex;
+  flex-direction: column;
 }
 
-/* HEADER */
+/* HEADER - Fixed Height */
 .header {
+  flex: 0 0 auto; /* Don't grow or shrink */
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
-  padding: 15px 20px;
+  padding: 1vh 20px;
   border-radius: 8px;
-  margin-bottom: 25px;
+  margin-bottom: 1.5vh;
   color: white;
   box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
 }
 
-.header h1 { margin: 0; font-size: 1.6rem; font-weight: 600; }
-.date { font-weight: 600; color: #e3f2fd; font-size: 1rem; }
+.header h1 { margin: 0; font-size: 1.5rem; font-weight: 600; }
+.date { font-weight: 600; color: #e3f2fd; font-size: 0.9rem; }
 
-/* SECTIONS */
+/* FORM CONTAINER - Flex to fill space */
+#patientForm {
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Take all remaining height */
+  justify-content: space-between; /* Space out sections evenly */
+  overflow: hidden; /* Prevent internal scrolling */
+}
+
+/* SECTIONS - Flexible Height */
 .section {
-  margin-bottom: 25px;
-  padding: 20px;
+  padding: 1.5vh;
   background-color: #ffffff;
   border-radius: 10px;
   border: 1px solid #cce5ff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 h2, h3 {
   margin-top: 0;
   color: #0056b3;
-  font-size: 1.2rem;
-  margin-bottom: 20px;
+  font-size: 1.1rem;
+  margin-bottom: 1vh;
   border-bottom: 2px solid #e6f2ff;
-  padding-bottom: 8px;
+  padding-bottom: 0.5vh;
   font-weight: 600;
 }
 
 /* =========================================
-   STRICT ALIGNMENT LAYOUT
+   SECTION 1: PATIENT DATA (Fixed Height usually, but flex just in case)
    ========================================= */
-
 .patient-data-box {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  flex: 0 0 auto; /* Keep this compact */
+  gap: 1vh;
 }
 
 .form-row {
@@ -87,56 +108,23 @@ h2, h3 {
   font-weight: 600;
   color: #495057;
   white-space: nowrap;
+  font-size: 0.9rem;
 }
 
-/* NEW: Force these labels to be the exact same width 
-  so the Input boxes start at the exact same vertical line 
-*/
-.aligned-label {
-    min-width: 130px; 
-    display: inline-block;
-}
-
-/* COLUMN 1: LEFT (S.No) */
-.fixed-left {
-    width: 130px; 
-    flex-shrink: 0;
-}
-.fixed-left input {
-    width: 100%;
-}
-
-/* COLUMN 2: MIDDLE (Date) */
-.col-date {
-    margin-left: auto; 
-    margin-right: auto;
-}
-
-/* COLUMN 3: RIGHT (Gender & Age) */
-.fixed-right {
-    width: 160px;
-    flex-shrink: 0;
-    justify-content: flex-end;
-}
-
-.fixed-right select, 
-.fixed-right input {
-    width: 100px;
-}
-
-/* Flexible Middle (Names) */
-.grow {
-    flex: 1;
-    display: flex;
-}
-.grow input {
-    width: 100%;
-}
+/* Strict Alignment Classes */
+.aligned-label { min-width: 120px; display: inline-block; }
+.fixed-left { width: 120px; flex-shrink: 0; }
+.fixed-left input { width: 100%; }
+.col-date { margin-left: auto; margin-right: auto; }
+.fixed-right { width: 160px; flex-shrink: 0; justify-content: flex-end; }
+.fixed-right select, .fixed-right input { width: 100px; }
+.grow { flex: 1; display: flex; }
+.grow input { width: 100%; }
 
 /* BUTTON */
 .nav-button {
   padding: 0 15px;
-  height: 38px;
+  height: 35px; /* Slightly smaller to fit screen */
   background: linear-gradient(to bottom, #28a745, #218838);
   border: 1px solid #1e7e34;
   color: white;
@@ -148,40 +136,50 @@ h2, h3 {
   align-items: center;
 }
 
-/* ADDRESS */
+/* ADDRESS - Needs to Flex */
 .address-row { 
-    align-items: flex-start; /* Label at top */
-    /* Ensure address box stretches full width minus label */
     display: flex; 
+    align-items: flex-start;
+    flex: 1; /* Grow to fill section */
 }
 .address-box { 
     flex: 1; 
-    height: 70px; 
-    resize: vertical; 
+    height: 5vh; /* Dynamic height */
+    min-height: 30px;
+    resize: none; 
 }
 
 /* =========================================
-   INPUT STYLES
+   SECTION 2: COMPLAINT/MEDICINE (Must Flex the most)
    ========================================= */
-input, select, textarea {
-  padding: 8px 10px;
-  border: 1px solid #ced4da;
-  background-color: #fcfcfc;
-  border-radius: 5px;
-  font-size: 14px;
-  color: #495057;
-  height: 38px;
+.two-col { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 20px; 
+    flex: 1; /* This section grows to fill blank space */
+    min-height: 0; /* Allow shrinking */
 }
 
-input:focus, select:focus, textarea:focus {
-  outline: none; border-color: #4facfe; box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.25);
+.two-col > div {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
-input[readOnly] { background-color: #e9ecef; color: #6c757d; cursor: not-allowed; }
-.right-align { text-align: right; }
+
+.large-box { 
+    width: 100%; 
+    flex: 1; /* Take all available height in this section */
+    resize: none; 
+    min-height: 40px; /* Prevent total collapse */
+}
 
 /* =========================================
-   BILLING GRID
+   SECTION 3: BILLING
    ========================================= */
+.billing-section {
+    flex: 0 0 auto; /* Keep compact */
+}
+
 .grid.billing {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -193,11 +191,8 @@ input[readOnly] { background-color: #e9ecef; color: #6c757d; cursor: not-allowed
 .billing .field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  min-width: 0;
+  gap: 0.5vh;
 }
-
-.billing input { width: 100%; }
 
 .highlight input {
   background-color: #d4edda;
@@ -205,27 +200,48 @@ input[readOnly] { background-color: #e9ecef; color: #6c757d; cursor: not-allowed
   color: #155724;
   font-weight: 700;
   font-size: 1.1rem;
-  height: 45px;
+  height: 40px;
 }
 
 /* =========================================
-   OTHER STYLES
+   INPUT STYLES
    ========================================= */
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
-.large-box { width: 100%; height: 90px; resize: none; }
+input, select, textarea {
+  padding: 5px 10px;
+  border: 1px solid #ced4da;
+  background-color: #fcfcfc;
+  border-radius: 5px;
+  font-size: 14px;
+  color: #495057;
+  height: 35px; /* Compact height */
+}
 
+input:focus, select:focus, textarea:focus {
+  outline: none; border-color: #4facfe; box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.25);
+}
+input[readOnly] { background-color: #e9ecef; color: #6c757d; cursor: not-allowed; }
+.right-align { text-align: right; }
+
+/* =========================================
+   FOOTER
+   ========================================= */
 .footer {
-  display: flex; justify-content: space-between; margin-top: 25px; padding-top: 20px; border-top: 2px solid #e9ecef;
+  flex: 0 0 auto; /* Don't grow */
+  display: flex; 
+  justify-content: space-between; 
+  margin-top: 1vh; 
+  padding-top: 1vh; 
+  border-top: 2px solid #e9ecef;
 }
 
 button {
-  padding: 10px 22px; margin-left: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; background-color: #f8f9fa; color: #495057; border: 1px solid #ced4da;
+  padding: 8px 20px; margin-left: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; background-color: #f8f9fa; color: #495057; border: 1px solid #ced4da;
 }
 button.primary { background: linear-gradient(to bottom, #007bff, #0069d9); color: white; border: 1px solid #0062cc; }
 button.danger { background: linear-gradient(to bottom, #dc3545, #c82333); color: white; border: 1px solid #bd2130; margin-left: 0; }
 .hidden { display: none; }
 
-/* Modal */
+/* MODAL (Unchanged) */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(3px); }
 .modal-content { background: white; padding: 25px; border-radius: 12px; width: 650px; max-width: 95%; }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #e9ecef; padding-bottom: 10px; }
