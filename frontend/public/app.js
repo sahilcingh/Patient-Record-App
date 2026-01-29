@@ -1,4 +1,5 @@
 (function initPatientForm() {
+    // API CONFIGURATION
     const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
     const API_BASE_URL = isLocal 
         ? "http://localhost:5000" 
@@ -274,6 +275,10 @@
             saveBtn.addEventListener("click", async (e) => {
                 e.preventDefault(); 
                 if (!validateForm()) return; 
+
+                // ===> CONFIRMATION POPUP ADDED HERE <===
+                if (!confirm("Are you sure you want to save this record?")) return;
+
                 saveBtn.disabled = true; saveBtn.innerText = "Saving...";
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/visits`, {
@@ -290,6 +295,10 @@
                 const currentSno = snoInput.value;
                 if (!currentSno) return;
                 if (!validateForm()) return;
+
+                // Optional: Update confirmation as well? Usually good practice.
+                if (!confirm("Are you sure you want to update this record?")) return;
+
                 updateBtn.disabled = true; updateBtn.innerText = "Updating...";
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/visits/${currentSno}`, {
@@ -304,7 +313,9 @@
             deleteBtn.addEventListener("click", async (e) => {
                 e.preventDefault();
                 const currentSno = snoInput.value;
+                // Delete already had a confirmation, kept it.
                 if (!confirm(`Are you sure you want to delete record #${currentSno}?`)) return;
+                
                 deleteBtn.disabled = true; deleteBtn.innerText = "Deleting...";
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/visits/${currentSno}`, { method: "DELETE" });
