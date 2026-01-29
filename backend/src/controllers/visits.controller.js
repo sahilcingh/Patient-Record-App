@@ -10,11 +10,11 @@ export const createVisit = async (req, res) => {
         chiefComplaint, medicine, total, cartage, conveyance, grandTotal 
     } = req.body;
 
-    // Get Next S.No from Pat_Master
+    // Get Next S.No
     const result = await pool.request().query("SELECT MAX(B_Sno) as maxSno FROM Pat_Master");
     const nextSno = (result.recordset[0].maxSno || 0) + 1;
 
-    // Insert into Pat_Master
+    // Insert Record
     await pool.request()
       .input("B_Sno", sql.Int, nextSno)
       .input("B_Date", sql.DateTime, date)
@@ -50,7 +50,6 @@ export const createVisit = async (req, res) => {
 export const getNextSno = async (req, res) => {
   try {
     const pool = await sql.connect(config);
-    // Explicitly querying Pat_Master
     const result = await pool.request().query("SELECT MAX(B_Sno) as maxSno FROM Pat_Master");
     const nextSno = (result.recordset[0].maxSno || 0) + 1;
     res.json({ nextSno });
@@ -59,7 +58,7 @@ export const getNextSno = async (req, res) => {
   }
 };
 
-// 3. SEARCH VISITS
+// 3. SEARCH VISITS (Matches "searchVisits" in Routes)
 export const searchVisits = async (req, res) => {
     try {
       const { name } = req.query;

@@ -1,5 +1,4 @@
 (function initPatientForm() {
-    // API CONFIGURATION
     const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
     const API_BASE_URL = isLocal 
         ? "http://localhost:5000" 
@@ -13,7 +12,7 @@
         if (form.dataset.initialized === "true") return;
         form.dataset.initialized = "true";
 
-        // UI Elements
+        // Elements
         const snoInput = getEl("sno");
         const ageInput = getEl("age"); 
         const total = getEl("total");
@@ -39,41 +38,30 @@
 
         let isEditMode = false;
 
-        /* ================= 1. ENTER KEY NAVIGATION (NEW) ================= */
-        // Listen for Enter key on the entire form
+        /* ================= ENTER KEY NAV ================= */
         form.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
                 const target = e.target;
+                if (target.tagName === "TEXTAREA") return; 
 
-                // A. Allow Enter to work normally in TextAreas (Address, Complaint, Medicine)
-                if (target.tagName === "TEXTAREA") {
-                    return; // Do nothing, let it create a new line
-                }
-
-                e.preventDefault(); // Prevent form submit for standard inputs
-
-                // B. Special Case: Conveyance -> Trigger Save
+                e.preventDefault(); 
+                
+                // Conveyance -> Save
                 if (target.id === "conveyance") {
-                    if (!isEditMode) {
-                        saveBtn.click();
-                    } else {
-                        updateBtn.click();
-                    }
+                    isEditMode ? updateBtn.click() : saveBtn.click();
                     return;
                 }
 
-                // C. Move to Next Field
-                // Get all focusable elements
+                // Next Field
                 const focusables = Array.from(form.querySelectorAll("input, select, textarea"));
                 const index = focusables.indexOf(target);
-                
                 if (index > -1 && index < focusables.length - 1) {
                     focusables[index + 1].focus();
                 }
             }
         });
 
-        /* ================= 2. DECIMAL FORMATTING ================= */
+        /* ================= 2-DECIMAL FORMATTING ================= */
         function formatDecimal(input) {
             input.addEventListener("blur", function() {
                 if (this.value) {
@@ -93,7 +81,7 @@
         }
         billingFields.forEach(field => formatDecimal(field));
 
-        /* ================= 3. AUTOCOMPLETE LOGIC ================= */
+        /* ================= AUTOCOMPLETE ================= */
         if (patientNameInput && suggestionsList) {
             patientNameInput.addEventListener("input", async function() {
                 const query = this.value.trim();
@@ -127,7 +115,7 @@
             });
         }
 
-        /* ================= 4. VALIDATION LOGIC ================= */
+        /* ================= VALIDATION ================= */
         function validateForm() {
             const requiredFields = [
                 { el: patientNameInput, name: "Patient Name" },
@@ -146,7 +134,7 @@
             return true;
         }
 
-        /* ================= 5. INPUT HANDLERS ================= */
+        /* ================= HELPERS ================= */
         if (ageInput) {
             ageInput.addEventListener("input", function() { if (this.value < 0) this.value = 0; });
             ageInput.addEventListener("keydown", function(e) { if (e.key === "-" || e.key === "e") e.preventDefault(); });
@@ -157,7 +145,6 @@
         if (patientNameInput) cleanNameInput(patientNameInput);
         if (fatherNameInput) cleanNameInput(fatherNameInput);
 
-        /* ================= 6. HELPERS ================= */
         function toggleEditMode(enable) {
             isEditMode = enable;
             if (enable) {
@@ -187,14 +174,16 @@
             calculateGrandTotal();
             toggleEditMode(false); 
             loadNextSno(); 
+            
+            // RESET DATE FOCUS
             const now = new Date();
             if(visitDate) {
                 visitDate.value = now.toISOString().split('T')[0];
-                visitDate.focus(); // Focus Date on Reset
+                visitDate.focus(); 
             }
         }
 
-        /* ================= 7. LISTENERS ================= */
+        /* ================= LISTENERS ================= */
         billingFields.forEach(field => {
             field.addEventListener("focus", () => { 
                 if (parseFloat(field.value) === 0) field.value = ""; 
@@ -283,7 +272,7 @@
 
         if (saveBtn) {
             saveBtn.addEventListener("click", async (e) => {
-                e.preventDefault(); // Handled manually now via keyboard or click
+                e.preventDefault(); 
                 if (!validateForm()) return; 
                 saveBtn.disabled = true; saveBtn.innerText = "Saving...";
                 try {
@@ -327,7 +316,7 @@
         loadNextSno(); 
         toggleEditMode(false); 
         
-        // DEFAULT FOCUS ON DATE
+        // DEFAULT FOCUS ON LOAD
         if(visitDate) {
              const now = new Date();
              visitDate.value = now.toISOString().split('T')[0];
