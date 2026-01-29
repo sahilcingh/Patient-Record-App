@@ -39,14 +39,14 @@
 
         let isEditMode = false;
 
-        // 1. DEFAULT DISABLE OLD RECORD BUTTON
+        // 1. DEFAULT DISABLE BUTTON
         if(oldRecordBtn) {
             oldRecordBtn.disabled = true;
             oldRecordBtn.style.opacity = "0.5";
             oldRecordBtn.style.cursor = "not-allowed";
         }
 
-        // 2. AUTOCOMPLETE & VERIFICATION LOGIC
+        // 2. AUTOCOMPLETE & BUTTON LOGIC
         if (patientNameInput && suggestionsList) {
             patientNameInput.addEventListener("input", async function() {
                 const query = this.value.trim();
@@ -67,14 +67,12 @@
                     
                     suggestionsList.innerHTML = "";
                     
-                    // Logic: If suggestions exist -> Enable Button
                     if (names.length > 0) {
                         if(oldRecordBtn) {
                             oldRecordBtn.disabled = false;
                             oldRecordBtn.style.opacity = "1";
                             oldRecordBtn.style.cursor = "pointer";
                         }
-
                         names.forEach(item => {
                             const li = document.createElement("li");
                             li.textContent = item.B_PName;
@@ -85,14 +83,13 @@
                                     oldRecordBtn.disabled = false;
                                     oldRecordBtn.style.opacity = "1";
                                     oldRecordBtn.style.cursor = "pointer";
-                                    oldRecordBtn.click(); // Auto-click
+                                    oldRecordBtn.click();
                                 }
                             };
                             suggestionsList.appendChild(li);
                         });
                         suggestionsList.classList.remove("hidden");
                     } else {
-                        // No results -> Disable Button
                         suggestionsList.classList.add("hidden");
                         if(oldRecordBtn) {
                             oldRecordBtn.disabled = true;
@@ -108,7 +105,7 @@
             });
         }
 
-        // 3. OLD RECORD SEARCH CLICK (Uses Name in 2nd Column)
+        // 3. SEARCH CLICK - ROW CLICKABLE
         if (oldRecordBtn) {
             oldRecordBtn.addEventListener("click", async () => {
                 const nameInput = document.getElementById("patientNameInput");
@@ -123,19 +120,22 @@
                         data.records.forEach(rec => {
                             const date = new Date(rec.B_Date).toLocaleDateString('en-GB'); 
                             const row = document.createElement("tr");
-                            // Changed: 2nd col is Name
+                            
+                            // NO BUTTON - ROW IS CLICKABLE
                             row.innerHTML = `
                                 <td>${date}</td>
                                 <td>${rec.B_PName}</td>
                                 <td>${rec.B_FName || '-'}</td>
                                 <td>${rec.B_TotalAmt || 0}</td>
-                                <td><button type="button" class="select-btn">Select</button></td>
                             `;
-                            row.querySelector(".select-btn").onclick = () => {
+                            
+                            // Attach Click Event to the WHOLE ROW
+                            row.onclick = () => {
                                 fillForm(rec);
                                 toggleEditMode(true);
                                 modal.style.display = "none";
                             };
+                            
                             tableBody.appendChild(row);
                         });
                         modal.style.display = "flex"; 
@@ -146,7 +146,7 @@
             });
         }
 
-        /* ENTER KEY NAV */
+        // REST OF THE LOGIC...
         form.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
                 const target = e.target;
@@ -164,7 +164,6 @@
             }
         });
 
-        /* DECIMAL FORMAT */
         function formatDecimal(input) {
             input.addEventListener("blur", function() {
                 if (this.value) { this.value = parseFloat(this.value).toFixed(2); calculateGrandTotal(); }
@@ -179,7 +178,6 @@
         }
         billingFields.forEach(field => formatDecimal(field));
 
-        /* VALIDATION */
         function validateForm() {
             const requiredFields = [
                 { el: patientNameInput, name: "Patient Name" },
@@ -199,7 +197,6 @@
             return true;
         }
 
-        /* INPUT HANDLERS */
         if (ageInput) {
             ageInput.addEventListener("input", function() { if (this.value < 0) this.value = 0; });
             ageInput.addEventListener("keydown", function(e) { if (e.key === "-" || e.key === "e") e.preventDefault(); });
@@ -210,7 +207,6 @@
         if (patientNameInput) cleanNameInput(patientNameInput);
         if (fatherNameInput) cleanNameInput(fatherNameInput);
 
-        /* HELPERS */
         function toggleEditMode(enable) {
             isEditMode = enable;
             if (enable) {
@@ -251,7 +247,7 @@
         if (cancelBtn) cancelBtn.addEventListener("click", resetForm);
         if (closeModalBtn) closeModalBtn.onclick = () => { modal.style.display = "none"; };
 
-        /* CRUD BUTTONS */
+        /* CRUD */
         if (saveBtn) {
             saveBtn.addEventListener("click", async (e) => {
                 e.preventDefault(); 

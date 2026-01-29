@@ -120,7 +120,7 @@ function App() {
         </form>
       </div>
 
-      {/* History Modal - Updated Headers */}
+      {/* History Modal - UPDATED TABLE HEADERS (No Action Column) */}
       <div id="historyModal" className="modal-overlay">
         <div className="modal-content">
           <div className="modal-header">
@@ -133,10 +133,9 @@ function App() {
                 <thead>
                     <tr>
                     <th>Date</th>
-                    <th>Patient Name</th> {/* CHANGED */}
+                    <th>Patient Name</th>
                     <th>Father's Name</th>
                     <th>Grand Total</th>
-                    <th>Action</th>
                     </tr>
                 </thead>
                 <tbody id="historyTableBody"></tbody>

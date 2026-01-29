@@ -3,17 +3,15 @@
   box-sizing: border-box;
 }
 
-/* =========================================
-   1. DESKTOP DEFAULT (PC VIEW)
-   ========================================= */
+/* DESKTOP DEFAULT */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #eef2f7;
   margin: 0;
   padding: 0;
-  height: 100vh; /* Fixed height on PC */
+  height: 100vh;
   width: 100vw;
-  overflow: hidden; /* No scroll on PC */
+  overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -74,7 +72,6 @@ body {
 
 .patient-data-box { flex: 0 0 auto; gap: 1vh; }
 
-/* ROW ALIGNMENT (Desktop) */
 .form-row {
   display: flex;
   align-items: center;
@@ -90,7 +87,6 @@ body {
 
 .align-top { align-items: flex-start; }
 
-/* Desktop Label Widths */
 .aligned-label {
     flex: 0 0 140px; 
     font-weight: 600;
@@ -106,14 +102,12 @@ body {
   font-size: 0.9rem;
 }
 
-/* Desktop Field Widths */
 .fixed-left { width: auto; flex-shrink: 0; }
 .col-date { margin-left: auto; margin-right: auto; }
 .fixed-right { width: 160px; flex-shrink: 0; justify-content: flex-end; }
 .fixed-right select, .fixed-right input { width: 100px; }
 .grow { flex: 1; display: flex; position: relative; } 
 .grow input { width: 100%; }
-
 .address-box { flex: 1; height: 5vh; min-height: 30px; resize: none; }
 
 /* AUTOCOMPLETE */
@@ -131,7 +125,7 @@ body {
 }
 .suggestions-list li:hover { background-color: #e9ecef; color: #007bff; }
 
-/* MODAL */
+/* MODAL & TABLE */
 .modal-overlay { 
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
     background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; 
@@ -146,15 +140,17 @@ body {
 .history-table { width: 100%; border-collapse: collapse; background: white; }
 .history-table th { background-color: #eef6fc; color: #1e88e5; font-weight: 600; padding: 12px 15px; text-align: left; border-bottom: 1px solid #dee2e6; }
 .history-table td { padding: 10px 15px; text-align: left; border-bottom: 1px solid #eee; color: #333; }
-.select-btn { background-color: white; border: 1px solid #ced4da; color: #555; padding: 5px 15px; border-radius: 4px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-.select-btn:hover { background-color: #f8f9fa; border-color: #adb5bd; }
-.close-modal { font-size: 24px; cursor: pointer; border: none; background: none; color: #aaa; }
 
-/* OTHER SECTIONS */
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; min-height: 0; }
-.two-col > div { display: flex; flex-direction: column; height: 100%; }
-.large-box { width: 100%; flex: 1; resize: none; min-height: 40px; }
-h3 { margin-top: 0; color: #0056b3; font-size: 1rem; margin-bottom: 0.5vh; border-bottom: 1px solid #e6f2ff; }
+/* === CLICKABLE ROW STYLES === */
+.history-table tbody tr {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.history-table tbody tr:hover {
+    background-color: #d1ecf1; /* Light Blue Hover Effect */
+}
+
+.close-modal { font-size: 24px; cursor: pointer; border: none; background: none; color: #aaa; }
 
 /* BILLING */
 .billing-section { flex: 0 0 auto; }
@@ -177,103 +173,29 @@ button.danger { background: linear-gradient(to bottom, #dc3545, #c82333); color:
 .nav-button { padding: 0 15px; height: 35px; background: linear-gradient(to bottom, #28a745, #218838); border: 1px solid #1e7e34; color: white; border-radius: 4px; cursor: pointer; font-weight: 600; white-space: nowrap; display: flex; align-items: center; }
 .hidden { display: none; }
 
-/* =========================================
-   2. MOBILE RESPONSIVENESS (OVERRIDE)
-   ========================================= */
+/* MOBILE RESPONSIVENESS */
 @media (max-width: 768px) {
-  
-  /* ALLOW SCROLLING */
   html, body {
     height: auto !important; 
     overflow-y: auto !important; 
     display: block; 
     padding: 10px;
   }
-
-  .app {
-    height: auto !important;
-    padding: 0;
-    padding-bottom: 60px; /* Ensures footer is never hidden */
-  }
-
-  /* UNLOCK CARD HEIGHT */
-  .card {
-    height: auto !important;
-    overflow: visible;
-    padding: 15px;
-  }
-
-  #patientForm {
-    overflow: visible;
-    gap: 15px;
-  }
-
+  .app { height: auto !important; padding: 0; padding-bottom: 60px; }
+  .card { height: auto !important; overflow: visible; padding: 15px; }
+  #patientForm { overflow: visible; gap: 15px; }
   .section { padding: 15px; }
-
-  /* STACK EVERYTHING VERTICALLY */
-  .form-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 15px;
-  }
-
-  /* RESET WIDTHS */
-  .input-group, .fixed-left, .fixed-right, .col-date, .grow {
-    width: 100% !important;
-    margin: 0;
-  }
-
-  /* LABELS ABOVE INPUTS */
-  .input-group {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
-  }
-
-  .aligned-label {
-    flex: none;
-    min-width: auto;
-  }
-
-  /* BIGGER TOUCH TARGETS */
-  input, select, textarea {
-    width: 100%;
-    height: 45px;
-  }
-
+  .form-row { flex-direction: column; align-items: stretch; gap: 15px; }
+  .input-group, .fixed-left, .fixed-right, .col-date, .grow { width: 100% !important; margin: 0; }
+  .input-group { flex-direction: column; align-items: flex-start; gap: 5px; }
+  .aligned-label { flex: none; min-width: auto; }
+  input, select, textarea { width: 100%; height: 45px; }
   .address-box { height: 80px; }
-  
-  /* LEFT ALIGN TEXT ON MOBILE */
   .right-align { text-align: left; }
-
-  /* FULL WIDTH BUTTONS */
-  .nav-button { 
-    width: 100%; 
-    justify-content: center; 
-    margin-top: 5px; 
-  }
-
+  .nav-button { width: 100%; justify-content: center; margin-top: 5px; }
   .grid.billing { grid-template-columns: 1fr 1fr; }
   .two-col { grid-template-columns: 1fr; }
-
-  /* FOOTER STACK */
-  .footer {
-    flex-direction: column;
-    gap: 15px;
-    height: auto;
-    margin-top: 20px;
-  }
-  
-  .footer > div {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
-  }
-
-  button {
-    margin-left: 0;
-    width: 100%;
-    padding: 12px;
-  }
+  .footer { flex-direction: column; gap: 15px; height: auto; margin-top: 20px; }
+  .footer > div { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+  button { margin-left: 0; width: 100%; padding: 12px; }
 }
