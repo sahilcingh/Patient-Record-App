@@ -16,6 +16,7 @@
         // Elements
         const snoInput = getEl("sno");
         const ageInput = getEl("age"); 
+        const sexInput = getEl("sex"); // <--- Added Reference
         const total = getEl("total");
         const cartage = getEl("cartage");
         const conveyance = getEl("conveyance");
@@ -53,7 +54,7 @@
                     return;
                 }
 
-                // Next Field
+                // Next Field logic
                 const focusables = Array.from(form.querySelectorAll("input, select, textarea"));
                 const index = focusables.indexOf(target);
                 if (index > -1 && index < focusables.length - 1) {
@@ -116,18 +117,21 @@
             });
         }
 
-        /* ================= VALIDATION ================= */
+        /* ================= VALIDATION (UPDATED) ================= */
         function validateForm() {
             const requiredFields = [
                 { el: patientNameInput, name: "Patient Name" },
                 { el: fatherNameInput, name: "Father's Name" },
+                { el: sexInput, name: "Gender" }, // <--- ADDED GENDER CHECK
                 { el: ageInput, name: "Age" },
                 { el: form.querySelectorAll(".large-box")[0], name: "Chief Complaint" },
                 { el: form.querySelectorAll(".large-box")[1], name: "Medicine" }
             ];
+
             for (let field of requiredFields) {
-                if (!field.el || field.el.value.trim() === "") {
-                    alert(`⚠️ Missing Information\n\nPlease enter the ${field.name}.`);
+                // Check if element exists AND has a value (handles both Inputs and Select)
+                if (!field.el || field.el.value.trim() === "" || field.el.value === "Select") {
+                    alert(`⚠️ Missing Information\n\nPlease enter/select the ${field.name}.`);
                     field.el.focus();
                     return false;
                 }
@@ -231,7 +235,9 @@
         function fillForm(record) {
             getEl("patientNameInput").value = record.B_PName || "";
             getEl("fatherNameInput").value = record.B_FName || "";
-            (getEl("sex") || form.querySelector("select")).value = record.B_Sex || "";
+            // Safe Sex Fill
+            if (sexInput) sexInput.value = record.B_Sex || "";
+            
             (getEl("age") || form.querySelector("#age")).value = record.B_Age || "";
             (getEl("address") || form.querySelector(".address-box")).value = record.B_To || "";
             const boxes = form.querySelectorAll(".large-box");
@@ -258,7 +264,7 @@
             return {
                 date: visitDate.value,
                 patientName: getEl("patientNameInput").value,
-                sex: form.querySelector("select").value,
+                sex: sexInput.value, // Updated payload to use sexInput variable
                 fatherName: getEl("fatherNameInput").value, 
                 age: (getEl("age") || form.querySelector("#age")).value,
                 address: (getEl("address") || form.querySelector(".address-box")).value,
@@ -276,7 +282,6 @@
                 e.preventDefault(); 
                 if (!validateForm()) return; 
 
-                // ===> CONFIRMATION POPUP ADDED HERE <===
                 if (!confirm("Are you sure you want to save this record?")) return;
 
                 saveBtn.disabled = true; saveBtn.innerText = "Saving...";
@@ -296,7 +301,6 @@
                 if (!currentSno) return;
                 if (!validateForm()) return;
 
-                // Optional: Update confirmation as well? Usually good practice.
                 if (!confirm("Are you sure you want to update this record?")) return;
 
                 updateBtn.disabled = true; updateBtn.innerText = "Updating...";
@@ -313,9 +317,7 @@
             deleteBtn.addEventListener("click", async (e) => {
                 e.preventDefault();
                 const currentSno = snoInput.value;
-                // Delete already had a confirmation, kept it.
                 if (!confirm(`Are you sure you want to delete record #${currentSno}?`)) return;
-                
                 deleteBtn.disabled = true; deleteBtn.innerText = "Deleting...";
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/visits/${currentSno}`, { method: "DELETE" });
