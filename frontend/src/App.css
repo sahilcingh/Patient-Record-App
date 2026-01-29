@@ -239,7 +239,9 @@ body {
 .close-modal:hover { color: #555; }
 
 /* ================= OTHER SECTIONS ================= */
-.address-row { display: flex; align-items: flex-start; flex: 1; }
+.address-row { 
+    align-items: flex-start; /* Label at top */
+}
 .address-box { flex: 1; height: 5vh; min-height: 30px; resize: none; }
 
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; min-height: 0; }
