@@ -12,7 +12,7 @@
         if (form.dataset.initialized === "true") return;
         form.dataset.initialized = "true";
 
-        // UI Elements
+        // Elements
         const snoInput = getEl("sno");
         const ageInput = getEl("age"); 
         const sexInput = getEl("sex");
@@ -32,6 +32,7 @@
         const deleteBtn = form.querySelector('#deleteBtn'); 
         const cancelBtn = form.querySelector('#cancelBtn'); 
         const oldRecordBtn = getEl("oldRecordBtn");
+        const printBtn = getEl("printBtn"); // NEW BUTTON
 
         const modal = getEl("historyModal");
         const tableBody = getEl("historyTableBody");
@@ -39,31 +40,75 @@
 
         let isEditMode = false;
 
-        /* ================= 1. AUTO-FILL LOGIC (NEW FEATURE) ================= */
-        
-        // Helper: Fills ONLY personal info, keeps S.No & Date for NEW visit
+        // 1. DEFAULT DISABLE OLD RECORD BUTTON
+        if(oldRecordBtn) {
+            oldRecordBtn.disabled = true;
+            oldRecordBtn.style.opacity = "0.5";
+            oldRecordBtn.style.cursor = "not-allowed";
+        }
+
+        /* ================= PRINT BILL FUNCTION ================= */
+        if (printBtn) {
+            printBtn.addEventListener("click", () => {
+                const name = patientNameInput.value || "N/A";
+                const date = visitDate.value || new Date().toISOString().split('T')[0];
+                const complaint = form.querySelectorAll(".large-box")[0].value || "-";
+                const medicine = form.querySelectorAll(".large-box")[1].value || "-";
+                const grandTotalVal = grandTotal.value || "0.00";
+
+                const printWindow = window.open('', '', 'height=600,width=800');
+                printWindow.document.write('<html><head><title>Print Bill</title>');
+                printWindow.document.write('<style>');
+                printWindow.document.write('body { font-family: Arial, sans-serif; padding: 20px; }');
+                printWindow.document.write('.header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }');
+                printWindow.document.write('.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }');
+                printWindow.document.write('.section-title { font-weight: bold; margin-top: 15px; background: #eee; padding: 5px; }');
+                printWindow.document.write('.content-box { border: 1px solid #ccc; padding: 10px; min-height: 50px; margin-bottom: 10px; white-space: pre-wrap; }');
+                printWindow.document.write('.billing-table { width: 100%; border-collapse: collapse; margin-top: 20px; }');
+                printWindow.document.write('.billing-table th, .billing-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }');
+                printWindow.document.write('.total-row { font-weight: bold; background-color: #f8f9fa; }');
+                printWindow.document.write('</style>');
+                printWindow.document.write('</head><body>');
+                
+                printWindow.document.write('<div class="header"><h1>Patient Receipt</h1></div>');
+                
+                printWindow.document.write('<div class="info-grid">');
+                printWindow.document.write(`<div><strong>Patient Name:</strong> ${name}</div>`);
+                printWindow.document.write(`<div><strong>Date:</strong> ${date}</div>`);
+                printWindow.document.write('</div>');
+
+                printWindow.document.write('<div class="section-title">Chief Complaint</div>');
+                printWindow.document.write(`<div class="content-box">${complaint}</div>`);
+
+                printWindow.document.write('<div class="section-title">Medicine</div>');
+                printWindow.document.write(`<div class="content-box">${medicine}</div>`);
+
+                printWindow.document.write('<div class="section-title">Billing Details</div>');
+                printWindow.document.write('<table class="billing-table">');
+                printWindow.document.write(`<tr><td>Total</td><td>${total.value || '0.00'}</td></tr>`);
+                printWindow.document.write(`<tr><td>Cartage</td><td>${cartage.value || '0.00'}</td></tr>`);
+                printWindow.document.write(`<tr><td>Conveyance</td><td>${conveyance.value || '0.00'}</td></tr>`);
+                printWindow.document.write(`<tr class="total-row"><td>Grand Total</td><td>${grandTotalVal}</td></tr>`);
+                printWindow.document.write('</table>');
+
+                printWindow.document.write('</body></html>');
+                printWindow.document.close();
+                printWindow.print();
+            });
+        }
+
+        /* ================= AUTOCOMPLETE (With Auto-Fill Logic) ================= */
+        // ... (Same Auto-fill logic as previous step) ...
         function autoFillPatientDetails(record) {
-            // Fill Personal Fields
             patientNameInput.value = record.B_PName || "";
             fatherNameInput.value = record.B_FName || "";
             if(sexInput) sexInput.value = record.B_Sex || "";
             if(ageInput) ageInput.value = record.B_Age || "";
-            
             const addressBox = form.querySelector(".address-box");
             if(addressBox) addressBox.value = record.B_To || "";
-
-            // DO NOT Overwrite S.No or Date (Keep them for the new visit)
-            // DO NOT Toggle Edit Mode (We are creating a new visit, not editing the old one)
-            
-            // Enable Old Record button just in case they want to see history
-            if(oldRecordBtn) {
-                oldRecordBtn.disabled = false;
-                oldRecordBtn.style.opacity = "1";
-                oldRecordBtn.style.cursor = "pointer";
-            }
+            if(oldRecordBtn) { oldRecordBtn.disabled = false; oldRecordBtn.style.opacity = "1"; oldRecordBtn.style.cursor = "pointer"; }
         }
 
-        /* ================= 2. AUTOCOMPLETE WITH SMART FILL ================= */
         if (patientNameInput && suggestionsList) {
             patientNameInput.addEventListener("input", async function() {
                 const query = this.value.trim();
@@ -90,36 +135,19 @@
                             oldRecordBtn.style.opacity = "1";
                             oldRecordBtn.style.cursor = "pointer";
                         }
-
                         names.forEach(item => {
                             const li = document.createElement("li");
                             li.textContent = item.B_PName;
-                            
-                            // === SMART CLICK HANDLER ===
                             li.onclick = async () => {
                                 patientNameInput.value = item.B_PName; 
                                 suggestionsList.classList.add("hidden"); 
-
-                                // 1. Fetch History for this exact name
                                 try {
                                     const searchRes = await fetch(`${API_BASE_URL}/api/visits/search?name=${encodeURIComponent(item.B_PName)}`);
                                     const searchData = await searchRes.json();
-                                    
                                     if(searchData.records && searchData.records.length > 0) {
-                                        // 2. Check for Duplicates (Same Name, Different Father?)
-                                        // A simple check: if we have multiple records, are they the same person?
-                                        // For now, let's assume if we click, we want the LATEST record details.
-                                        
-                                        const latestRecord = searchData.records[0]; // First record is latest (ORDER BY Date DESC)
-                                        
-                                        // 3. Auto-Fill the form immediately
-                                        autoFillPatientDetails(latestRecord);
-                                        
-                                        // Optional: Visual feedback
-                                        // patientNameInput.style.backgroundColor = "#e8f0fe";
-                                        // setTimeout(() => patientNameInput.style.backgroundColor = "white", 500);
+                                        autoFillPatientDetails(searchData.records[0]);
                                     }
-                                } catch(e) { console.error("Auto-fill failed", e); }
+                                } catch(e) { console.error(e); }
                             };
                             suggestionsList.appendChild(li);
                         });
@@ -140,8 +168,7 @@
             });
         }
 
-        /* ================= 3. OLD RECORD BUTTON (Manual Search) ================= */
-        // This remains for when you want to explicitly check history or pick a specific older visit
+        /* OLD RECORD BUTTON (Manual Search) */
         if (oldRecordBtn) {
             oldRecordBtn.addEventListener("click", async () => {
                 const nameInput = document.getElementById("patientNameInput");
@@ -162,23 +189,20 @@
                                 <td>${rec.B_FName || '-'}</td>
                                 <td>${rec.B_TotalAmt || 0}</td>
                             `;
-                            // Clicking row in modal -> Full Edit Mode (Loads old S.No)
                             row.onclick = () => {
-                                fillForm(rec); // This function (defined below) sets Edit Mode
+                                fillForm(rec);
                                 toggleEditMode(true);
                                 modal.style.display = "none";
                             };
                             tableBody.appendChild(row);
                         });
                         modal.style.display = "flex"; 
-                    } else { 
-                        alert("No records found."); 
-                    }
+                    } else { alert("No records found."); }
                 } catch (err) { alert("Error loading history."); }
             });
         }
 
-        /* ENTER KEY NAV */
+        /* REST OF LOGIC */
         form.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
                 const target = e.target;
@@ -196,7 +220,6 @@
             }
         });
 
-        /* DECIMAL FORMAT */
         function formatDecimal(input) {
             input.addEventListener("blur", function() {
                 if (this.value) { this.value = parseFloat(this.value).toFixed(2); calculateGrandTotal(); }
@@ -211,7 +234,6 @@
         }
         billingFields.forEach(field => formatDecimal(field));
 
-        /* VALIDATION */
         function validateForm() {
             const requiredFields = [
                 { el: patientNameInput, name: "Patient Name" },
@@ -241,7 +263,6 @@
         if (patientNameInput) cleanNameInput(patientNameInput);
         if (fatherNameInput) cleanNameInput(fatherNameInput);
 
-        /* HELPERS */
         function toggleEditMode(enable) {
             isEditMode = enable;
             if (enable) {
@@ -273,7 +294,6 @@
             if(visitDate) visitDate.value = now.toISOString().split('T')[0];
         }
 
-        /* FILL FORM (FOR EDITING OLD RECORDS - OVERWRITES S.NO) */
         function fillForm(record) {
             getEl("patientNameInput").value = record.B_PName || "";
             getEl("fatherNameInput").value = record.B_FName || "";
@@ -283,8 +303,6 @@
             const boxes = form.querySelectorAll(".large-box");
             if (boxes[0]) boxes[0].value = record.B_Perticu1 || "";
             if (boxes[1]) boxes[1].value = record.B_Perticu2 || "";
-            
-            // NOTE: This function puts us in EDIT MODE (Old S.No)
             snoInput.value = record.B_Sno || "";
             if (visitDate && record.B_Date) visitDate.value = new Date(record.B_Date).toISOString().split('T')[0];
             total.value = (record.B_PerticuAmt1 || 0).toFixed(2);
@@ -302,7 +320,7 @@
         if (cancelBtn) cancelBtn.addEventListener("click", resetForm);
         if (closeModalBtn) closeModalBtn.onclick = () => { modal.style.display = "none"; };
 
-        /* CRUD BUTTONS */
+        /* CRUD */
         if (saveBtn) {
             saveBtn.addEventListener("click", async (e) => {
                 e.preventDefault(); 

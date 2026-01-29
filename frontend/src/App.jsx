@@ -111,6 +111,9 @@ function App() {
                <button type="button" id="deleteBtn" className="danger hidden">Delete</button>
             </div>
             <div>
+              {/* PRINT BUTTON ADDED HERE */}
+              <button type="button" id="printBtn" style={{background: "#6c757d", color: "white", border: "1px solid #5a6268"}}>Print Bill</button>
+              
               <button type="button" id="cancelBtn">Cancel</button>
               <button type="submit" id="saveBtn" className="primary">Save</button>
               <button type="button" id="updateBtn" className="primary hidden">Update</button>
@@ -120,7 +123,7 @@ function App() {
         </form>
       </div>
 
-      {/* History Modal - UPDATED TABLE HEADERS (No Action Column) */}
+      {/* History Modal */}
       <div id="historyModal" className="modal-overlay">
         <div className="modal-content">
           <div className="modal-header">
