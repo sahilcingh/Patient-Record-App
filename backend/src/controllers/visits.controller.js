@@ -1,140 +1,169 @@
-import { poolPromise } from "../config/db.js";
+import sql from "mssql";
+import { config } from "../config/db.js";
 
-export const testDb = async (req, res) => {
+// 1. CREATE VISIT
+export const createVisit = async (req, res) => {
   try {
-    const pool = await poolPromise;
-    const db = await pool.request().query("SELECT DB_NAME() AS db");
-    res.json({ success: true, database: db.recordset[0].db });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const pool = await sql.connect(config);
+    const { 
+        date, patientName, sex, fatherName, age, address, 
+        chiefComplaint, medicine, total, cartage, conveyance, grandTotal 
+    } = req.body;
+
+    // Get Next S.No from Pat_Master
+    const result = await pool.request().query("SELECT MAX(B_Sno) as maxSno FROM Pat_Master");
+    const nextSno = (result.recordset[0].maxSno || 0) + 1;
+
+    // Insert into Pat_Master
+    await pool.request()
+      .input("B_Sno", sql.Int, nextSno)
+      .input("B_Date", sql.DateTime, date)
+      .input("B_PName", sql.VarChar, patientName)
+      .input("B_Sex", sql.VarChar, sex)
+      .input("B_FName", sql.VarChar, fatherName)
+      .input("B_Age", sql.VarChar, age)
+      .input("B_To", sql.VarChar, address)
+      .input("B_Perticu1", sql.VarChar, chiefComplaint)
+      .input("B_Perticu2", sql.VarChar, medicine)
+      .input("B_PerticuAmt1", sql.Decimal(10, 2), total)
+      .input("B_Cart", sql.Decimal(10, 2), cartage)
+      .input("B_Conv", sql.Decimal(10, 2), conveyance)
+      .input("B_TotalAmt", sql.Decimal(10, 2), grandTotal)
+      .query(`
+        INSERT INTO Pat_Master (
+          B_Sno, B_Date, B_PName, B_Sex, B_FName, B_Age, B_To, 
+          B_Perticu1, B_Perticu2, B_PerticuAmt1, B_Cart, B_Conv, B_TotalAmt
+        ) VALUES (
+          @B_Sno, @B_Date, @B_PName, @B_Sex, @B_FName, @B_Age, @B_To, 
+          @B_Perticu1, @B_Perticu2, @B_PerticuAmt1, @B_Cart, @B_Conv, @B_TotalAmt
+        )
+      `);
+
+    res.status(201).json({ message: "Visit created successfully", sno: nextSno });
+  } catch (error) {
+    console.error("Error creating visit:", error);
+    res.status(500).json({ message: "Error creating visit" });
   }
 };
 
+// 2. GET NEXT SNO
 export const getNextSno = async (req, res) => {
   try {
-    const pool = await poolPromise;
-    const result = await pool.request().query("SELECT ISNULL(MAX(B_Sno), 0) + 1 AS nextSno FROM dbo.Pat_Master1");
-    res.json({ nextSno: result.recordset[0].nextSno });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const pool = await sql.connect(config);
+    const result = await pool.request().query("SELECT MAX(B_Sno) as maxSno FROM Pat_Master");
+    const nextSno = (result.recordset[0].maxSno || 0) + 1;
+    res.json({ nextSno });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching next S.No" });
   }
 };
 
-export const getOldRecord = async (req, res) => {
-  try {
-    const { name, sno } = req.query;
-    const pool = await poolPromise;
-    const request = pool.request();
-    let query = "";
-
-    if (sno) {
-      request.input("sno", sno);
-      query = "SELECT * FROM dbo.Pat_Master1 WHERE B_Sno = @sno";
-    } else {
-      request.input("patientName", name);
-      query = "SELECT * FROM dbo.Pat_Master1 WHERE B_PName = @patientName ORDER BY B_Date DESC, B_Sno DESC";
+// 3. SEARCH VISITS (For OLD Record Button)
+export const searchVisits = async (req, res) => {
+    try {
+      const { name } = req.query;
+      const pool = await sql.connect(config);
+      const result = await pool.request()
+        .input("name", sql.VarChar, `%${name}%`)
+        .query("SELECT * FROM Pat_Master WHERE B_PName LIKE @name ORDER BY B_Date DESC");
+      
+      res.json({ records: result.recordset });
+    } catch (error) {
+      res.status(500).json({ message: "Search failed" });
     }
-
-    const result = await request.query(query);
-    res.json({ success: true, records: result.recordset });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
 };
 
-export const saveVisit = async (req, res) => {
+// 4. GET SUGGESTIONS (Real-time Autocomplete)
+export const getNameSuggestions = async (req, res) => {
   try {
-    const pool = await poolPromise;
-    const bsnoResult = await pool.request().query("SELECT ISNULL(MAX(B_Sno), 0) + 1 AS nextBsno FROM dbo.Pat_Master1");
-    const nextBsno = bsnoResult.recordset[0].nextBsno;
-    const d = req.body;
+    const { query } = req.query;
+    if (!query) return res.json([]);
 
-    await pool.request()
-      .input("sno", nextBsno)
-      .input("B_Sno", nextBsno)
-      .input("B_Date", d.date)
-      .input("B_PName", d.patientName)
-      .input("B_FName", d.fatherName)
-      .input("B_Sex", d.sex)
-      .input("B_Age", d.age)
-      .input("B_To", d.address)
-      .input("B_Perticu1", d.chiefComplaint)
-      .input("B_Perticu2", d.medicine)
-      .input("B_PerticuAmt1", d.total || 0)
-      .input("B_Cart", d.cartage || 0)
-      .input("B_Conv", d.conveyance || 0)
-      .input("B_TotalAmt", d.grandTotal || 0)
+    const pool = await sql.connect(config);
+    const result = await pool.request()
+      .input("search", sql.VarChar, `%${query}%`)
       .query(`
-        INSERT INTO dbo.Pat_Master1
-        (sno, B_Sno, B_Date, B_PName, B_FName, B_Sex, B_Age, B_To, B_Perticu1, B_Perticu2, B_PerticuAmt1, B_Cart, B_Conv, B_TotalAmt)
-        VALUES
-        (@sno, @B_Sno, @B_Date, @B_PName, @B_FName, @B_Sex, @B_Age, @B_To, @B_Perticu1, @B_Perticu2, @B_PerticuAmt1, @B_Cart, @B_Conv, @B_TotalAmt)
+        SELECT DISTINCT TOP 10 B_PName 
+        FROM Pat_Master 
+        WHERE B_PName LIKE @search + '%' 
+        ORDER BY B_PName
       `);
 
-    res.json({ success: true, B_Sno: nextBsno });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.json(result.recordset);
+  } catch (error) {
+    console.error("Suggestion Error:", error);
+    res.status(500).json({ message: "Error fetching suggestions" });
   }
 };
 
-/* ================= NEW: UPDATE RECORD ================= */
+// 5. GET VISIT BY SNO
+export const getVisitBySno = async (req, res) => {
+    try {
+      const { sno } = req.params;
+      const pool = await sql.connect(config);
+      const result = await pool.request()
+        .input("sno", sql.Int, sno)
+        .query("SELECT * FROM Pat_Master WHERE B_Sno = @sno");
+  
+      if (result.recordset.length === 0) {
+        return res.status(404).json({ message: "Visit not found" });
+      }
+      res.json(result.recordset[0]);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching visit" });
+    }
+  };
+
+// 6. UPDATE VISIT
 export const updateVisit = async (req, res) => {
-  try {
-    const { sno } = req.params; // We use B_Sno to identify the record
-    const d = req.body;
-    const pool = await poolPromise;
-
-    await pool.request()
-      .input("targetSno", sno)
-      .input("B_Date", d.date)
-      .input("B_PName", d.patientName)
-      .input("B_FName", d.fatherName)
-      .input("B_Sex", d.sex)
-      .input("B_Age", d.age)
-      .input("B_To", d.address)
-      .input("B_Perticu1", d.chiefComplaint)
-      .input("B_Perticu2", d.medicine)
-      .input("B_PerticuAmt1", d.total || 0)
-      .input("B_Cart", d.cartage || 0)
-      .input("B_Conv", d.conveyance || 0)
-      .input("B_TotalAmt", d.grandTotal || 0)
-      .query(`
-        UPDATE dbo.Pat_Master1
-        SET 
-          B_Date = @B_Date,
-          B_PName = @B_PName,
-          B_FName = @B_FName,
-          B_Sex = @B_Sex,
-          B_Age = @B_Age,
-          B_To = @B_To,
-          B_Perticu1 = @B_Perticu1,
-          B_Perticu2 = @B_Perticu2,
-          B_PerticuAmt1 = @B_PerticuAmt1,
-          B_Cart = @B_Cart,
-          B_Conv = @B_Conv,
-          B_TotalAmt = @B_TotalAmt
-        WHERE B_Sno = @targetSno
-      `);
-
-    res.json({ success: true, message: "Record updated" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+    try {
+      const { sno } = req.params;
+      const { 
+          date, patientName, sex, fatherName, age, address, 
+          chiefComplaint, medicine, total, cartage, conveyance, grandTotal 
+      } = req.body;
+  
+      const pool = await sql.connect(config);
+      await pool.request()
+        .input("B_Sno", sql.Int, sno)
+        .input("B_Date", sql.DateTime, date)
+        .input("B_PName", sql.VarChar, patientName)
+        .input("B_Sex", sql.VarChar, sex)
+        .input("B_FName", sql.VarChar, fatherName)
+        .input("B_Age", sql.VarChar, age)
+        .input("B_To", sql.VarChar, address)
+        .input("B_Perticu1", sql.VarChar, chiefComplaint)
+        .input("B_Perticu2", sql.VarChar, medicine)
+        .input("B_PerticuAmt1", sql.Decimal(10, 2), total)
+        .input("B_Cart", sql.Decimal(10, 2), cartage)
+        .input("B_Conv", sql.Decimal(10, 2), conveyance)
+        .input("B_TotalAmt", sql.Decimal(10, 2), grandTotal)
+        .query(`
+          UPDATE Pat_Master SET 
+            B_Date=@B_Date, B_PName=@B_PName, B_Sex=@B_Sex, B_FName=@B_FName, 
+            B_Age=@B_Age, B_To=@B_To, B_Perticu1=@B_Perticu1, B_Perticu2=@B_Perticu2, 
+            B_PerticuAmt1=@B_PerticuAmt1, B_Cart=@B_Cart, B_Conv=@B_Conv, B_TotalAmt=@B_TotalAmt
+          WHERE B_Sno = @B_Sno
+        `);
+  
+      res.json({ message: "Visit updated successfully" });
+    } catch (error) {
+      console.error("Update Error:", error);
+      res.status(500).json({ message: "Error updating visit" });
+    }
 };
 
-/* ================= NEW: DELETE RECORD ================= */
+// 7. DELETE VISIT
 export const deleteVisit = async (req, res) => {
-  try {
-    const { sno } = req.params;
-    const pool = await poolPromise;
-
-    await pool.request()
-      .input("targetSno", sno)
-      .query("DELETE FROM dbo.Pat_Master1 WHERE B_Sno = @targetSno");
-
-    res.json({ success: true, message: "Record deleted" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+    try {
+      const { sno } = req.params;
+      const pool = await sql.connect(config);
+      await pool.request()
+        .input("sno", sql.Int, sno)
+        .query("DELETE FROM Pat_Master WHERE B_Sno = @sno");
+  
+      res.json({ message: "Visit deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Error deleting visit" });
+    }
 };
-
