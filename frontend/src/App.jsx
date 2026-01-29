@@ -28,23 +28,24 @@ function App() {
             
             {/* ROW 1: S.No | Date | Gender */}
             <div className="form-row">
+              {/* S.No */}
               <div className="input-group fixed-left">
-                {/* APPLIED aligned-label to S.No */}
-                <label className="aligned-label">S.No.</label>
+                <label>S.No.</label>
                 <input 
                   type="text" 
                   id="sno" 
                   readOnly 
                   className="right-align" 
-                  style={{width: "60px"}} 
                 />
               </div>
 
+              {/* Date */}
               <div className="input-group col-date">
                 <label>Date</label>
                 <input type="date" id="visitDate" />
               </div>
 
+              {/* Gender */}
               <div className="input-group fixed-right">
                 <label>Gender</label>
                 <select id="sex" required>
@@ -55,22 +56,17 @@ function App() {
               </div>
             </div>
 
-            {/* ROW 2: Patient Name (With Dropdown) | OLD Record | Age */}
+            {/* ROW 2: Patient Name | OLD Record | Age */}
             <div className="form-row">
+              {/* Patient Name - Added aligned-label */}
               <div className="input-group grow">
                 <label className="aligned-label">Patient's Name</label>
-                
-                {/* AUTOCOMPLETE WRAPPER */}
-                <div className="autocomplete-wrapper">
-                    <input
-                      type="text"
-                      id="patientNameInput"
-                      name="patientName"
-                      autoComplete="off"
-                      required
-                    />
-                    <ul id="suggestionsList" className="suggestions-list hidden"></ul>
-                </div>
+                <input
+                  type="text"
+                  id="patientNameInput"
+                  name="patientName"
+                  required
+                />
               </div>
               
               <button type="button" id="oldRecordBtn" className="nav-button">
@@ -91,15 +87,20 @@ function App() {
 
             {/* ROW 3: Father's Name */}
             <div className="form-row">
+              {/* Father Name - Added aligned-label */}
               <div className="input-group grow">
                 <label className="aligned-label">Father's Name</label>
-                <input type="text" id="fatherNameInput" name="fatherName" />
+                <input 
+                  type="text" 
+                  id="fatherNameInput" 
+                  name="fatherName" 
+                />
               </div>
             </div>
 
             {/* ROW 4: Address */}
             <div className="form-row address-row">
-              {/* APPLIED aligned-label to Address */}
+              {/* Address - Added aligned-label */}
               <label className="aligned-label">Address</label>
               <textarea id="address" className="address-box" required />
             </div>
@@ -119,7 +120,7 @@ function App() {
           </div>
 
           {/* ================= BILLING ================= */}
-          <section className="section billing-section">
+          <section className="section">
             <h2>Billing</h2>
 
             <div className="grid billing">

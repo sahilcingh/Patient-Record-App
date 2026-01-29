@@ -1,6 +1,10 @@
 (function initPatientForm() {
-    // API CONFIGURATION
+    // ============================================================
+    //  API CONFIGURATION (Smart Switch)
+    // ============================================================
     const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    
+    // RENDER URL (Replace if needed)
     const API_BASE_URL = isLocal 
         ? "http://localhost:5000" 
         : "https://patient-record-app-drly.onrender.com"; 
@@ -13,7 +17,7 @@
         if (form.dataset.initialized === "true") return;
         form.dataset.initialized = "true";
 
-        // Elements
+        // UI Elements
         const snoInput = getEl("sno");
         const ageInput = getEl("age"); 
         const total = getEl("total");
@@ -25,8 +29,8 @@
 
         const patientNameInput = getEl("patientNameInput");
         const fatherNameInput = getEl("fatherNameInput");
-        const suggestionsList = getEl("suggestionsList");
-
+        
+        // Buttons
         const saveBtn = form.querySelector('#saveBtn');
         const updateBtn = form.querySelector('#updateBtn'); 
         const deleteBtn = form.querySelector('#deleteBtn'); 
@@ -39,73 +43,65 @@
 
         let isEditMode = false;
 
-        /* ================= AUTOCOMPLETE LOGIC ================= */
-        if (patientNameInput && suggestionsList) {
-            patientNameInput.addEventListener("input", async function() {
-                const query = this.value.trim();
-                if (query.length < 1) {
-                    suggestionsList.classList.add("hidden");
-                    return;
-                }
-                try {
-                    const res = await fetch(`${API_BASE_URL}/api/visits/suggestions?query=${encodeURIComponent(query)}`);
-                    const names = await res.json();
-                    
-                    suggestionsList.innerHTML = "";
-                    if (names.length > 0) {
-                        names.forEach(item => {
-                            const li = document.createElement("li");
-                            li.textContent = item.B_PName;
-                            li.onclick = () => {
-                                patientNameInput.value = item.B_PName; 
-                                suggestionsList.classList.add("hidden"); 
-                                if(oldRecordBtn) oldRecordBtn.click(); // Trigger Search
-                            };
-                            suggestionsList.appendChild(li);
-                        });
-                        suggestionsList.classList.remove("hidden");
-                    } else {
-                        suggestionsList.classList.add("hidden");
-                    }
-                } catch (err) { console.error(err); }
-            });
-            document.addEventListener("click", function(e) {
-                if (e.target !== patientNameInput) suggestionsList.classList.add("hidden");
-            });
-        }
-
-        /* ================= VALIDATION LOGIC ================= */
+        /* ================= VALIDATION LOGIC (NEW) ================= */
         function validateForm() {
+            // list of required fields with custom error messages
             const requiredFields = [
                 { el: patientNameInput, name: "Patient Name" },
                 { el: fatherNameInput, name: "Father's Name" },
                 { el: ageInput, name: "Age" },
+                // Chief Complaint is the first textarea in .two-col
                 { el: form.querySelectorAll(".large-box")[0], name: "Chief Complaint" },
+                // Medicine is the second textarea in .two-col
                 { el: form.querySelectorAll(".large-box")[1], name: "Medicine" }
             ];
 
             for (let field of requiredFields) {
                 if (!field.el || field.el.value.trim() === "") {
                     alert(`⚠️ Missing Information\n\nPlease enter the ${field.name}.`);
-                    field.el.focus();
-                    return false;
+                    field.el.focus(); // Move cursor to empty field
+                    field.el.scrollIntoView({ behavior: "smooth", block: "center" });
+                    return false; // Stop saving
                 }
             }
-            return true;
+            return true; // All good
         }
 
-        /* ================= INPUT HANDLERS ================= */
+        /* ================= INPUT VALIDATION ================= */
         if (ageInput) {
-            ageInput.addEventListener("input", function() { if (this.value < 0) this.value = 0; });
-            ageInput.addEventListener("keydown", function(e) { if (e.key === "-" || e.key === "e") e.preventDefault(); });
+            ageInput.addEventListener("input", function() {
+                if (this.value < 0) this.value = 0; 
+            });
+            ageInput.addEventListener("keydown", function(e) {
+                if (e.key === "-" || e.key === "e") e.preventDefault();
+            });
         }
+
         function cleanNameInput(input) {
-            input.addEventListener("input", function() { this.value = this.value.replace(/[^a-zA-Z\s]/g, ''); });
+            input.addEventListener("input", function() {
+                this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+            });
         }
         if (patientNameInput) cleanNameInput(patientNameInput);
         if (fatherNameInput) cleanNameInput(fatherNameInput);
 
-        /* ================= HELPERS & BILLING ================= */
+        /* ================= DATE VALIDATION ================= */
+        if (visitDate) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const today = `${year}-${month}-${day}`;
+            visitDate.setAttribute("max", today);
+            visitDate.addEventListener("change", () => {
+                if (visitDate.value > today) {
+                    alert("⚠️ Future Date Error\n\nYou cannot select a future date.");
+                    visitDate.value = today;
+                }
+            });
+        }
+
+        /* ================= HELPERS ================= */
         function toggleEditMode(enable) {
             isEditMode = enable;
             if (enable) {
@@ -120,12 +116,14 @@
                 if(snoInput) snoInput.style.backgroundColor = "white";
             }
         }
+
         function calculateGrandTotal() {
             const t = parseFloat(total?.value) || 0;
             const c = parseFloat(cartage?.value) || 0;
             const v = parseFloat(conveyance?.value) || 0;
             if (grandTotal) grandTotal.value = (t + c + v).toFixed(2);
         }
+
         function resetForm() {
             form.reset();
             billingFields.forEach(f => f.value = "0");
@@ -136,7 +134,19 @@
             if(visitDate) visitDate.value = now.toISOString().split('T')[0];
         }
 
-        /* ================= LISTENERS ================= */
+        /* LISTENERS */
+        const allElements = Array.from(form.querySelectorAll("input, select, textarea"));
+        allElements.forEach((field, index) => {
+            field.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    if (field.tagName === "TEXTAREA" && !e.ctrlKey) return;
+                    e.preventDefault(); 
+                    const nextField = allElements[index + 1];
+                    if (nextField) nextField.focus();
+                }
+            });
+        });
+
         billingFields.forEach(field => {
             field.addEventListener("focus", () => { if (field.value === "0") field.value = ""; });
             field.addEventListener("blur", () => {
@@ -145,6 +155,7 @@
             });
             field.addEventListener("input", calculateGrandTotal);
         });
+
         if (cancelBtn) cancelBtn.addEventListener("click", resetForm);
         if (closeModalBtn) closeModalBtn.onclick = () => { modal.style.display = "none"; };
 
@@ -154,6 +165,7 @@
                 const nameInput = document.getElementById("patientNameInput");
                 const patientName = nameInput?.value.trim();
                 if (!patientName) { alert("Please enter a patient name first."); return; }
+
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/visits/search?name=${encodeURIComponent(patientName)}`);
                     const data = await res.json();
@@ -193,6 +205,7 @@
             grandTotal.value = record.B_TotalAmt || 0;
         }
 
+        /* CRUD OPERATIONS */
         async function loadNextSno() {
             if (!snoInput) return;
             try {
@@ -219,33 +232,49 @@
             };
         }
 
+        // SAVE BUTTON (Now with Validation)
         if (saveBtn) {
             saveBtn.addEventListener("click", async (e) => {
                 e.preventDefault();
+                
+                // CHECK VALIDATION HERE
                 if (!validateForm()) return; 
+
                 saveBtn.disabled = true; saveBtn.innerText = "Saving...";
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/visits`, {
-                        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(getPayload())
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(getPayload())
                     });
-                    if (res.ok) { alert("Saved!"); resetForm(); } else { alert("Save failed."); }
-                } catch (err) { alert("Error."); } finally { saveBtn.disabled = false; saveBtn.innerText = "Save"; }
+                    if (res.ok) { alert("Saved!"); resetForm(); } 
+                    else { alert("Save failed."); }
+                } catch (err) { alert("Error."); }
+                finally { saveBtn.disabled = false; saveBtn.innerText = "Save"; }
             });
         }
 
+        // UPDATE BUTTON (Now with Validation)
         if (updateBtn) {
             updateBtn.addEventListener("click", async (e) => {
                 e.preventDefault();
                 const currentSno = snoInput.value;
                 if (!currentSno) return;
+
+                // CHECK VALIDATION HERE TOO
                 if (!validateForm()) return;
+
                 updateBtn.disabled = true; updateBtn.innerText = "Updating...";
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/visits/${currentSno}`, {
-                        method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(getPayload())
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(getPayload())
                     });
-                    if (res.ok) { alert("Updated successfully!"); resetForm(); } else { alert("Update failed."); }
-                } catch (err) { alert("Error."); } finally { updateBtn.disabled = false; updateBtn.innerText = "Update"; }
+                    if (res.ok) { alert("Updated successfully!"); resetForm(); }
+                    else { alert("Update failed."); }
+                } catch (err) { alert("Error."); }
+                finally { updateBtn.disabled = false; updateBtn.innerText = "Update"; }
             });
         }
 
@@ -256,9 +285,13 @@
                 if (!confirm(`Are you sure you want to delete record #${currentSno}?`)) return;
                 deleteBtn.disabled = true; deleteBtn.innerText = "Deleting...";
                 try {
-                    const res = await fetch(`${API_BASE_URL}/api/visits/${currentSno}`, { method: "DELETE" });
-                    if (res.ok) { alert("Deleted successfully!"); resetForm(); } else { alert("Delete failed."); }
-                } catch (err) { alert("Error."); } finally { deleteBtn.disabled = false; deleteBtn.innerText = "Delete"; }
+                    const res = await fetch(`${API_BASE_URL}/api/visits/${currentSno}`, {
+                        method: "DELETE"
+                    });
+                    if (res.ok) { alert("Deleted successfully!"); resetForm(); }
+                    else { alert("Delete failed."); }
+                } catch (err) { alert("Error."); }
+                finally { deleteBtn.disabled = false; deleteBtn.innerText = "Delete"; }
             });
         }
 
