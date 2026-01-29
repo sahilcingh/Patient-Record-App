@@ -29,7 +29,6 @@ function App() {
             {/* ROW 1: S.No | Date | Gender */}
             <div className="form-row">
               <div className="input-group fixed-left">
-                {/* ALIGNED: S.No */}
                 <label className="aligned-label">S.No.</label>
                 <input 
                   type="text" 
@@ -55,13 +54,10 @@ function App() {
               </div>
             </div>
 
-            {/* ROW 2: Patient Name (With Dropdown) | OLD Record | Age */}
+            {/* ROW 2: Patient Name | OLD Record | Age */}
             <div className="form-row">
               <div className="input-group grow">
-                {/* ALIGNED: Patient Name */}
                 <label className="aligned-label">Patient's Name</label>
-                
-                {/* AUTOCOMPLETE WRAPPER */}
                 <div className="autocomplete-wrapper">
                     <input
                       type="text"
@@ -93,15 +89,13 @@ function App() {
             {/* ROW 3: Father's Name */}
             <div className="form-row">
               <div className="input-group grow">
-                {/* ALIGNED: Father Name */}
                 <label className="aligned-label">Father's Name</label>
                 <input type="text" id="fatherNameInput" name="fatherName" />
               </div>
             </div>
 
-            {/* ROW 4: Address */}
+            {/* ROW 4: Address - Now Perfectly Aligned */}
             <div className="form-row address-row">
-              {/* ALIGNED: Address */}
               <label className="aligned-label">Address</label>
               <textarea id="address" className="address-box" required />
             </div>
@@ -163,7 +157,7 @@ function App() {
         </form>
       </div>
 
-      {/* History Modal - UPDATED LAYOUT */}
+      {/* History Modal */}
       <div id="historyModal" className="modal-overlay">
         <div className="modal-content">
           <div className="modal-header">
