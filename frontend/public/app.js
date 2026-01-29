@@ -39,17 +39,48 @@
 
         let isEditMode = false;
 
-        /* ================= 1. DECIMAL FORMATTING (NEW) ================= */
+        /* ================= 1. ENTER KEY NAVIGATION (NEW) ================= */
+        // Listen for Enter key on the entire form
+        form.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                const target = e.target;
+
+                // A. Allow Enter to work normally in TextAreas (Address, Complaint, Medicine)
+                if (target.tagName === "TEXTAREA") {
+                    return; // Do nothing, let it create a new line
+                }
+
+                e.preventDefault(); // Prevent form submit for standard inputs
+
+                // B. Special Case: Conveyance -> Trigger Save
+                if (target.id === "conveyance") {
+                    if (!isEditMode) {
+                        saveBtn.click();
+                    } else {
+                        updateBtn.click();
+                    }
+                    return;
+                }
+
+                // C. Move to Next Field
+                // Get all focusable elements
+                const focusables = Array.from(form.querySelectorAll("input, select, textarea"));
+                const index = focusables.indexOf(target);
+                
+                if (index > -1 && index < focusables.length - 1) {
+                    focusables[index + 1].focus();
+                }
+            }
+        });
+
+        /* ================= 2. DECIMAL FORMATTING ================= */
         function formatDecimal(input) {
-            // When user leaves the field, format to X.00
             input.addEventListener("blur", function() {
                 if (this.value) {
                     this.value = parseFloat(this.value).toFixed(2);
                     calculateGrandTotal();
                 }
             });
-            
-            // While typing, stop them from entering > 2 decimals
             input.addEventListener("input", function() {
                 if (this.value.includes('.')) {
                     const parts = this.value.split('.');
@@ -60,11 +91,9 @@
                 calculateGrandTotal();
             });
         }
-        
-        // Apply to billing inputs
         billingFields.forEach(field => formatDecimal(field));
 
-        /* ================= 2. AUTOCOMPLETE LOGIC ================= */
+        /* ================= 3. AUTOCOMPLETE LOGIC ================= */
         if (patientNameInput && suggestionsList) {
             patientNameInput.addEventListener("input", async function() {
                 const query = this.value.trim();
@@ -75,7 +104,6 @@
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/visits/suggestions?query=${encodeURIComponent(query)}`);
                     const names = await res.json();
-                    
                     suggestionsList.innerHTML = "";
                     if (names.length > 0) {
                         names.forEach(item => {
@@ -84,7 +112,7 @@
                             li.onclick = () => {
                                 patientNameInput.value = item.B_PName; 
                                 suggestionsList.classList.add("hidden"); 
-                                if(oldRecordBtn) oldRecordBtn.click(); // Auto-Search
+                                if(oldRecordBtn) oldRecordBtn.click(); 
                             };
                             suggestionsList.appendChild(li);
                         });
@@ -99,7 +127,7 @@
             });
         }
 
-        /* ================= 3. VALIDATION LOGIC ================= */
+        /* ================= 4. VALIDATION LOGIC ================= */
         function validateForm() {
             const requiredFields = [
                 { el: patientNameInput, name: "Patient Name" },
@@ -108,7 +136,6 @@
                 { el: form.querySelectorAll(".large-box")[0], name: "Chief Complaint" },
                 { el: form.querySelectorAll(".large-box")[1], name: "Medicine" }
             ];
-
             for (let field of requiredFields) {
                 if (!field.el || field.el.value.trim() === "") {
                     alert(`⚠️ Missing Information\n\nPlease enter the ${field.name}.`);
@@ -119,7 +146,7 @@
             return true;
         }
 
-        /* ================= 4. INPUT HANDLERS ================= */
+        /* ================= 5. INPUT HANDLERS ================= */
         if (ageInput) {
             ageInput.addEventListener("input", function() { if (this.value < 0) this.value = 0; });
             ageInput.addEventListener("keydown", function(e) { if (e.key === "-" || e.key === "e") e.preventDefault(); });
@@ -130,7 +157,7 @@
         if (patientNameInput) cleanNameInput(patientNameInput);
         if (fatherNameInput) cleanNameInput(fatherNameInput);
 
-        /* ================= 5. HELPERS & CALCULATIONS ================= */
+        /* ================= 6. HELPERS ================= */
         function toggleEditMode(enable) {
             isEditMode = enable;
             if (enable) {
@@ -150,27 +177,26 @@
             const t = parseFloat(total?.value) || 0;
             const c = parseFloat(cartage?.value) || 0;
             const v = parseFloat(conveyance?.value) || 0;
-            // Ensure Grand Total uses 2 decimals
             if (grandTotal) grandTotal.value = (t + c + v).toFixed(2);
         }
 
         function resetForm() {
             form.reset();
-            // Reset billing fields to 0.00
             billingFields.forEach(f => f.value = "0.00");
             if (grandTotal) grandTotal.value = "0.00";
-
             calculateGrandTotal();
             toggleEditMode(false); 
             loadNextSno(); 
             const now = new Date();
-            if(visitDate) visitDate.value = now.toISOString().split('T')[0];
+            if(visitDate) {
+                visitDate.value = now.toISOString().split('T')[0];
+                visitDate.focus(); // Focus Date on Reset
+            }
         }
 
-        /* ================= 6. LISTENERS ================= */
+        /* ================= 7. LISTENERS ================= */
         billingFields.forEach(field => {
             field.addEventListener("focus", () => { 
-                // Clear "0.00" on focus for easier typing
                 if (parseFloat(field.value) === 0) field.value = ""; 
             });
         });
@@ -192,7 +218,6 @@
                         data.records.forEach(rec => {
                             const date = new Date(rec.B_Date).toLocaleDateString('en-GB'); 
                             const row = document.createElement("tr");
-                            // Generates rows matching the clean design
                             row.innerHTML = `
                                 <td>${date}</td>
                                 <td>${rec.B_Sno}</td>
@@ -224,8 +249,6 @@
             if (boxes[1]) boxes[1].value = record.B_Perticu2 || "";
             snoInput.value = record.B_Sno || "";
             if (visitDate && record.B_Date) visitDate.value = new Date(record.B_Date).toISOString().split('T')[0];
-            
-            // Format existing DB values to 2 decimals
             total.value = (record.B_PerticuAmt1 || 0).toFixed(2);
             cartage.value = (record.B_Cart || 0).toFixed(2);
             conveyance.value = (record.B_Conv || 0).toFixed(2);
@@ -258,10 +281,9 @@
             };
         }
 
-        /* CRUD BUTTONS */
         if (saveBtn) {
             saveBtn.addEventListener("click", async (e) => {
-                e.preventDefault();
+                e.preventDefault(); // Handled manually now via keyboard or click
                 if (!validateForm()) return; 
                 saveBtn.disabled = true; saveBtn.innerText = "Saving...";
                 try {
@@ -304,9 +326,12 @@
 
         loadNextSno(); 
         toggleEditMode(false); 
-        if(visitDate && !visitDate.value) {
+        
+        // DEFAULT FOCUS ON DATE
+        if(visitDate) {
              const now = new Date();
              visitDate.value = now.toISOString().split('T')[0];
+             visitDate.focus(); 
         }
     }
     startApp();

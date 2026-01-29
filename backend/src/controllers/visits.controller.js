@@ -50,6 +50,7 @@ export const createVisit = async (req, res) => {
 export const getNextSno = async (req, res) => {
   try {
     const pool = await sql.connect(config);
+    // Explicitly querying Pat_Master
     const result = await pool.request().query("SELECT MAX(B_Sno) as maxSno FROM Pat_Master");
     const nextSno = (result.recordset[0].maxSno || 0) + 1;
     res.json({ nextSno });
@@ -58,7 +59,7 @@ export const getNextSno = async (req, res) => {
   }
 };
 
-// 3. SEARCH VISITS (For OLD Record Button)
+// 3. SEARCH VISITS
 export const searchVisits = async (req, res) => {
     try {
       const { name } = req.query;
@@ -73,7 +74,7 @@ export const searchVisits = async (req, res) => {
     }
 };
 
-// 4. GET SUGGESTIONS (Real-time Autocomplete)
+// 4. GET SUGGESTIONS
 export const getNameSuggestions = async (req, res) => {
   try {
     const { query } = req.query;
