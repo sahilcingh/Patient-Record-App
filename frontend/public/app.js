@@ -12,7 +12,7 @@
         if (form.dataset.initialized === "true") return;
         form.dataset.initialized = "true";
 
-        // Elements
+        // UI Elements
         const snoInput = getEl("sno");
         const ageInput = getEl("age"); 
         const sexInput = getEl("sex");
@@ -39,14 +39,31 @@
 
         let isEditMode = false;
 
-        // 1. DEFAULT DISABLE BUTTON
-        if(oldRecordBtn) {
-            oldRecordBtn.disabled = true;
-            oldRecordBtn.style.opacity = "0.5";
-            oldRecordBtn.style.cursor = "not-allowed";
+        /* ================= 1. AUTO-FILL LOGIC (NEW FEATURE) ================= */
+        
+        // Helper: Fills ONLY personal info, keeps S.No & Date for NEW visit
+        function autoFillPatientDetails(record) {
+            // Fill Personal Fields
+            patientNameInput.value = record.B_PName || "";
+            fatherNameInput.value = record.B_FName || "";
+            if(sexInput) sexInput.value = record.B_Sex || "";
+            if(ageInput) ageInput.value = record.B_Age || "";
+            
+            const addressBox = form.querySelector(".address-box");
+            if(addressBox) addressBox.value = record.B_To || "";
+
+            // DO NOT Overwrite S.No or Date (Keep them for the new visit)
+            // DO NOT Toggle Edit Mode (We are creating a new visit, not editing the old one)
+            
+            // Enable Old Record button just in case they want to see history
+            if(oldRecordBtn) {
+                oldRecordBtn.disabled = false;
+                oldRecordBtn.style.opacity = "1";
+                oldRecordBtn.style.cursor = "pointer";
+            }
         }
 
-        // 2. AUTOCOMPLETE & BUTTON LOGIC
+        /* ================= 2. AUTOCOMPLETE WITH SMART FILL ================= */
         if (patientNameInput && suggestionsList) {
             patientNameInput.addEventListener("input", async function() {
                 const query = this.value.trim();
@@ -73,18 +90,36 @@
                             oldRecordBtn.style.opacity = "1";
                             oldRecordBtn.style.cursor = "pointer";
                         }
+
                         names.forEach(item => {
                             const li = document.createElement("li");
                             li.textContent = item.B_PName;
-                            li.onclick = () => {
+                            
+                            // === SMART CLICK HANDLER ===
+                            li.onclick = async () => {
                                 patientNameInput.value = item.B_PName; 
                                 suggestionsList.classList.add("hidden"); 
-                                if(oldRecordBtn) {
-                                    oldRecordBtn.disabled = false;
-                                    oldRecordBtn.style.opacity = "1";
-                                    oldRecordBtn.style.cursor = "pointer";
-                                    oldRecordBtn.click();
-                                }
+
+                                // 1. Fetch History for this exact name
+                                try {
+                                    const searchRes = await fetch(`${API_BASE_URL}/api/visits/search?name=${encodeURIComponent(item.B_PName)}`);
+                                    const searchData = await searchRes.json();
+                                    
+                                    if(searchData.records && searchData.records.length > 0) {
+                                        // 2. Check for Duplicates (Same Name, Different Father?)
+                                        // A simple check: if we have multiple records, are they the same person?
+                                        // For now, let's assume if we click, we want the LATEST record details.
+                                        
+                                        const latestRecord = searchData.records[0]; // First record is latest (ORDER BY Date DESC)
+                                        
+                                        // 3. Auto-Fill the form immediately
+                                        autoFillPatientDetails(latestRecord);
+                                        
+                                        // Optional: Visual feedback
+                                        // patientNameInput.style.backgroundColor = "#e8f0fe";
+                                        // setTimeout(() => patientNameInput.style.backgroundColor = "white", 500);
+                                    }
+                                } catch(e) { console.error("Auto-fill failed", e); }
                             };
                             suggestionsList.appendChild(li);
                         });
@@ -105,7 +140,8 @@
             });
         }
 
-        // 3. SEARCH CLICK - ROW CLICKABLE
+        /* ================= 3. OLD RECORD BUTTON (Manual Search) ================= */
+        // This remains for when you want to explicitly check history or pick a specific older visit
         if (oldRecordBtn) {
             oldRecordBtn.addEventListener("click", async () => {
                 const nameInput = document.getElementById("patientNameInput");
@@ -120,22 +156,18 @@
                         data.records.forEach(rec => {
                             const date = new Date(rec.B_Date).toLocaleDateString('en-GB'); 
                             const row = document.createElement("tr");
-                            
-                            // NO BUTTON - ROW IS CLICKABLE
                             row.innerHTML = `
                                 <td>${date}</td>
                                 <td>${rec.B_PName}</td>
                                 <td>${rec.B_FName || '-'}</td>
                                 <td>${rec.B_TotalAmt || 0}</td>
                             `;
-                            
-                            // Attach Click Event to the WHOLE ROW
+                            // Clicking row in modal -> Full Edit Mode (Loads old S.No)
                             row.onclick = () => {
-                                fillForm(rec);
+                                fillForm(rec); // This function (defined below) sets Edit Mode
                                 toggleEditMode(true);
                                 modal.style.display = "none";
                             };
-                            
                             tableBody.appendChild(row);
                         });
                         modal.style.display = "flex"; 
@@ -146,7 +178,7 @@
             });
         }
 
-        // REST OF THE LOGIC...
+        /* ENTER KEY NAV */
         form.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
                 const target = e.target;
@@ -164,6 +196,7 @@
             }
         });
 
+        /* DECIMAL FORMAT */
         function formatDecimal(input) {
             input.addEventListener("blur", function() {
                 if (this.value) { this.value = parseFloat(this.value).toFixed(2); calculateGrandTotal(); }
@@ -178,6 +211,7 @@
         }
         billingFields.forEach(field => formatDecimal(field));
 
+        /* VALIDATION */
         function validateForm() {
             const requiredFields = [
                 { el: patientNameInput, name: "Patient Name" },
@@ -207,6 +241,7 @@
         if (patientNameInput) cleanNameInput(patientNameInput);
         if (fatherNameInput) cleanNameInput(fatherNameInput);
 
+        /* HELPERS */
         function toggleEditMode(enable) {
             isEditMode = enable;
             if (enable) {
@@ -238,6 +273,26 @@
             if(visitDate) visitDate.value = now.toISOString().split('T')[0];
         }
 
+        /* FILL FORM (FOR EDITING OLD RECORDS - OVERWRITES S.NO) */
+        function fillForm(record) {
+            getEl("patientNameInput").value = record.B_PName || "";
+            getEl("fatherNameInput").value = record.B_FName || "";
+            if(sexInput) sexInput.value = record.B_Sex || "";
+            (getEl("age") || form.querySelector("#age")).value = record.B_Age || "";
+            (getEl("address") || form.querySelector(".address-box")).value = record.B_To || "";
+            const boxes = form.querySelectorAll(".large-box");
+            if (boxes[0]) boxes[0].value = record.B_Perticu1 || "";
+            if (boxes[1]) boxes[1].value = record.B_Perticu2 || "";
+            
+            // NOTE: This function puts us in EDIT MODE (Old S.No)
+            snoInput.value = record.B_Sno || "";
+            if (visitDate && record.B_Date) visitDate.value = new Date(record.B_Date).toISOString().split('T')[0];
+            total.value = (record.B_PerticuAmt1 || 0).toFixed(2);
+            cartage.value = (record.B_Cart || 0).toFixed(2);
+            conveyance.value = (record.B_Conv || 0).toFixed(2);
+            grandTotal.value = (record.B_TotalAmt || 0).toFixed(2);
+        }
+
         billingFields.forEach(field => {
             field.addEventListener("focus", () => { if (parseFloat(field.value) === 0) field.value = ""; });
             field.addEventListener("blur", () => { if (field.value.trim() === "") field.value = "0"; calculateGrandTotal(); });
@@ -247,7 +302,7 @@
         if (cancelBtn) cancelBtn.addEventListener("click", resetForm);
         if (closeModalBtn) closeModalBtn.onclick = () => { modal.style.display = "none"; };
 
-        /* CRUD */
+        /* CRUD BUTTONS */
         if (saveBtn) {
             saveBtn.addEventListener("click", async (e) => {
                 e.preventDefault(); 
@@ -291,23 +346,6 @@
                     if (res.ok) { alert("Deleted successfully!"); resetForm(); } else { alert("Delete failed."); }
                 } catch (err) { alert("Error."); } finally { deleteBtn.disabled = false; deleteBtn.innerText = "Delete"; }
             });
-        }
-
-        function fillForm(record) {
-            getEl("patientNameInput").value = record.B_PName || "";
-            getEl("fatherNameInput").value = record.B_FName || "";
-            if(sexInput) sexInput.value = record.B_Sex || "";
-            (getEl("age") || form.querySelector("#age")).value = record.B_Age || "";
-            (getEl("address") || form.querySelector(".address-box")).value = record.B_To || "";
-            const boxes = form.querySelectorAll(".large-box");
-            if (boxes[0]) boxes[0].value = record.B_Perticu1 || "";
-            if (boxes[1]) boxes[1].value = record.B_Perticu2 || "";
-            snoInput.value = record.B_Sno || "";
-            if (visitDate && record.B_Date) visitDate.value = new Date(record.B_Date).toISOString().split('T')[0];
-            total.value = (record.B_PerticuAmt1 || 0).toFixed(2);
-            cartage.value = (record.B_Cart || 0).toFixed(2);
-            conveyance.value = (record.B_Conv || 0).toFixed(2);
-            grandTotal.value = (record.B_TotalAmt || 0).toFixed(2);
         }
 
         async function loadNextSno() {
