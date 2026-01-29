@@ -223,3 +223,99 @@ button.danger { background: linear-gradient(to bottom, #dc3545, #c82333); color:
 .nav-button { padding: 0 15px; height: 35px; background: linear-gradient(to bottom, #28a745, #218838); border: 1px solid #1e7e34; color: white; border-radius: 4px; cursor: pointer; font-weight: 600; white-space: nowrap; display: flex; align-items: center; }
 
 .hidden { display: none; }
+
+/* =========================================
+   MOBILE RESPONSIVENESS
+   ========================================= */
+@media (max-width: 768px) {
+  /* Unlock height so user can scroll on mobile */
+  body {
+    height: auto;
+    overflow-y: auto;
+    display: block;
+    padding: 10px;
+  }
+
+  .app {
+    height: auto;
+    padding: 0;
+    max-width: 100%;
+  }
+
+  .card {
+    height: auto;
+    overflow: visible;
+    padding: 15px;
+  }
+
+  #patientForm {
+    overflow: visible;
+    gap: 20px;
+  }
+
+  /* Stack inputs vertically */
+  .form-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+
+  /* Reset fixed widths */
+  .input-group, .fixed-left, .fixed-right, .col-date, .grow {
+    width: 100%;
+    margin: 0;
+  }
+
+  /* Adjust labels above inputs */
+  .input-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .aligned-label {
+    flex: none; /* Allow natural width */
+    min-width: auto;
+  }
+
+  /* Right align inputs become left on mobile for readability */
+  .right-align {
+    text-align: left; 
+  }
+
+  .nav-button {
+    width: 100%;
+    justify-content: center;
+    margin-top: 5px;
+  }
+
+  /* Billing: 2 columns */
+  .grid.billing {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+
+  /* Footer stack */
+  .footer {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .footer > div {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  button {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .address-box {
+      height: 80px;
+  }
+}

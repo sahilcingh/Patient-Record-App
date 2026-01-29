@@ -1,4 +1,5 @@
 (function initPatientForm() {
+    // API CONFIGURATION
     const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
     const API_BASE_URL = isLocal 
         ? "http://localhost:5000" 
@@ -39,6 +40,110 @@
 
         let isEditMode = false;
 
+        /* ================= 1. BUTTON STATE (VERIFICATION) ================= */
+        // Disable by default
+        if(oldRecordBtn) {
+            oldRecordBtn.disabled = true;
+            oldRecordBtn.style.opacity = "0.6";
+            oldRecordBtn.style.cursor = "not-allowed";
+        }
+
+        /* ================= 2. AUTOCOMPLETE & VERIFICATION ================= */
+        if (patientNameInput && suggestionsList) {
+            patientNameInput.addEventListener("input", async function() {
+                const query = this.value.trim();
+                
+                // If empty, disable button and hide list
+                if (query.length < 1) {
+                    suggestionsList.classList.add("hidden");
+                    if(oldRecordBtn) {
+                        oldRecordBtn.disabled = true;
+                        oldRecordBtn.style.opacity = "0.6";
+                        oldRecordBtn.style.cursor = "not-allowed";
+                    }
+                    return;
+                }
+                
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/visits/suggestions?query=${encodeURIComponent(query)}`);
+                    const names = await res.json();
+                    
+                    suggestionsList.innerHTML = "";
+                    
+                    // IF NAME EXISTS IN DB -> ENABLE BUTTON
+                    if (names.length > 0) {
+                        if(oldRecordBtn) {
+                            oldRecordBtn.disabled = false;
+                            oldRecordBtn.style.opacity = "1";
+                            oldRecordBtn.style.cursor = "pointer";
+                        }
+
+                        names.forEach(item => {
+                            const li = document.createElement("li");
+                            li.textContent = item.B_PName;
+                            li.onclick = () => {
+                                patientNameInput.value = item.B_PName; 
+                                suggestionsList.classList.add("hidden"); 
+                                if(oldRecordBtn) oldRecordBtn.click(); 
+                            };
+                            suggestionsList.appendChild(li);
+                        });
+                        suggestionsList.classList.remove("hidden");
+                    } else {
+                        // NAME NOT FOUND -> DISABLE BUTTON
+                        if(oldRecordBtn) {
+                            oldRecordBtn.disabled = true;
+                            oldRecordBtn.style.opacity = "0.6";
+                            oldRecordBtn.style.cursor = "not-allowed";
+                        }
+                        suggestionsList.classList.add("hidden");
+                    }
+                } catch (err) { console.error(err); }
+            });
+
+            document.addEventListener("click", function(e) {
+                if (e.target !== patientNameInput) suggestionsList.classList.add("hidden");
+            });
+        }
+
+        /* ================= 3. OLD RECORD SEARCH (UPDATED COLUMNS) ================= */
+        if (oldRecordBtn) {
+            oldRecordBtn.addEventListener("click", async () => {
+                const nameInput = document.getElementById("patientNameInput");
+                const patientName = nameInput?.value.trim();
+                if (!patientName) return;
+
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/visits/search?name=${encodeURIComponent(patientName)}`);
+                    const data = await res.json();
+                    if (res.ok && data.records.length > 0) {
+                        tableBody.innerHTML = ""; 
+                        data.records.forEach(rec => {
+                            const date = new Date(rec.B_Date).toLocaleDateString('en-GB'); 
+                            const row = document.createElement("tr");
+                            // UPDATED ROW: 2nd Column is Name
+                            row.innerHTML = `
+                                <td>${date}</td>
+                                <td>${rec.B_PName}</td> 
+                                <td>${rec.B_FName || '-'}</td>
+                                <td>${rec.B_TotalAmt || 0}</td>
+                                <td><button type="button" class="select-btn">Select</button></td>
+                            `;
+                            row.querySelector(".select-btn").onclick = () => {
+                                fillForm(rec);
+                                toggleEditMode(true);
+                                modal.style.display = "none";
+                            };
+                            tableBody.appendChild(row);
+                        });
+                        modal.style.display = "flex"; 
+                    } else { 
+                        alert("No history found."); 
+                    }
+                } catch (err) { alert("Error loading history."); }
+            });
+        }
+
         /* ================= ENTER KEY NAV ================= */
         form.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
@@ -46,14 +151,11 @@
                 if (target.tagName === "TEXTAREA") return; 
 
                 e.preventDefault(); 
-                
-                // Conveyance -> Save
                 if (target.id === "conveyance") {
                     isEditMode ? updateBtn.click() : saveBtn.click();
                     return;
                 }
 
-                // Next Field logic
                 const focusables = Array.from(form.querySelectorAll("input, select, textarea"));
                 const index = focusables.indexOf(target);
                 if (index > -1 && index < focusables.length - 1) {
@@ -65,68 +167,19 @@
         /* ================= 2-DECIMAL FORMATTING ================= */
         function formatDecimal(input) {
             input.addEventListener("blur", function() {
-                if (this.value) {
-                    this.value = parseFloat(this.value).toFixed(2);
-                    calculateGrandTotal();
-                }
+                if (this.value) { this.value = parseFloat(this.value).toFixed(2); calculateGrandTotal(); }
             });
             input.addEventListener("input", function() {
                 if (this.value.includes('.')) {
                     const parts = this.value.split('.');
-                    if (parts[1].length > 2) {
-                        this.value = parseFloat(this.value).toFixed(2);
-                    }
+                    if (parts[1].length > 2) { this.value = parseFloat(this.value).toFixed(2); }
                 }
                 calculateGrandTotal();
             });
         }
         billingFields.forEach(field => formatDecimal(field));
 
-        /* ================= REAL-TIME AUTOCOMPLETE ================= */
-        if (patientNameInput && suggestionsList) {
-            patientNameInput.addEventListener("input", async function() {
-                const query = this.value.trim();
-                
-                // If empty, hide list
-                if (query.length < 1) {
-                    suggestionsList.classList.add("hidden");
-                    return;
-                }
-                
-                try {
-                    // Fetch names starting with 'query'
-                    const res = await fetch(`${API_BASE_URL}/api/visits/suggestions?query=${encodeURIComponent(query)}`);
-                    const names = await res.json();
-                    
-                    suggestionsList.innerHTML = "";
-                    
-                    if (names.length > 0) {
-                        names.forEach(item => {
-                            const li = document.createElement("li");
-                            li.textContent = item.B_PName;
-                            
-                            // On Click: Fill name & Auto-search history
-                            li.onclick = () => {
-                                patientNameInput.value = item.B_PName; 
-                                suggestionsList.classList.add("hidden"); 
-                                if(oldRecordBtn) oldRecordBtn.click(); 
-                            };
-                            suggestionsList.appendChild(li);
-                        });
-                        suggestionsList.classList.remove("hidden");
-                    } else {
-                        suggestionsList.classList.add("hidden");
-                    }
-                } catch (err) { console.error(err); }
-            });
-
-            // Hide list when clicking outside
-            document.addEventListener("click", function(e) {
-                if (e.target !== patientNameInput) suggestionsList.classList.add("hidden");
-            });
-        }
-
-        /* ================= VALIDATION (Including Gender) ================= */
+        /* ================= VALIDATION ================= */
         function validateForm() {
             const requiredFields = [
                 { el: patientNameInput, name: "Patient Name" },
@@ -136,7 +189,6 @@
                 { el: form.querySelectorAll(".large-box")[0], name: "Chief Complaint" },
                 { el: form.querySelectorAll(".large-box")[1], name: "Medicine" }
             ];
-
             for (let field of requiredFields) {
                 if (!field.el || field.el.value.trim() === "" || field.el.value === "Select") {
                     alert(`⚠️ Missing Information\n\nPlease enter/select the ${field.name}.`);
@@ -187,8 +239,6 @@
             calculateGrandTotal();
             toggleEditMode(false); 
             loadNextSno(); 
-            
-            // Focus Date on Reset
             const now = new Date();
             if(visitDate) {
                 visitDate.value = now.toISOString().split('T')[0];
@@ -196,57 +246,10 @@
             }
         }
 
-        /* ================= LISTENERS ================= */
-        billingFields.forEach(field => {
-            field.addEventListener("focus", () => { 
-                if (parseFloat(field.value) === 0) field.value = ""; 
-            });
-        });
-        
-        if (cancelBtn) cancelBtn.addEventListener("click", resetForm);
-        if (closeModalBtn) closeModalBtn.onclick = () => { modal.style.display = "none"; };
-
-        /* OLD RECORD SEARCH */
-        if (oldRecordBtn) {
-            oldRecordBtn.addEventListener("click", async () => {
-                const nameInput = document.getElementById("patientNameInput");
-                const patientName = nameInput?.value.trim();
-                if (!patientName) { alert("Please enter a patient name first."); return; }
-                try {
-                    const res = await fetch(`${API_BASE_URL}/api/visits/search?name=${encodeURIComponent(patientName)}`);
-                    const data = await res.json();
-                    if (res.ok && data.records.length > 0) {
-                        tableBody.innerHTML = ""; 
-                        data.records.forEach(rec => {
-                            const date = new Date(rec.B_Date).toLocaleDateString('en-GB'); 
-                            const row = document.createElement("tr");
-                            row.innerHTML = `
-                                <td>${date}</td>
-                                <td>${rec.B_Sno}</td>
-                                <td>${rec.B_FName || '-'}</td>
-                                <td>${rec.B_TotalAmt || 0}</td>
-                                <td><button type="button" class="select-btn">Select</button></td>
-                            `;
-                            row.querySelector(".select-btn").onclick = () => {
-                                fillForm(rec);
-                                toggleEditMode(true);
-                                modal.style.display = "none";
-                            };
-                            tableBody.appendChild(row);
-                        });
-                        modal.style.display = "flex"; 
-                    } else { alert("No history found."); }
-                } catch (err) { alert("Error loading history."); }
-            });
-        }
-
         function fillForm(record) {
             getEl("patientNameInput").value = record.B_PName || "";
             getEl("fatherNameInput").value = record.B_FName || "";
-            
-            // Gender Fill
             if(sexInput) sexInput.value = record.B_Sex || "";
-            
             (getEl("age") || form.querySelector("#age")).value = record.B_Age || "";
             (getEl("address") || form.querySelector(".address-box")).value = record.B_To || "";
             const boxes = form.querySelectorAll(".large-box");
@@ -258,6 +261,62 @@
             cartage.value = (record.B_Cart || 0).toFixed(2);
             conveyance.value = (record.B_Conv || 0).toFixed(2);
             grandTotal.value = (record.B_TotalAmt || 0).toFixed(2);
+        }
+
+        /* ================= LISTENERS ================= */
+        billingFields.forEach(field => {
+            field.addEventListener("focus", () => { if (parseFloat(field.value) === 0) field.value = ""; });
+            field.addEventListener("blur", () => { if (field.value.trim() === "") field.value = "0"; calculateGrandTotal(); });
+            field.addEventListener("input", calculateGrandTotal);
+        });
+        
+        if (cancelBtn) cancelBtn.addEventListener("click", resetForm);
+        if (closeModalBtn) closeModalBtn.onclick = () => { modal.style.display = "none"; };
+
+        /* CRUD BUTTONS */
+        if (saveBtn) {
+            saveBtn.addEventListener("click", async (e) => {
+                e.preventDefault(); 
+                if (!validateForm()) return; 
+                if (!confirm("Are you sure you want to save this record?")) return;
+                saveBtn.disabled = true; saveBtn.innerText = "Saving...";
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/visits`, {
+                        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(getPayload())
+                    });
+                    if (res.ok) { alert("Saved!"); resetForm(); } else { alert("Save failed."); }
+                } catch (err) { alert("Error."); } finally { saveBtn.disabled = false; saveBtn.innerText = "Save"; }
+            });
+        }
+
+        if (updateBtn) {
+            updateBtn.addEventListener("click", async (e) => {
+                e.preventDefault();
+                const currentSno = snoInput.value;
+                if (!currentSno) return;
+                if (!validateForm()) return;
+                if (!confirm("Are you sure you want to update this record?")) return;
+                updateBtn.disabled = true; updateBtn.innerText = "Updating...";
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/visits/${currentSno}`, {
+                        method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(getPayload())
+                    });
+                    if (res.ok) { alert("Updated successfully!"); resetForm(); } else { alert("Update failed."); }
+                } catch (err) { alert("Error."); } finally { updateBtn.disabled = false; updateBtn.innerText = "Update"; }
+            });
+        }
+
+        if (deleteBtn) {
+            deleteBtn.addEventListener("click", async (e) => {
+                e.preventDefault();
+                const currentSno = snoInput.value;
+                if (!confirm(`Are you sure you want to delete record #${currentSno}?`)) return;
+                deleteBtn.disabled = true; deleteBtn.innerText = "Deleting...";
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/visits/${currentSno}`, { method: "DELETE" });
+                    if (res.ok) { alert("Deleted successfully!"); resetForm(); } else { alert("Delete failed."); }
+                } catch (err) { alert("Error."); } finally { deleteBtn.disabled = false; deleteBtn.innerText = "Delete"; }
+            });
         }
 
         async function loadNextSno() {
@@ -286,60 +345,8 @@
             };
         }
 
-        if (saveBtn) {
-            saveBtn.addEventListener("click", async (e) => {
-                e.preventDefault(); 
-                if (!validateForm()) return; 
-
-                // CONFIRMATION POPUP
-                if (!confirm("Are you sure you want to save this record?")) return;
-
-                saveBtn.disabled = true; saveBtn.innerText = "Saving...";
-                try {
-                    const res = await fetch(`${API_BASE_URL}/api/visits`, {
-                        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(getPayload())
-                    });
-                    if (res.ok) { alert("Saved!"); resetForm(); } else { alert("Save failed."); }
-                } catch (err) { alert("Error."); } finally { saveBtn.disabled = false; saveBtn.innerText = "Save"; }
-            });
-        }
-
-        if (updateBtn) {
-            updateBtn.addEventListener("click", async (e) => {
-                e.preventDefault();
-                const currentSno = snoInput.value;
-                if (!currentSno) return;
-                if (!validateForm()) return;
-
-                if (!confirm("Are you sure you want to update this record?")) return;
-
-                updateBtn.disabled = true; updateBtn.innerText = "Updating...";
-                try {
-                    const res = await fetch(`${API_BASE_URL}/api/visits/${currentSno}`, {
-                        method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(getPayload())
-                    });
-                    if (res.ok) { alert("Updated successfully!"); resetForm(); } else { alert("Update failed."); }
-                } catch (err) { alert("Error."); } finally { updateBtn.disabled = false; updateBtn.innerText = "Update"; }
-            });
-        }
-
-        if (deleteBtn) {
-            deleteBtn.addEventListener("click", async (e) => {
-                e.preventDefault();
-                const currentSno = snoInput.value;
-                if (!confirm(`Are you sure you want to delete record #${currentSno}?`)) return;
-                deleteBtn.disabled = true; deleteBtn.innerText = "Deleting...";
-                try {
-                    const res = await fetch(`${API_BASE_URL}/api/visits/${currentSno}`, { method: "DELETE" });
-                    if (res.ok) { alert("Deleted successfully!"); resetForm(); } else { alert("Delete failed."); }
-                } catch (err) { alert("Error."); } finally { deleteBtn.disabled = false; deleteBtn.innerText = "Delete"; }
-            });
-        }
-
         loadNextSno(); 
         toggleEditMode(false); 
-        
-        // FOCUS DATE ON LOAD
         if(visitDate) {
              const now = new Date();
              visitDate.value = now.toISOString().split('T')[0];
