@@ -47,7 +47,7 @@
             oldRecordBtn.style.cursor = "not-allowed";
         }
 
-        /* ================= PRINT BILL FUNCTION (UPDATED) ================= */
+        /* ================= PRINT BILL FUNCTION (UPDATED LAYOUT) ================= */
         if (printBtn) {
             printBtn.addEventListener("click", () => {
                 const name = patientNameInput.value || "N/A";
@@ -70,8 +70,9 @@
 
                 printWindow.document.write('.receipt-title { text-align: center; margin: 10px 0 20px 0; font-size: 20px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }');
                 
-                /* CONTENT STYLES */
-                printWindow.document.write('.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; border: 1px solid #ddd; padding: 10px; border-radius: 5px; }');
+                /* CONTENT STYLES - CHANGED .info-grid TO FLEXBOX FOR EXTREME RIGHT DATE */
+                printWindow.document.write('.info-grid { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border: 1px solid #ddd; padding: 10px; border-radius: 5px; }');
+                
                 printWindow.document.write('.section-title { font-weight: bold; margin-top: 15px; background: #eee; padding: 5px 10px; border-left: 4px solid #333; }');
                 printWindow.document.write('.content-box { border: 1px solid #ccc; padding: 10px; min-height: 60px; margin-bottom: 10px; white-space: pre-wrap; font-size: 13px; }');
                 printWindow.document.write('.billing-table { width: 100%; border-collapse: collapse; margin-top: 20px; }');
@@ -99,6 +100,7 @@
 
                 printWindow.document.write('<div class="receipt-title">Patient Receipt</div>');
                 
+                // NAME (Left) and DATE (Extreme Right)
                 printWindow.document.write('<div class="info-grid">');
                 printWindow.document.write(`<div><strong>Patient Name:</strong> ${name}</div>`);
                 printWindow.document.write(`<div><strong>Date:</strong> ${date}</div>`);
