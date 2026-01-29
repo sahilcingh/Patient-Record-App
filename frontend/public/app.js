@@ -1,5 +1,4 @@
 (function initPatientForm() {
-    // API CONFIGURATION
     const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
     const API_BASE_URL = isLocal 
         ? "http://localhost:5000" 
@@ -13,7 +12,7 @@
         if (form.dataset.initialized === "true") return;
         form.dataset.initialized = "true";
 
-        // UI Elements
+        // Elements
         const snoInput = getEl("sno");
         const ageInput = getEl("age"); 
         const sexInput = getEl("sex");
@@ -40,19 +39,18 @@
 
         let isEditMode = false;
 
-        /* ================= 1. BUTTON STATE: Default Disabled ================= */
+        // 1. DEFAULT DISABLE OLD RECORD BUTTON
         if(oldRecordBtn) {
             oldRecordBtn.disabled = true;
             oldRecordBtn.style.opacity = "0.5";
             oldRecordBtn.style.cursor = "not-allowed";
         }
 
-        /* ================= 2. AUTOCOMPLETE & BUTTON VERIFICATION ================= */
+        // 2. AUTOCOMPLETE & VERIFICATION LOGIC
         if (patientNameInput && suggestionsList) {
             patientNameInput.addEventListener("input", async function() {
                 const query = this.value.trim();
                 
-                // If input is empty, reset button to disabled
                 if (query.length < 1) {
                     suggestionsList.classList.add("hidden");
                     if(oldRecordBtn) {
@@ -69,9 +67,8 @@
                     
                     suggestionsList.innerHTML = "";
                     
-                    // Logic: If we found names in DB, enable the button
+                    // Logic: If suggestions exist -> Enable Button
                     if (names.length > 0) {
-                        // Enable button because names exist
                         if(oldRecordBtn) {
                             oldRecordBtn.disabled = false;
                             oldRecordBtn.style.opacity = "1";
@@ -84,19 +81,18 @@
                             li.onclick = () => {
                                 patientNameInput.value = item.B_PName; 
                                 suggestionsList.classList.add("hidden"); 
-                                // Ensure enabled after selection
                                 if(oldRecordBtn) {
                                     oldRecordBtn.disabled = false;
                                     oldRecordBtn.style.opacity = "1";
                                     oldRecordBtn.style.cursor = "pointer";
-                                    oldRecordBtn.click(); // Auto click optional
+                                    oldRecordBtn.click(); // Auto-click
                                 }
                             };
                             suggestionsList.appendChild(li);
                         });
                         suggestionsList.classList.remove("hidden");
                     } else {
-                        // No names found? Disable button
+                        // No results -> Disable Button
                         suggestionsList.classList.add("hidden");
                         if(oldRecordBtn) {
                             oldRecordBtn.disabled = true;
@@ -112,7 +108,7 @@
             });
         }
 
-        /* ================= 3. OLD RECORD SEARCH (Show Name in Col 2) ================= */
+        // 3. OLD RECORD SEARCH CLICK (Uses Name in 2nd Column)
         if (oldRecordBtn) {
             oldRecordBtn.addEventListener("click", async () => {
                 const nameInput = document.getElementById("patientNameInput");
@@ -127,7 +123,7 @@
                         data.records.forEach(rec => {
                             const date = new Date(rec.B_Date).toLocaleDateString('en-GB'); 
                             const row = document.createElement("tr");
-                            // 2nd Column is now Patient Name
+                            // Changed: 2nd col is Name
                             row.innerHTML = `
                                 <td>${date}</td>
                                 <td>${rec.B_PName}</td>
@@ -144,19 +140,17 @@
                         });
                         modal.style.display = "flex"; 
                     } else { 
-                        alert("No records found in database."); 
+                        alert("No records found."); 
                     }
                 } catch (err) { alert("Error loading history."); }
             });
         }
 
-        // ... [The rest of app.js (Validation, Enter Key, etc.) remains unchanged] ...
-        /* ================= ENTER KEY NAV ================= */
+        /* ENTER KEY NAV */
         form.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
                 const target = e.target;
                 if (target.tagName === "TEXTAREA") return; 
-
                 e.preventDefault(); 
                 if (target.id === "conveyance") {
                     isEditMode ? updateBtn.click() : saveBtn.click();
@@ -170,7 +164,7 @@
             }
         });
 
-        /* ================= 2-DECIMAL FORMATTING ================= */
+        /* DECIMAL FORMAT */
         function formatDecimal(input) {
             input.addEventListener("blur", function() {
                 if (this.value) { this.value = parseFloat(this.value).toFixed(2); calculateGrandTotal(); }
@@ -185,7 +179,7 @@
         }
         billingFields.forEach(field => formatDecimal(field));
 
-        /* ================= VALIDATION ================= */
+        /* VALIDATION */
         function validateForm() {
             const requiredFields = [
                 { el: patientNameInput, name: "Patient Name" },
@@ -205,7 +199,7 @@
             return true;
         }
 
-        /* ================= HELPERS ================= */
+        /* INPUT HANDLERS */
         if (ageInput) {
             ageInput.addEventListener("input", function() { if (this.value < 0) this.value = 0; });
             ageInput.addEventListener("keydown", function(e) { if (e.key === "-" || e.key === "e") e.preventDefault(); });
@@ -216,6 +210,7 @@
         if (patientNameInput) cleanNameInput(patientNameInput);
         if (fatherNameInput) cleanNameInput(fatherNameInput);
 
+        /* HELPERS */
         function toggleEditMode(enable) {
             isEditMode = enable;
             if (enable) {
@@ -230,14 +225,12 @@
                 if(snoInput) snoInput.style.backgroundColor = "white";
             }
         }
-        
         function calculateGrandTotal() {
             const t = parseFloat(total?.value) || 0;
             const c = parseFloat(cartage?.value) || 0;
             const v = parseFloat(conveyance?.value) || 0;
             if (grandTotal) grandTotal.value = (t + c + v).toFixed(2);
         }
-
         function resetForm() {
             form.reset();
             billingFields.forEach(f => f.value = "0.00");
@@ -246,13 +239,9 @@
             toggleEditMode(false); 
             loadNextSno(); 
             const now = new Date();
-            if(visitDate) {
-                visitDate.value = now.toISOString().split('T')[0];
-                visitDate.focus(); 
-            }
+            if(visitDate) visitDate.value = now.toISOString().split('T')[0];
         }
 
-        /* ================= LISTENERS ================= */
         billingFields.forEach(field => {
             field.addEventListener("focus", () => { if (parseFloat(field.value) === 0) field.value = ""; });
             field.addEventListener("blur", () => { if (field.value.trim() === "") field.value = "0"; calculateGrandTotal(); });

@@ -19,7 +19,7 @@ function App() {
         </header>
 
         <form id="patientForm">
-          {/* ... BASIC INFO ... */}
+          {/* BASIC INFO */}
           <section className="section patient-data-box">
             <div className="form-row">
               <div className="input-group fixed-left">
@@ -70,7 +70,7 @@ function App() {
             </div>
           </section>
 
-          {/* ... COMPLAINT / MEDICINE ... */}
+          {/* COMPLAINT / MEDICINE */}
           <div className="section two-col">
             <div>
               <h3>Chief Complaint</h3>
@@ -82,7 +82,7 @@ function App() {
             </div>
           </div>
 
-          {/* ... BILLING ... */}
+          {/* BILLING */}
           <section className="section billing-section">
             <h2>Billing</h2>
             <div className="grid billing">
@@ -105,7 +105,7 @@ function App() {
             </div>
           </section>
 
-          {/* ... FOOTER ... */}
+          {/* FOOTER */}
           <footer className="footer">
             <div>
                <button type="button" id="deleteBtn" className="danger hidden">Delete</button>
@@ -120,7 +120,7 @@ function App() {
         </form>
       </div>
 
-      {/* History Modal - UPDATED HEADER */}
+      {/* History Modal - Updated Headers */}
       <div id="historyModal" className="modal-overlay">
         <div className="modal-content">
           <div className="modal-header">
@@ -133,7 +133,7 @@ function App() {
                 <thead>
                     <tr>
                     <th>Date</th>
-                    <th>Patient Name</th> {/* CHANGED FROM S.NO */}
+                    <th>Patient Name</th> {/* CHANGED */}
                     <th>Father's Name</th>
                     <th>Grand Total</th>
                     <th>Action</th>

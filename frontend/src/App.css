@@ -4,16 +4,16 @@
 }
 
 /* =========================================
-   DESKTOP DEFAULT (FIXED SCREEN, NO SCROLL)
+   1. DESKTOP DEFAULT (PC VIEW)
    ========================================= */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #eef2f7;
   margin: 0;
   padding: 0;
-  height: 100vh; /* Fixed height */
+  height: 100vh; /* Fixed height on PC */
   width: 100vw;
-  overflow: hidden; /* No scroll on desktop */
+  overflow: hidden; /* No scroll on PC */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -31,7 +31,7 @@ body {
   padding: 1.5vh 2vw;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  height: 98vh; /* Fixed height card */
+  height: 98vh; 
   display: flex;
   flex-direction: column;
 }
@@ -53,7 +53,7 @@ body {
 .header h1 { margin: 0; font-size: 1.5rem; font-weight: 600; }
 .date { font-weight: 600; color: #e3f2fd; font-size: 0.9rem; }
 
-/* FORM CONTAINER */
+/* FORM LAYOUT */
 #patientForm {
   display: flex;
   flex-direction: column;
@@ -62,7 +62,6 @@ body {
   overflow: hidden;
 }
 
-/* SECTIONS */
 .section {
   padding: 1.5vh;
   background-color: #ffffff;
@@ -73,13 +72,9 @@ body {
   justify-content: center;
 }
 
-.patient-data-box {
-  flex: 0 0 auto;
-  gap: 1vh;
-}
+.patient-data-box { flex: 0 0 auto; gap: 1vh; }
 
-/* ================= ALIGNMENT & LAYOUT ================= */
-
+/* ROW ALIGNMENT (Desktop) */
 .form-row {
   display: flex;
   align-items: center;
@@ -93,10 +88,9 @@ body {
   gap: 10px;
 }
 
-.align-top {
-    align-items: flex-start;
-}
+.align-top { align-items: flex-start; }
 
+/* Desktop Label Widths */
 .aligned-label {
     flex: 0 0 140px; 
     font-weight: 600;
@@ -112,6 +106,7 @@ body {
   font-size: 0.9rem;
 }
 
+/* Desktop Field Widths */
 .fixed-left { width: auto; flex-shrink: 0; }
 .col-date { margin-left: auto; margin-right: auto; }
 .fixed-right { width: 160px; flex-shrink: 0; justify-content: flex-end; }
@@ -119,103 +114,59 @@ body {
 .grow { flex: 1; display: flex; position: relative; } 
 .grow input { width: 100%; }
 
-.address-box { 
-    flex: 1; 
-    height: 5vh; min-height: 30px; 
-    resize: none; 
-}
+.address-box { flex: 1; height: 5vh; min-height: 30px; resize: none; }
 
-/* ================= DROPDOWN MENU ================= */
-.autocomplete-wrapper {
-    position: relative;
-    width: 100%;
-}
-
+/* AUTOCOMPLETE */
+.autocomplete-wrapper { position: relative; width: 100%; }
 .suggestions-list {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: white;
-    border: 1px solid #ced4da;
-    border-radius: 0 0 5px 5px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    max-height: 150px;
-    overflow-y: auto;
-    z-index: 1000;
-    list-style: none;
-    padding: 0;
-    margin: 0;
+    position: absolute; top: 100%; left: 0; right: 0;
+    background: white; border: 1px solid #ced4da;
+    border-radius: 0 0 5px 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    max-height: 150px; overflow-y: auto; z-index: 1000;
+    list-style: none; padding: 0; margin: 0;
 }
-
 .suggestions-list li {
-    padding: 8px 10px;
-    cursor: pointer;
-    border-bottom: 1px solid #eee;
-    font-size: 13px;
-    color: #333;
+    padding: 8px 10px; cursor: pointer; border-bottom: 1px solid #eee;
+    font-size: 13px; color: #333;
 }
+.suggestions-list li:hover { background-color: #e9ecef; color: #007bff; }
 
-.suggestions-list li:hover {
-    background-color: #e9ecef;
-    color: #007bff;
-}
-
-/* ================= MODAL STYLES ================= */
+/* MODAL */
 .modal-overlay { 
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-    background: rgba(0,0,0,0.5); 
-    display: none; justify-content: center; align-items: center; 
-    z-index: 1000; 
+    background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; 
 }
-
 .modal-content { 
-    background: white; 
-    padding: 20px; 
-    border-radius: 8px; 
-    width: 700px; 
-    max-width: 95%; 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    background: white; padding: 20px; border-radius: 8px; 
+    width: 700px; max-width: 95%; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
-
-.modal-header { 
-    display: flex; justify-content: space-between; align-items: center; 
-    margin-bottom: 15px; 
-    border-bottom: 1px solid #eee; 
-    padding-bottom: 10px;
-}
-
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
 .modal-header h3 { color: #007bff; font-size: 1.2rem; margin: 0; }
-
 .table-container { border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden; }
 .history-table { width: 100%; border-collapse: collapse; background: white; }
 .history-table th { background-color: #eef6fc; color: #1e88e5; font-weight: 600; padding: 12px 15px; text-align: left; border-bottom: 1px solid #dee2e6; }
 .history-table td { padding: 10px 15px; text-align: left; border-bottom: 1px solid #eee; color: #333; }
-
-.select-btn {
-    background-color: white; border: 1px solid #ced4da; color: #555; padding: 5px 15px; border-radius: 4px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
-}
+.select-btn { background-color: white; border: 1px solid #ced4da; color: #555; padding: 5px 15px; border-radius: 4px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
 .select-btn:hover { background-color: #f8f9fa; border-color: #adb5bd; }
 .close-modal { font-size: 24px; cursor: pointer; border: none; background: none; color: #aaa; }
-.close-modal:hover { color: #555; }
 
-/* ================= OTHER SECTIONS ================= */
+/* OTHER SECTIONS */
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; min-height: 0; }
 .two-col > div { display: flex; flex-direction: column; height: 100%; }
 .large-box { width: 100%; flex: 1; resize: none; min-height: 40px; }
 h3 { margin-top: 0; color: #0056b3; font-size: 1rem; margin-bottom: 0.5vh; border-bottom: 1px solid #e6f2ff; }
 
-/* Billing */
+/* BILLING */
 .billing-section { flex: 0 0 auto; }
 .grid.billing { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; align-items: end; width: 100%; }
 .billing .field { display: flex; flex-direction: column; gap: 0.5vh; }
 .highlight input { background-color: #d4edda; border-color: #c3e6cb; color: #155724; font-weight: 700; height: 40px; }
 h2 { margin: 0 0 1vh 0; color: #0056b3; font-size: 1.1rem; border-bottom: 1px solid #e6f2ff; }
 
-/* Footer */
+/* FOOTER */
 .footer { flex: 0 0 auto; display: flex; justify-content: space-between; margin-top: 1vh; padding-top: 1vh; border-top: 2px solid #e9ecef; }
 
-/* Inputs & Buttons */
+/* INPUTS & BUTTONS */
 input, select, textarea { padding: 5px 10px; border: 1px solid #ced4da; background-color: #fcfcfc; border-radius: 5px; font-size: 14px; color: #495057; height: 35px; }
 input:focus, select:focus, textarea:focus { outline: none; border-color: #4facfe; box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.25); }
 .right-align { text-align: right; }
@@ -224,63 +175,55 @@ button { padding: 8px 20px; margin-left: 12px; border: none; border-radius: 5px;
 button.primary { background: linear-gradient(to bottom, #007bff, #0069d9); color: white; border: 1px solid #0062cc; }
 button.danger { background: linear-gradient(to bottom, #dc3545, #c82333); color: white; border: 1px solid #bd2130; margin-left: 0; }
 .nav-button { padding: 0 15px; height: 35px; background: linear-gradient(to bottom, #28a745, #218838); border: 1px solid #1e7e34; color: white; border-radius: 4px; cursor: pointer; font-weight: 600; white-space: nowrap; display: flex; align-items: center; }
-
 .hidden { display: none; }
 
 /* =========================================
-   MOBILE RESPONSIVENESS (SCROLLABLE FIX)
+   2. MOBILE RESPONSIVENESS (OVERRIDE)
    ========================================= */
 @media (max-width: 768px) {
-  /* 1. ALLOW SCROLLING ON MOBILE */
+  
+  /* ALLOW SCROLLING */
   html, body {
-    height: auto !important; /* Allow growing */
-    overflow-y: auto !important; /* Enable Scroll */
-    display: block;
-    padding: 5px;
+    height: auto !important; 
+    overflow-y: auto !important; 
+    display: block; 
+    padding: 10px;
   }
 
   .app {
     height: auto !important;
     padding: 0;
-    /* Add extra padding at bottom so footer isn't hidden by browser nav bar */
-    padding-bottom: 50px; 
+    padding-bottom: 60px; /* Ensures footer is never hidden */
   }
 
-  /* 2. ALLOW CARD TO GROW */
+  /* UNLOCK CARD HEIGHT */
   .card {
     height: auto !important;
-    min-height: 100vh;
     overflow: visible;
     padding: 15px;
   }
 
-  /* 3. RESET FORM LAYOUT */
   #patientForm {
     overflow: visible;
     gap: 15px;
   }
 
-  .section {
-    padding: 15px;
-  }
+  .section { padding: 15px; }
 
-  /* 4. STACK ELEMENTS */
+  /* STACK EVERYTHING VERTICALLY */
   .form-row {
     flex-direction: column;
     align-items: stretch;
     gap: 15px;
   }
 
-  .input-group, 
-  .fixed-left, 
-  .fixed-right, 
-  .col-date, 
-  .grow {
+  /* RESET WIDTHS */
+  .input-group, .fixed-left, .fixed-right, .col-date, .grow {
     width: 100% !important;
     margin: 0;
   }
 
-  /* Labels above inputs */
+  /* LABELS ABOVE INPUTS */
   .input-group {
     flex-direction: column;
     align-items: flex-start;
@@ -292,21 +235,28 @@ button.danger { background: linear-gradient(to bottom, #dc3545, #c82333); color:
     min-width: auto;
   }
 
+  /* BIGGER TOUCH TARGETS */
   input, select, textarea {
     width: 100%;
     height: 45px;
   }
 
   .address-box { height: 80px; }
+  
+  /* LEFT ALIGN TEXT ON MOBILE */
   .right-align { text-align: left; }
 
-  /* Buttons */
-  .nav-button { width: 100%; justify-content: center; margin-top: 5px; }
+  /* FULL WIDTH BUTTONS */
+  .nav-button { 
+    width: 100%; 
+    justify-content: center; 
+    margin-top: 5px; 
+  }
 
   .grid.billing { grid-template-columns: 1fr 1fr; }
   .two-col { grid-template-columns: 1fr; }
 
-  /* 5. FOOTER VISIBILITY */
+  /* FOOTER STACK */
   .footer {
     flex-direction: column;
     gap: 15px;
