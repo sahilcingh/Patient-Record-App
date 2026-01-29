@@ -58,6 +58,8 @@ function App() {
             <div className="form-row">
               <div className="input-group grow">
                 <label className="aligned-label">Patient's Name</label>
+                
+                {/* AUTOCOMPLETE WRAPPER */}
                 <div className="autocomplete-wrapper">
                     <input
                       type="text"
@@ -94,9 +96,8 @@ function App() {
               </div>
             </div>
 
-            {/* ROW 4: Address (FIXED STRUCTURE) */}
+            {/* ROW 4: Address */}
             <div className="form-row">
-              {/* Added 'input-group grow align-top' to match spacing exactly */}
               <div className="input-group grow align-top">
                 <label className="aligned-label" style={{marginTop: "8px"}}>Address</label>
                 <textarea id="address" className="address-box" required />

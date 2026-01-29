@@ -1,5 +1,4 @@
 (function initPatientForm() {
-    // API CONFIGURATION
     const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
     const API_BASE_URL = isLocal 
         ? "http://localhost:5000" 
@@ -13,10 +12,10 @@
         if (form.dataset.initialized === "true") return;
         form.dataset.initialized = "true";
 
-        // Elements
+        // UI Elements
         const snoInput = getEl("sno");
         const ageInput = getEl("age"); 
-        const sexInput = getEl("sex"); // <--- Added Reference
+        const sexInput = getEl("sex");
         const total = getEl("total");
         const cartage = getEl("cartage");
         const conveyance = getEl("conveyance");
@@ -83,22 +82,30 @@
         }
         billingFields.forEach(field => formatDecimal(field));
 
-        /* ================= AUTOCOMPLETE ================= */
+        /* ================= REAL-TIME AUTOCOMPLETE ================= */
         if (patientNameInput && suggestionsList) {
             patientNameInput.addEventListener("input", async function() {
                 const query = this.value.trim();
+                
+                // If empty, hide list
                 if (query.length < 1) {
                     suggestionsList.classList.add("hidden");
                     return;
                 }
+                
                 try {
+                    // Fetch names starting with 'query'
                     const res = await fetch(`${API_BASE_URL}/api/visits/suggestions?query=${encodeURIComponent(query)}`);
                     const names = await res.json();
+                    
                     suggestionsList.innerHTML = "";
+                    
                     if (names.length > 0) {
                         names.forEach(item => {
                             const li = document.createElement("li");
                             li.textContent = item.B_PName;
+                            
+                            // On Click: Fill name & Auto-search history
                             li.onclick = () => {
                                 patientNameInput.value = item.B_PName; 
                                 suggestionsList.classList.add("hidden"); 
@@ -112,24 +119,25 @@
                     }
                 } catch (err) { console.error(err); }
             });
+
+            // Hide list when clicking outside
             document.addEventListener("click", function(e) {
                 if (e.target !== patientNameInput) suggestionsList.classList.add("hidden");
             });
         }
 
-        /* ================= VALIDATION (UPDATED) ================= */
+        /* ================= VALIDATION (Including Gender) ================= */
         function validateForm() {
             const requiredFields = [
                 { el: patientNameInput, name: "Patient Name" },
                 { el: fatherNameInput, name: "Father's Name" },
-                { el: sexInput, name: "Gender" }, // <--- ADDED GENDER CHECK
+                { el: sexInput, name: "Gender" },
                 { el: ageInput, name: "Age" },
                 { el: form.querySelectorAll(".large-box")[0], name: "Chief Complaint" },
                 { el: form.querySelectorAll(".large-box")[1], name: "Medicine" }
             ];
 
             for (let field of requiredFields) {
-                // Check if element exists AND has a value (handles both Inputs and Select)
                 if (!field.el || field.el.value.trim() === "" || field.el.value === "Select") {
                     alert(`⚠️ Missing Information\n\nPlease enter/select the ${field.name}.`);
                     field.el.focus();
@@ -180,7 +188,7 @@
             toggleEditMode(false); 
             loadNextSno(); 
             
-            // RESET DATE FOCUS
+            // Focus Date on Reset
             const now = new Date();
             if(visitDate) {
                 visitDate.value = now.toISOString().split('T')[0];
@@ -235,8 +243,9 @@
         function fillForm(record) {
             getEl("patientNameInput").value = record.B_PName || "";
             getEl("fatherNameInput").value = record.B_FName || "";
-            // Safe Sex Fill
-            if (sexInput) sexInput.value = record.B_Sex || "";
+            
+            // Gender Fill
+            if(sexInput) sexInput.value = record.B_Sex || "";
             
             (getEl("age") || form.querySelector("#age")).value = record.B_Age || "";
             (getEl("address") || form.querySelector(".address-box")).value = record.B_To || "";
@@ -264,7 +273,7 @@
             return {
                 date: visitDate.value,
                 patientName: getEl("patientNameInput").value,
-                sex: sexInput.value, // Updated payload to use sexInput variable
+                sex: sexInput.value,
                 fatherName: getEl("fatherNameInput").value, 
                 age: (getEl("age") || form.querySelector("#age")).value,
                 address: (getEl("address") || form.querySelector(".address-box")).value,
@@ -282,6 +291,7 @@
                 e.preventDefault(); 
                 if (!validateForm()) return; 
 
+                // CONFIRMATION POPUP
                 if (!confirm("Are you sure you want to save this record?")) return;
 
                 saveBtn.disabled = true; saveBtn.innerText = "Saving...";
@@ -329,7 +339,7 @@
         loadNextSno(); 
         toggleEditMode(false); 
         
-        // DEFAULT FOCUS ON LOAD
+        // FOCUS DATE ON LOAD
         if(visitDate) {
              const now = new Date();
              visitDate.value = now.toISOString().split('T')[0];

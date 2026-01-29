@@ -80,25 +80,20 @@ body {
 .form-row {
   display: flex;
   align-items: center;
-  gap: 15px; /* Gap between separate groups in a row */
+  gap: 15px;
   width: 100%;
 }
 
 .input-group {
   display: flex;
   align-items: center;
-  gap: 10px; /* CRITICAL: Gap between Label and Input. Must be consistent! */
+  gap: 10px;
 }
 
-/* Special alignment for Address Row */
 .align-top {
     align-items: flex-start;
 }
 
-/* STRICT ALIGNMENT:
-   Ensures S.No, Patient, Father, Address labels are ALL exactly 140px.
-   (140px Label) + (10px Gap) = 150px Offset for ALL inputs.
-*/
 .aligned-label {
     flex: 0 0 140px; 
     font-weight: 600;
@@ -108,14 +103,12 @@ body {
     text-align: left;
 }
 
-/* Normal Labels */
 .input-group label {
   font-weight: 600;
   color: #495057;
   font-size: 0.9rem;
 }
 
-/* Container Widths */
 .fixed-left { width: auto; flex-shrink: 0; }
 .col-date { margin-left: auto; margin-right: auto; }
 .fixed-right { width: 160px; flex-shrink: 0; justify-content: flex-end; }
@@ -123,7 +116,6 @@ body {
 .grow { flex: 1; display: flex; position: relative; } 
 .grow input { width: 100%; }
 
-/* Address Box Sizing */
 .address-box { 
     flex: 1; 
     height: 5vh; min-height: 30px; 

@@ -10,11 +10,9 @@ export const createVisit = async (req, res) => {
         chiefComplaint, medicine, total, cartage, conveyance, grandTotal 
     } = req.body;
 
-    // Get Next S.No
     const result = await pool.request().query("SELECT MAX(B_Sno) as maxSno FROM Pat_Master");
     const nextSno = (result.recordset[0].maxSno || 0) + 1;
 
-    // Insert Record
     await pool.request()
       .input("B_Sno", sql.Int, nextSno)
       .input("B_Date", sql.DateTime, date)
@@ -58,7 +56,7 @@ export const getNextSno = async (req, res) => {
   }
 };
 
-// 3. SEARCH VISITS (Matches "searchVisits" in Routes)
+// 3. SEARCH VISITS (Exact/Like match for History Table)
 export const searchVisits = async (req, res) => {
     try {
       const { name } = req.query;
@@ -73,7 +71,7 @@ export const searchVisits = async (req, res) => {
     }
 };
 
-// 4. GET SUGGESTIONS
+// 4. GET SUGGESTIONS (Real-time "Starts With" Logic)
 export const getNameSuggestions = async (req, res) => {
   try {
     const { query } = req.query;
@@ -81,11 +79,11 @@ export const getNameSuggestions = async (req, res) => {
 
     const pool = await sql.connect(config);
     const result = await pool.request()
-      .input("search", sql.VarChar, `%${query}%`)
+      .input("search", sql.VarChar, `${query}%`) // NOTE: Removed leading % to enforce "Starts With"
       .query(`
         SELECT DISTINCT TOP 10 B_PName 
         FROM Pat_Master 
-        WHERE B_PName LIKE @search + '%' 
+        WHERE B_PName LIKE @search 
         ORDER BY B_PName
       `);
 
