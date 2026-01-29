@@ -90,18 +90,17 @@ body {
   gap: 10px;
 }
 
-/* STRICT ALIGNMENT CLASS:
-   This ensures S.No, Patient, Father, and Address labels are ALL 
-   exactly 140px wide. This forces the input boxes to start at the 
-   exact same vertical line on the left side.
+/* STRICT ALIGNMENT FIX:
+   Using 'flex' instead of 'min-width' ensures rigid 140px width 
+   that won't collapse or expand.
 */
 .aligned-label {
-    min-width: 140px; 
-    display: inline-block;
+    flex: 0 0 140px; /* Force exactly 140px width */
     font-weight: 600;
     color: #495057;
     white-space: nowrap;
     font-size: 0.9rem;
+    text-align: left; /* Ensure text starts left */
 }
 
 /* Normal Labels (Date, Gender, Age) */
@@ -155,7 +154,7 @@ body {
     color: #007bff;
 }
 
-/* ================= MODAL RESTORATION (Exact Match to Screenshot) ================= */
+/* ================= MODAL STYLES ================= */
 .modal-overlay { 
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
     background: rgba(0,0,0,0.5); 
@@ -175,18 +174,16 @@ body {
 .modal-header { 
     display: flex; justify-content: space-between; align-items: center; 
     margin-bottom: 15px; 
-    border-bottom: 1px solid #eee; /* Thin subtle line */
+    border-bottom: 1px solid #eee; 
     padding-bottom: 10px;
 }
 
 .modal-header h3 {
-    color: #007bff; /* Standard Blue */
+    color: #007bff; 
     font-size: 1.2rem;
     margin: 0;
-    border: none;
 }
 
-/* Table container with rounded corners like image */
 .table-container {
     border: 1px solid #dee2e6;
     border-radius: 5px;
@@ -199,17 +196,15 @@ body {
     background: white;
 }
 
-/* Header Row - Light Blue Background */
 .history-table th { 
-    background-color: #eef6fc; /* Light blue match */
-    color: #1e88e5; /* Darker blue text */
+    background-color: #eef6fc; 
+    color: #1e88e5; 
     font-weight: 600;
     padding: 12px 15px; 
     text-align: left; 
     border-bottom: 1px solid #dee2e6;
 }
 
-/* Data Rows */
 .history-table td { 
     padding: 10px 15px; 
     text-align: left; 
@@ -217,7 +212,6 @@ body {
     color: #333;
 }
 
-/* Select Button Style */
 .select-btn {
     background-color: white;
     border: 1px solid #ced4da;
@@ -239,10 +233,15 @@ body {
 .close-modal:hover { color: #555; }
 
 /* ================= OTHER SECTIONS ================= */
+/* Address Box Alignment Fix: removed "display:flex" to rely on form-row flex */
 .address-row { 
     align-items: flex-start; /* Label at top */
 }
-.address-box { flex: 1; height: 5vh; min-height: 30px; resize: none; }
+.address-box { 
+    flex: 1; /* Fill remaining width */
+    height: 5vh; min-height: 30px; resize: none; 
+    margin-left: 10px; /* Match gap of input-group (gap: 10px) */
+}
 
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; min-height: 0; }
 .two-col > div { display: flex; flex-direction: column; height: 100%; }
