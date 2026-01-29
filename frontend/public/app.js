@@ -40,25 +40,24 @@
 
         let isEditMode = false;
 
-        /* ================= 1. BUTTON STATE (VERIFICATION) ================= */
-        // Disable by default
+        /* ================= 1. BUTTON STATE: Default Disabled ================= */
         if(oldRecordBtn) {
             oldRecordBtn.disabled = true;
-            oldRecordBtn.style.opacity = "0.6";
+            oldRecordBtn.style.opacity = "0.5";
             oldRecordBtn.style.cursor = "not-allowed";
         }
 
-        /* ================= 2. AUTOCOMPLETE & VERIFICATION ================= */
+        /* ================= 2. AUTOCOMPLETE & BUTTON VERIFICATION ================= */
         if (patientNameInput && suggestionsList) {
             patientNameInput.addEventListener("input", async function() {
                 const query = this.value.trim();
                 
-                // If empty, disable button and hide list
+                // If input is empty, reset button to disabled
                 if (query.length < 1) {
                     suggestionsList.classList.add("hidden");
                     if(oldRecordBtn) {
                         oldRecordBtn.disabled = true;
-                        oldRecordBtn.style.opacity = "0.6";
+                        oldRecordBtn.style.opacity = "0.5";
                         oldRecordBtn.style.cursor = "not-allowed";
                     }
                     return;
@@ -70,8 +69,9 @@
                     
                     suggestionsList.innerHTML = "";
                     
-                    // IF NAME EXISTS IN DB -> ENABLE BUTTON
+                    // Logic: If we found names in DB, enable the button
                     if (names.length > 0) {
+                        // Enable button because names exist
                         if(oldRecordBtn) {
                             oldRecordBtn.disabled = false;
                             oldRecordBtn.style.opacity = "1";
@@ -84,19 +84,25 @@
                             li.onclick = () => {
                                 patientNameInput.value = item.B_PName; 
                                 suggestionsList.classList.add("hidden"); 
-                                if(oldRecordBtn) oldRecordBtn.click(); 
+                                // Ensure enabled after selection
+                                if(oldRecordBtn) {
+                                    oldRecordBtn.disabled = false;
+                                    oldRecordBtn.style.opacity = "1";
+                                    oldRecordBtn.style.cursor = "pointer";
+                                    oldRecordBtn.click(); // Auto click optional
+                                }
                             };
                             suggestionsList.appendChild(li);
                         });
                         suggestionsList.classList.remove("hidden");
                     } else {
-                        // NAME NOT FOUND -> DISABLE BUTTON
+                        // No names found? Disable button
+                        suggestionsList.classList.add("hidden");
                         if(oldRecordBtn) {
                             oldRecordBtn.disabled = true;
-                            oldRecordBtn.style.opacity = "0.6";
+                            oldRecordBtn.style.opacity = "0.5";
                             oldRecordBtn.style.cursor = "not-allowed";
                         }
-                        suggestionsList.classList.add("hidden");
                     }
                 } catch (err) { console.error(err); }
             });
@@ -106,7 +112,7 @@
             });
         }
 
-        /* ================= 3. OLD RECORD SEARCH (UPDATED COLUMNS) ================= */
+        /* ================= 3. OLD RECORD SEARCH (Show Name in Col 2) ================= */
         if (oldRecordBtn) {
             oldRecordBtn.addEventListener("click", async () => {
                 const nameInput = document.getElementById("patientNameInput");
@@ -121,10 +127,10 @@
                         data.records.forEach(rec => {
                             const date = new Date(rec.B_Date).toLocaleDateString('en-GB'); 
                             const row = document.createElement("tr");
-                            // UPDATED ROW: 2nd Column is Name
+                            // 2nd Column is now Patient Name
                             row.innerHTML = `
                                 <td>${date}</td>
-                                <td>${rec.B_PName}</td> 
+                                <td>${rec.B_PName}</td>
                                 <td>${rec.B_FName || '-'}</td>
                                 <td>${rec.B_TotalAmt || 0}</td>
                                 <td><button type="button" class="select-btn">Select</button></td>
@@ -138,12 +144,13 @@
                         });
                         modal.style.display = "flex"; 
                     } else { 
-                        alert("No history found."); 
+                        alert("No records found in database."); 
                     }
                 } catch (err) { alert("Error loading history."); }
             });
         }
 
+        // ... [The rest of app.js (Validation, Enter Key, etc.) remains unchanged] ...
         /* ================= ENTER KEY NAV ================= */
         form.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
@@ -155,7 +162,6 @@
                     isEditMode ? updateBtn.click() : saveBtn.click();
                     return;
                 }
-
                 const focusables = Array.from(form.querySelectorAll("input, select, textarea"));
                 const index = focusables.indexOf(target);
                 if (index > -1 && index < focusables.length - 1) {
@@ -246,23 +252,6 @@
             }
         }
 
-        function fillForm(record) {
-            getEl("patientNameInput").value = record.B_PName || "";
-            getEl("fatherNameInput").value = record.B_FName || "";
-            if(sexInput) sexInput.value = record.B_Sex || "";
-            (getEl("age") || form.querySelector("#age")).value = record.B_Age || "";
-            (getEl("address") || form.querySelector(".address-box")).value = record.B_To || "";
-            const boxes = form.querySelectorAll(".large-box");
-            if (boxes[0]) boxes[0].value = record.B_Perticu1 || "";
-            if (boxes[1]) boxes[1].value = record.B_Perticu2 || "";
-            snoInput.value = record.B_Sno || "";
-            if (visitDate && record.B_Date) visitDate.value = new Date(record.B_Date).toISOString().split('T')[0];
-            total.value = (record.B_PerticuAmt1 || 0).toFixed(2);
-            cartage.value = (record.B_Cart || 0).toFixed(2);
-            conveyance.value = (record.B_Conv || 0).toFixed(2);
-            grandTotal.value = (record.B_TotalAmt || 0).toFixed(2);
-        }
-
         /* ================= LISTENERS ================= */
         billingFields.forEach(field => {
             field.addEventListener("focus", () => { if (parseFloat(field.value) === 0) field.value = ""; });
@@ -317,6 +306,23 @@
                     if (res.ok) { alert("Deleted successfully!"); resetForm(); } else { alert("Delete failed."); }
                 } catch (err) { alert("Error."); } finally { deleteBtn.disabled = false; deleteBtn.innerText = "Delete"; }
             });
+        }
+
+        function fillForm(record) {
+            getEl("patientNameInput").value = record.B_PName || "";
+            getEl("fatherNameInput").value = record.B_FName || "";
+            if(sexInput) sexInput.value = record.B_Sex || "";
+            (getEl("age") || form.querySelector("#age")).value = record.B_Age || "";
+            (getEl("address") || form.querySelector(".address-box")).value = record.B_To || "";
+            const boxes = form.querySelectorAll(".large-box");
+            if (boxes[0]) boxes[0].value = record.B_Perticu1 || "";
+            if (boxes[1]) boxes[1].value = record.B_Perticu2 || "";
+            snoInput.value = record.B_Sno || "";
+            if (visitDate && record.B_Date) visitDate.value = new Date(record.B_Date).toISOString().split('T')[0];
+            total.value = (record.B_PerticuAmt1 || 0).toFixed(2);
+            cartage.value = (record.B_Cart || 0).toFixed(2);
+            conveyance.value = (record.B_Conv || 0).toFixed(2);
+            grandTotal.value = (record.B_TotalAmt || 0).toFixed(2);
         }
 
         async function loadNextSno() {

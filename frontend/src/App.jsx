@@ -120,7 +120,7 @@ function App() {
         </form>
       </div>
 
-      {/* History Modal - UPDATED HEADER: "Patient Name" */}
+      {/* History Modal - UPDATED HEADER */}
       <div id="historyModal" className="modal-overlay">
         <div className="modal-content">
           <div className="modal-header">
@@ -133,7 +133,7 @@ function App() {
                 <thead>
                     <tr>
                     <th>Date</th>
-                    <th>Patient Name</th> {/* UPDATED COLUMN */}
+                    <th>Patient Name</th> {/* CHANGED FROM S.NO */}
                     <th>Father's Name</th>
                     <th>Grand Total</th>
                     <th>Action</th>
