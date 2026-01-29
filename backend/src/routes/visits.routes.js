@@ -1,22 +1,12 @@
-import { Router } from "express";
-import { 
-  createVisit, 
-  getNextSno, 
-  getVisitBySno, 
-  updateVisit, 
-  deleteVisit, 
-  searchVisits,
-  getNameSuggestions // <--- Import this
-} from "../controllers/visits.controller.js";
+import express from "express";
+import { saveVisit, getNextSno, getOldRecord, updateVisit, deleteVisit } from "../controllers/visits.controller.js";
 
-const router = Router();
+const router = express.Router();
 
-router.post("/", createVisit);
 router.get("/next-sno", getNextSno);
-router.get("/search", searchVisits);
-router.get("/suggestions", getNameSuggestions); // <--- Add this NEW route
-router.get("/:sno", getVisitBySno);
-router.put("/:sno", updateVisit);
-router.delete("/:sno", deleteVisit);
+router.get("/search", getOldRecord);
+router.post("/", saveVisit);
+router.put("/:sno", updateVisit);   // Update Route
+router.delete("/:sno", deleteVisit); // Delete Route
 
 export default router;

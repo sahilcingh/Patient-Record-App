@@ -1,6 +1,4 @@
 import { poolPromise } from "../config/db.js";
-import sql from "mssql";
-import { config } from "../config/db.js";
 
 export const testDb = async (req, res) => {
   try {
@@ -140,27 +138,3 @@ export const deleteVisit = async (req, res) => {
   }
 };
 
-// NEW FUNCTION: Real-time Name Search
-export const getNameSuggestions = async (req, res) => {
-  try {
-    const { query } = req.query;
-    if (!query) return res.json([]);
-
-    const pool = await sql.connect(config);
-    
-    // Select top 10 unique names starting with the query letters
-    const result = await pool.request()
-      .input("search", sql.VarChar, `%${query}%`)
-      .query(`
-        SELECT DISTINCT TOP 10 B_PName 
-        FROM Pat_Master1 
-        WHERE B_PName LIKE @search + '%' 
-        ORDER BY B_PName
-      `);
-
-    res.json(result.recordset);
-  } catch (error) {
-    console.error("Suggestion Error:", error);
-    res.status(500).json({ message: "Error fetching suggestions" });
-  }
-};
