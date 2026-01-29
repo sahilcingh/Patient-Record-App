@@ -32,7 +32,7 @@
         const deleteBtn = form.querySelector('#deleteBtn'); 
         const cancelBtn = form.querySelector('#cancelBtn'); 
         const oldRecordBtn = getEl("oldRecordBtn");
-        const printBtn = getEl("printBtn"); // NEW BUTTON
+        const printBtn = getEl("printBtn"); 
 
         const modal = getEl("historyModal");
         const tableBody = getEl("historyTableBody");
@@ -47,7 +47,7 @@
             oldRecordBtn.style.cursor = "not-allowed";
         }
 
-        /* ================= PRINT BILL FUNCTION ================= */
+        /* ================= PRINT BILL FUNCTION (UPDATED) ================= */
         if (printBtn) {
             printBtn.addEventListener("click", () => {
                 const name = patientNameInput.value || "N/A";
@@ -59,18 +59,45 @@
                 const printWindow = window.open('', '', 'height=600,width=800');
                 printWindow.document.write('<html><head><title>Print Bill</title>');
                 printWindow.document.write('<style>');
-                printWindow.document.write('body { font-family: Arial, sans-serif; padding: 20px; }');
-                printWindow.document.write('.header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }');
-                printWindow.document.write('.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }');
-                printWindow.document.write('.section-title { font-weight: bold; margin-top: 15px; background: #eee; padding: 5px; }');
-                printWindow.document.write('.content-box { border: 1px solid #ccc; padding: 10px; min-height: 50px; margin-bottom: 10px; white-space: pre-wrap; }');
+                printWindow.document.write('body { font-family: Arial, sans-serif; padding: 30px; }');
+                
+                /* HEADER STYLES */
+                printWindow.document.write('.top-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 3px solid #333; padding-bottom: 15px; }');
+                printWindow.document.write('.doc-details { text-align: left; font-size: 14px; }');
+                printWindow.document.write('.doc-name { font-size: 18px; font-weight: bold; color: #000; }');
+                printWindow.document.write('.clinic-details { text-align: right; font-size: 11px; color: #555; line-height: 1.4; }');
+                printWindow.document.write('.clinic-name { font-size: 14px; font-weight: bold; color: #000; }');
+
+                printWindow.document.write('.receipt-title { text-align: center; margin: 10px 0 20px 0; font-size: 20px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }');
+                
+                /* CONTENT STYLES */
+                printWindow.document.write('.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; border: 1px solid #ddd; padding: 10px; border-radius: 5px; }');
+                printWindow.document.write('.section-title { font-weight: bold; margin-top: 15px; background: #eee; padding: 5px 10px; border-left: 4px solid #333; }');
+                printWindow.document.write('.content-box { border: 1px solid #ccc; padding: 10px; min-height: 60px; margin-bottom: 10px; white-space: pre-wrap; font-size: 13px; }');
                 printWindow.document.write('.billing-table { width: 100%; border-collapse: collapse; margin-top: 20px; }');
                 printWindow.document.write('.billing-table th, .billing-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }');
-                printWindow.document.write('.total-row { font-weight: bold; background-color: #f8f9fa; }');
+                printWindow.document.write('.total-row { font-weight: bold; background-color: #f8f9fa; font-size: 15px; }');
                 printWindow.document.write('</style>');
                 printWindow.document.write('</head><body>');
                 
-                printWindow.document.write('<div class="header"><h1>Patient Receipt</h1></div>');
+                // === TOP HEADER (Doctor Left, Clinic Right) ===
+                printWindow.document.write('<div class="top-header">');
+                    // Left Side: Doctor Info
+                    printWindow.document.write('<div class="doc-details">');
+                        printWindow.document.write('<div class="doc-name">Dr. S. S. Gupta</div>');
+                        printWindow.document.write('<div>Designation</div>');
+                    printWindow.document.write('</div>');
+
+                    // Right Side: Clinic Info
+                    printWindow.document.write('<div class="clinic-details">');
+                        printWindow.document.write('<div class="clinic-name">Your Clinic Name</div>');
+                        printWindow.document.write('1234, Street Name, Colony<br>');
+                        printWindow.document.write('City, State - Zip Code<br>');
+                        printWindow.document.write('Phone: 9999999999');
+                    printWindow.document.write('</div>');
+                printWindow.document.write('</div>');
+
+                printWindow.document.write('<div class="receipt-title">Patient Receipt</div>');
                 
                 printWindow.document.write('<div class="info-grid">');
                 printWindow.document.write(`<div><strong>Patient Name:</strong> ${name}</div>`);
@@ -98,7 +125,6 @@
         }
 
         /* ================= AUTOCOMPLETE (With Auto-Fill Logic) ================= */
-        // ... (Same Auto-fill logic as previous step) ...
         function autoFillPatientDetails(record) {
             patientNameInput.value = record.B_PName || "";
             fatherNameInput.value = record.B_FName || "";
@@ -320,7 +346,7 @@
         if (cancelBtn) cancelBtn.addEventListener("click", resetForm);
         if (closeModalBtn) closeModalBtn.onclick = () => { modal.style.display = "none"; };
 
-        /* CRUD */
+        /* CRUD BUTTONS */
         if (saveBtn) {
             saveBtn.addEventListener("click", async (e) => {
                 e.preventDefault(); 
