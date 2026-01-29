@@ -94,10 +94,13 @@ function App() {
               </div>
             </div>
 
-            {/* ROW 4: Address - Now Perfectly Aligned */}
-            <div className="form-row address-row">
-              <label className="aligned-label">Address</label>
-              <textarea id="address" className="address-box" required />
+            {/* ROW 4: Address (FIXED STRUCTURE) */}
+            <div className="form-row">
+              {/* Added 'input-group grow align-top' to match spacing exactly */}
+              <div className="input-group grow align-top">
+                <label className="aligned-label" style={{marginTop: "8px"}}>Address</label>
+                <textarea id="address" className="address-box" required />
+              </div>
             </div>
 
           </section>

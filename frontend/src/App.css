@@ -80,30 +80,35 @@ body {
 .form-row {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 15px; /* Gap between separate groups in a row */
   width: 100%;
 }
 
 .input-group {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 10px; /* CRITICAL: Gap between Label and Input. Must be consistent! */
 }
 
-/* STRICT ALIGNMENT FIX:
-   Using 'flex' instead of 'min-width' ensures rigid 140px width 
-   that won't collapse or expand.
+/* Special alignment for Address Row */
+.align-top {
+    align-items: flex-start;
+}
+
+/* STRICT ALIGNMENT:
+   Ensures S.No, Patient, Father, Address labels are ALL exactly 140px.
+   (140px Label) + (10px Gap) = 150px Offset for ALL inputs.
 */
 .aligned-label {
-    flex: 0 0 140px; /* Force exactly 140px width */
+    flex: 0 0 140px; 
     font-weight: 600;
     color: #495057;
     white-space: nowrap;
     font-size: 0.9rem;
-    text-align: left; /* Ensure text starts left */
+    text-align: left;
 }
 
-/* Normal Labels (Date, Gender, Age) */
+/* Normal Labels */
 .input-group label {
   font-weight: 600;
   color: #495057;
@@ -115,8 +120,15 @@ body {
 .col-date { margin-left: auto; margin-right: auto; }
 .fixed-right { width: 160px; flex-shrink: 0; justify-content: flex-end; }
 .fixed-right select, .fixed-right input { width: 100px; }
-.grow { flex: 1; display: flex; position: relative; } /* Relative for dropdown */
+.grow { flex: 1; display: flex; position: relative; } 
 .grow input { width: 100%; }
+
+/* Address Box Sizing */
+.address-box { 
+    flex: 1; 
+    height: 5vh; min-height: 30px; 
+    resize: none; 
+}
 
 /* ================= DROPDOWN MENU ================= */
 .autocomplete-wrapper {
@@ -178,71 +190,21 @@ body {
     padding-bottom: 10px;
 }
 
-.modal-header h3 {
-    color: #007bff; 
-    font-size: 1.2rem;
-    margin: 0;
-}
+.modal-header h3 { color: #007bff; font-size: 1.2rem; margin: 0; }
 
-.table-container {
-    border: 1px solid #dee2e6;
-    border-radius: 5px;
-    overflow: hidden;
-}
-
-.history-table { 
-    width: 100%; 
-    border-collapse: collapse; 
-    background: white;
-}
-
-.history-table th { 
-    background-color: #eef6fc; 
-    color: #1e88e5; 
-    font-weight: 600;
-    padding: 12px 15px; 
-    text-align: left; 
-    border-bottom: 1px solid #dee2e6;
-}
-
-.history-table td { 
-    padding: 10px 15px; 
-    text-align: left; 
-    border-bottom: 1px solid #eee; 
-    color: #333;
-}
+.table-container { border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden; }
+.history-table { width: 100%; border-collapse: collapse; background: white; }
+.history-table th { background-color: #eef6fc; color: #1e88e5; font-weight: 600; padding: 12px 15px; text-align: left; border-bottom: 1px solid #dee2e6; }
+.history-table td { padding: 10px 15px; text-align: left; border-bottom: 1px solid #eee; color: #333; }
 
 .select-btn {
-    background-color: white;
-    border: 1px solid #ced4da;
-    color: #555;
-    padding: 5px 15px;
-    border-radius: 4px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
+    background-color: white; border: 1px solid #ced4da; color: #555; padding: 5px 15px; border-radius: 4px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
 }
-
-.select-btn:hover {
-    background-color: #f8f9fa;
-    border-color: #adb5bd;
-}
-
+.select-btn:hover { background-color: #f8f9fa; border-color: #adb5bd; }
 .close-modal { font-size: 24px; cursor: pointer; border: none; background: none; color: #aaa; }
 .close-modal:hover { color: #555; }
 
 /* ================= OTHER SECTIONS ================= */
-/* Address Box Alignment Fix: removed "display:flex" to rely on form-row flex */
-.address-row { 
-    align-items: flex-start; /* Label at top */
-}
-.address-box { 
-    flex: 1; /* Fill remaining width */
-    height: 5vh; min-height: 30px; resize: none; 
-    margin-left: 10px; /* Match gap of input-group (gap: 10px) */
-}
-
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; min-height: 0; }
 .two-col > div { display: flex; flex-direction: column; height: 100%; }
 .large-box { width: 100%; flex: 1; resize: none; min-height: 40px; }
