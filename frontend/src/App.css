@@ -8,8 +8,7 @@ body {
   background-color: #eef2f7;
   margin: 0;
   padding: 0;
-  /* FORCE FULL SCREEN - NO SCROLLING */
-  height: 100vh; 
+  height: 100vh;
   width: 100vw;
   overflow: hidden; 
   display: flex;
@@ -19,25 +18,24 @@ body {
 
 .app {
   width: 100%;
-  max-width: 1100px; /* Slightly wider to fit content comfortably */
+  max-width: 1100px;
   height: 100%;
-  padding: 1vh; /* Tiny padding around the edge */
+  padding: 1vh;
 }
 
 .card {
   background: #ffffff;
-  padding: 1.5vh 2vw; /* Dynamic padding based on viewport */
+  padding: 1.5vh 2vw;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  /* Card takes full height available */
   height: 98vh; 
   display: flex;
   flex-direction: column;
 }
 
-/* HEADER - Fixed Height */
+/* HEADER */
 .header {
-  flex: 0 0 auto; /* Don't grow or shrink */
+  flex: 0 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -52,16 +50,16 @@ body {
 .header h1 { margin: 0; font-size: 1.5rem; font-weight: 600; }
 .date { font-weight: 600; color: #e3f2fd; font-size: 0.9rem; }
 
-/* FORM CONTAINER - Flex to fill space */
+/* FORM CONTAINER */
 #patientForm {
   display: flex;
   flex-direction: column;
-  flex: 1; /* Take all remaining height */
-  justify-content: space-between; /* Space out sections evenly */
-  overflow: hidden; /* Prevent internal scrolling */
+  flex: 1;
+  justify-content: space-between;
+  overflow: hidden;
 }
 
-/* SECTIONS - Flexible Height */
+/* SECTIONS */
 .section {
   padding: 1.5vh;
   background-color: #ffffff;
@@ -72,23 +70,12 @@ body {
   justify-content: center;
 }
 
-h2, h3 {
-  margin-top: 0;
-  color: #0056b3;
-  font-size: 1.1rem;
-  margin-bottom: 1vh;
-  border-bottom: 2px solid #e6f2ff;
-  padding-bottom: 0.5vh;
-  font-weight: 600;
-}
-
-/* =========================================
-   SECTION 1: PATIENT DATA (Fixed Height usually, but flex just in case)
-   ========================================= */
 .patient-data-box {
-  flex: 0 0 auto; /* Keep this compact */
+  flex: 0 0 auto;
   gap: 1vh;
 }
+
+/* ================= ALIGNMENT & LAYOUT ================= */
 
 .form-row {
   display: flex;
@@ -103,149 +90,181 @@ h2, h3 {
   gap: 10px;
 }
 
-/* LABELS */
-.input-group label, .form-row > label {
+/* STRICT ALIGNMENT CLASS:
+   This ensures S.No, Patient, Father, and Address labels are ALL 
+   exactly 140px wide. This forces the input boxes to start at the 
+   exact same vertical line on the left side.
+*/
+.aligned-label {
+    min-width: 140px; 
+    display: inline-block;
+    font-weight: 600;
+    color: #495057;
+    white-space: nowrap;
+    font-size: 0.9rem;
+}
+
+/* Normal Labels (Date, Gender, Age) */
+.input-group label {
   font-weight: 600;
   color: #495057;
-  white-space: nowrap;
   font-size: 0.9rem;
 }
 
-/* Strict Alignment Classes */
-.aligned-label { min-width: 120px; display: inline-block; }
-.fixed-left { width: 120px; flex-shrink: 0; }
-.fixed-left input { width: 100%; }
+/* Container Widths */
+.fixed-left { width: auto; flex-shrink: 0; }
 .col-date { margin-left: auto; margin-right: auto; }
 .fixed-right { width: 160px; flex-shrink: 0; justify-content: flex-end; }
 .fixed-right select, .fixed-right input { width: 100px; }
-.grow { flex: 1; display: flex; }
+.grow { flex: 1; display: flex; position: relative; } /* Relative for dropdown */
 .grow input { width: 100%; }
 
-/* BUTTON */
-.nav-button {
-  padding: 0 15px;
-  height: 35px; /* Slightly smaller to fit screen */
-  background: linear-gradient(to bottom, #28a745, #218838);
-  border: 1px solid #1e7e34;
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
+/* ================= DROPDOWN MENU ================= */
+.autocomplete-wrapper {
+    position: relative;
+    width: 100%;
 }
 
-/* ADDRESS - Needs to Flex */
-.address-row { 
-    display: flex; 
-    align-items: flex-start;
-    flex: 1; /* Grow to fill section */
-}
-.address-box { 
-    flex: 1; 
-    height: 5vh; /* Dynamic height */
-    min-height: 30px;
-    resize: none; 
-}
-
-/* =========================================
-   SECTION 2: COMPLAINT/MEDICINE (Must Flex the most)
-   ========================================= */
-.two-col { 
-    display: grid; 
-    grid-template-columns: 1fr 1fr; 
-    gap: 20px; 
-    flex: 1; /* This section grows to fill blank space */
-    min-height: 0; /* Allow shrinking */
+.suggestions-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ced4da;
+    border-radius: 0 0 5px 5px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 1000;
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
-.two-col > div {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+.suggestions-list li {
+    padding: 8px 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+    color: #333;
 }
 
-.large-box { 
+.suggestions-list li:hover {
+    background-color: #e9ecef;
+    color: #007bff;
+}
+
+/* ================= MODAL RESTORATION (Exact Match to Screenshot) ================= */
+.modal-overlay { 
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+    background: rgba(0,0,0,0.5); 
+    display: none; justify-content: center; align-items: center; 
+    z-index: 1000; 
+}
+
+.modal-content { 
+    background: white; 
+    padding: 20px; 
+    border-radius: 8px; 
+    width: 700px; 
+    max-width: 95%; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.modal-header { 
+    display: flex; justify-content: space-between; align-items: center; 
+    margin-bottom: 15px; 
+    border-bottom: 1px solid #eee; /* Thin subtle line */
+    padding-bottom: 10px;
+}
+
+.modal-header h3 {
+    color: #007bff; /* Standard Blue */
+    font-size: 1.2rem;
+    margin: 0;
+    border: none;
+}
+
+/* Table container with rounded corners like image */
+.table-container {
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.history-table { 
     width: 100%; 
-    flex: 1; /* Take all available height in this section */
-    resize: none; 
-    min-height: 40px; /* Prevent total collapse */
+    border-collapse: collapse; 
+    background: white;
 }
 
-/* =========================================
-   SECTION 3: BILLING
-   ========================================= */
-.billing-section {
-    flex: 0 0 auto; /* Keep compact */
+/* Header Row - Light Blue Background */
+.history-table th { 
+    background-color: #eef6fc; /* Light blue match */
+    color: #1e88e5; /* Darker blue text */
+    font-weight: 600;
+    padding: 12px 15px; 
+    text-align: left; 
+    border-bottom: 1px solid #dee2e6;
 }
 
-.grid.billing {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  align-items: end;
-  width: 100%;
+/* Data Rows */
+.history-table td { 
+    padding: 10px 15px; 
+    text-align: left; 
+    border-bottom: 1px solid #eee; 
+    color: #333;
 }
 
-.billing .field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5vh;
+/* Select Button Style */
+.select-btn {
+    background-color: white;
+    border: 1px solid #ced4da;
+    color: #555;
+    padding: 5px 15px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
-.highlight input {
-  background-color: #d4edda;
-  border-color: #c3e6cb;
-  color: #155724;
-  font-weight: 700;
-  font-size: 1.1rem;
-  height: 40px;
+.select-btn:hover {
+    background-color: #f8f9fa;
+    border-color: #adb5bd;
 }
 
-/* =========================================
-   INPUT STYLES
-   ========================================= */
-input, select, textarea {
-  padding: 5px 10px;
-  border: 1px solid #ced4da;
-  background-color: #fcfcfc;
-  border-radius: 5px;
-  font-size: 14px;
-  color: #495057;
-  height: 35px; /* Compact height */
-}
+.close-modal { font-size: 24px; cursor: pointer; border: none; background: none; color: #aaa; }
+.close-modal:hover { color: #555; }
 
-input:focus, select:focus, textarea:focus {
-  outline: none; border-color: #4facfe; box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.25);
-}
-input[readOnly] { background-color: #e9ecef; color: #6c757d; cursor: not-allowed; }
+/* ================= OTHER SECTIONS ================= */
+.address-row { display: flex; align-items: flex-start; flex: 1; }
+.address-box { flex: 1; height: 5vh; min-height: 30px; resize: none; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; min-height: 0; }
+.two-col > div { display: flex; flex-direction: column; height: 100%; }
+.large-box { width: 100%; flex: 1; resize: none; min-height: 40px; }
+h3 { margin-top: 0; color: #0056b3; font-size: 1rem; margin-bottom: 0.5vh; border-bottom: 1px solid #e6f2ff; }
+
+/* Billing */
+.billing-section { flex: 0 0 auto; }
+.grid.billing { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; align-items: end; width: 100%; }
+.billing .field { display: flex; flex-direction: column; gap: 0.5vh; }
+.highlight input { background-color: #d4edda; border-color: #c3e6cb; color: #155724; font-weight: 700; height: 40px; }
+h2 { margin: 0 0 1vh 0; color: #0056b3; font-size: 1.1rem; border-bottom: 1px solid #e6f2ff; }
+
+/* Footer */
+.footer { flex: 0 0 auto; display: flex; justify-content: space-between; margin-top: 1vh; padding-top: 1vh; border-top: 2px solid #e9ecef; }
+
+/* Inputs & Buttons */
+input, select, textarea { padding: 5px 10px; border: 1px solid #ced4da; background-color: #fcfcfc; border-radius: 5px; font-size: 14px; color: #495057; height: 35px; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: #4facfe; box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.25); }
 .right-align { text-align: right; }
 
-/* =========================================
-   FOOTER
-   ========================================= */
-.footer {
-  flex: 0 0 auto; /* Don't grow */
-  display: flex; 
-  justify-content: space-between; 
-  margin-top: 1vh; 
-  padding-top: 1vh; 
-  border-top: 2px solid #e9ecef;
-}
-
-button {
-  padding: 8px 20px; margin-left: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; background-color: #f8f9fa; color: #495057; border: 1px solid #ced4da;
-}
+button { padding: 8px 20px; margin-left: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; background-color: #f8f9fa; color: #495057; border: 1px solid #ced4da; }
 button.primary { background: linear-gradient(to bottom, #007bff, #0069d9); color: white; border: 1px solid #0062cc; }
 button.danger { background: linear-gradient(to bottom, #dc3545, #c82333); color: white; border: 1px solid #bd2130; margin-left: 0; }
-.hidden { display: none; }
+.nav-button { padding: 0 15px; height: 35px; background: linear-gradient(to bottom, #28a745, #218838); border: 1px solid #1e7e34; color: white; border-radius: 4px; cursor: pointer; font-weight: 600; white-space: nowrap; display: flex; align-items: center; }
 
-/* MODAL (Unchanged) */
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(3px); }
-.modal-content { background: white; padding: 25px; border-radius: 12px; width: 650px; max-width: 95%; }
-.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #e9ecef; padding-bottom: 10px; }
-.history-table { width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; }
-.history-table th, .history-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #dee2e6; }
-.history-table th { background-color: #e3f2fd; color: #0056b3; font-weight: 600; }
-.close-modal { font-size: 28px; cursor: pointer; border: none; background: none; color: #adb5bd; }
+.hidden { display: none; }
