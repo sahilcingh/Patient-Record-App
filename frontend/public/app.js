@@ -4,7 +4,7 @@
     // ============================================================
     const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
     
-    // Your Render URL logic
+    // RENDER URL (Replace if needed)
     const API_BASE_URL = isLocal 
         ? "http://localhost:5000" 
         : "https://patient-record-app-drly.onrender.com"; 
@@ -17,8 +17,9 @@
         if (form.dataset.initialized === "true") return;
         form.dataset.initialized = "true";
 
+        // UI Elements
         const snoInput = getEl("sno");
-        const ageInput = getEl("age"); // <--- Needed for validation
+        const ageInput = getEl("age"); 
         const total = getEl("total");
         const cartage = getEl("cartage");
         const conveyance = getEl("conveyance");
@@ -26,10 +27,10 @@
         const visitDate = getEl("visitDate");
         const billingFields = [total, cartage, conveyance].filter(Boolean);
 
-        // Name Inputs for validation
         const patientNameInput = getEl("patientNameInput");
         const fatherNameInput = getEl("fatherNameInput");
-
+        
+        // Buttons
         const saveBtn = form.querySelector('#saveBtn');
         const updateBtn = form.querySelector('#updateBtn'); 
         const deleteBtn = form.querySelector('#deleteBtn'); 
@@ -42,28 +43,45 @@
 
         let isEditMode = false;
 
-        /* ================= INPUT VALIDATION (NEW SECTION) ================= */
+        /* ================= VALIDATION LOGIC (NEW) ================= */
+        function validateForm() {
+            // list of required fields with custom error messages
+            const requiredFields = [
+                { el: patientNameInput, name: "Patient Name" },
+                { el: fatherNameInput, name: "Father's Name" },
+                { el: ageInput, name: "Age" },
+                // Chief Complaint is the first textarea in .two-col
+                { el: form.querySelectorAll(".large-box")[0], name: "Chief Complaint" },
+                // Medicine is the second textarea in .two-col
+                { el: form.querySelectorAll(".large-box")[1], name: "Medicine" }
+            ];
 
-        // 1. AGE: Prevent negative numbers and minus sign
+            for (let field of requiredFields) {
+                if (!field.el || field.el.value.trim() === "") {
+                    alert(`⚠️ Missing Information\n\nPlease enter the ${field.name}.`);
+                    field.el.focus(); // Move cursor to empty field
+                    field.el.scrollIntoView({ behavior: "smooth", block: "center" });
+                    return false; // Stop saving
+                }
+            }
+            return true; // All good
+        }
+
+        /* ================= INPUT VALIDATION ================= */
         if (ageInput) {
             ageInput.addEventListener("input", function() {
                 if (this.value < 0) this.value = 0; 
             });
             ageInput.addEventListener("keydown", function(e) {
-                if (e.key === "-" || e.key === "e") {
-                    e.preventDefault();
-                }
+                if (e.key === "-" || e.key === "e") e.preventDefault();
             });
         }
 
-        // 2. NAMES: Remove special characters (Allow only Letters & Spaces)
         function cleanNameInput(input) {
             input.addEventListener("input", function() {
-                // Regex: Replace anything that is NOT a-z, A-Z, or space
                 this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
             });
         }
-
         if (patientNameInput) cleanNameInput(patientNameInput);
         if (fatherNameInput) cleanNameInput(fatherNameInput);
 
@@ -84,7 +102,6 @@
         }
 
         /* ================= HELPERS ================= */
-
         function toggleEditMode(enable) {
             isEditMode = enable;
             if (enable) {
@@ -215,9 +232,14 @@
             };
         }
 
+        // SAVE BUTTON (Now with Validation)
         if (saveBtn) {
             saveBtn.addEventListener("click", async (e) => {
                 e.preventDefault();
+                
+                // CHECK VALIDATION HERE
+                if (!validateForm()) return; 
+
                 saveBtn.disabled = true; saveBtn.innerText = "Saving...";
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/visits`, {
@@ -232,11 +254,16 @@
             });
         }
 
+        // UPDATE BUTTON (Now with Validation)
         if (updateBtn) {
             updateBtn.addEventListener("click", async (e) => {
                 e.preventDefault();
                 const currentSno = snoInput.value;
                 if (!currentSno) return;
+
+                // CHECK VALIDATION HERE TOO
+                if (!validateForm()) return;
+
                 updateBtn.disabled = true; updateBtn.innerText = "Updating...";
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/visits/${currentSno}`, {
