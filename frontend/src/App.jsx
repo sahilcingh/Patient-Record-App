@@ -61,10 +61,10 @@ function App() {
                 <label className="aligned-label">Father's Name</label>
                 <input type="text" id="fatherNameInput" name="fatherName" />
               </div>
-              <div className="input-group fixed-right">
+              {/* <div className="input-group fixed-right">
                 <label>Mobile No.</label>
                 <input type="text" id="mobile" placeholder="98XXXXXXXX" maxLength="10" className="right-align" />
-              </div>
+              </div> */}
             </div>
 
             <div className="form-row address-row">
