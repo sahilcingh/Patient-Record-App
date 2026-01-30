@@ -67,10 +67,18 @@
             }
         });
 
-        /* ================= PRINT BILL FUNCTION ================= */
+        /* ================= PRINT BILL FUNCTION (VALIDATED) ================= */
         if (printBtn) {
             printBtn.addEventListener("click", () => {
-                const name = patientNameInput.value || "N/A";
+                // 1. VALIDATION CHECK
+                const name = patientNameInput.value.trim();
+                
+                if (!name) {
+                    alert("⚠️ Cannot Print: Patient Name is required.");
+                    patientNameInput.focus();
+                    return; // Stop here if no name
+                }
+
                 const date = visitDate.value || new Date().toISOString().split('T')[0];
                 const complaint = complaintBox.value || "-";
                 const medicine = medicineBox.value || "-";
@@ -137,9 +145,8 @@
             });
         }
 
-        /* ================= AUTOCOMPLETE & FILL (FIXED) ================= */
+        /* ================= AUTOCOMPLETE & FILL ================= */
         function autoFillPatientDetails(record) {
-            // 1. Fill Basic Info (Always update)
             patientNameInput.value = record.B_PName || "";
             fatherNameInput.value = record.B_FName || "";
             if(sexInput) sexInput.value = record.B_Sex || "";
@@ -150,23 +157,22 @@
                 setTimeout(() => adjustTextareaHeight(addressBox), 50);
             }
 
-            // 2. CLEAR Visit-Specific Info (The Fix)
+            // Clear old clinical data
             if(complaintBox) {
-                complaintBox.value = ""; // Clear old complaint
+                complaintBox.value = ""; 
                 adjustTextareaHeight(complaintBox);
             }
             if(medicineBox) {
-                medicineBox.value = ""; // Clear old medicine
+                medicineBox.value = ""; 
                 adjustTextareaHeight(medicineBox);
             }
 
-            // 3. RESET Billing (The Fix)
+            // Reset Billing
             if(total) total.value = "0.00";
             if(cartage) cartage.value = "0.00";
             if(conveyance) conveyance.value = "0.00";
             if(grandTotal) grandTotal.value = "0.00";
 
-            // 4. Enable Old Record Button
             if(oldRecordBtn) { oldRecordBtn.disabled = false; oldRecordBtn.style.opacity = "1"; oldRecordBtn.style.cursor = "pointer"; }
         }
 
@@ -198,7 +204,6 @@
                                     const searchRes = await fetch(`${API_BASE_URL}/api/visits/search?name=${encodeURIComponent(item.B_PName)}`);
                                     const searchData = await searchRes.json();
                                     if(searchData.records && searchData.records.length > 0) {
-                                        // Auto-fill basic info AND clear old clinical data
                                         autoFillPatientDetails(searchData.records[0]);
                                     }
                                 } catch(e) { console.error(e); }
