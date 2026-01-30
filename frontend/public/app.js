@@ -16,6 +16,7 @@
         const snoInput = getEl("sno");
         const ageInput = getEl("age"); 
         const sexInput = getEl("sex");
+        
         const total = getEl("total");
         const cartage = getEl("cartage");
         const conveyance = getEl("conveyance");
@@ -38,22 +39,41 @@
         const tableBody = getEl("historyTableBody");
         const closeModalBtn = getEl("closeModalBtn");
 
+        // Textareas
+        const complaintBox = form.querySelectorAll(".large-box")[0];
+        const medicineBox = form.querySelectorAll(".large-box")[1];
+
         let isEditMode = false;
 
-        // 1. DEFAULT DISABLE OLD RECORD BUTTON
         if(oldRecordBtn) {
             oldRecordBtn.disabled = true;
             oldRecordBtn.style.opacity = "0.5";
             oldRecordBtn.style.cursor = "not-allowed";
         }
 
-        /* ================= PRINT BILL FUNCTION (UPDATED LAYOUT) ================= */
+        /* ================= 1. AUTO-EXPAND TEXTAREA LOGIC ================= */
+        function adjustTextareaHeight(el) {
+            if (!el) return;
+            el.style.height = "auto"; // Reset to shrink if needed
+            // Set height to scrollHeight (content height)
+            el.style.height = (el.scrollHeight) + "px";
+        }
+
+        // Attach listeners to grow while typing
+        if(complaintBox) {
+            complaintBox.addEventListener("input", () => adjustTextareaHeight(complaintBox));
+        }
+        if(medicineBox) {
+            medicineBox.addEventListener("input", () => adjustTextareaHeight(medicineBox));
+        }
+
+        /* ================= PRINT BILL FUNCTION ================= */
         if (printBtn) {
             printBtn.addEventListener("click", () => {
                 const name = patientNameInput.value || "N/A";
                 const date = visitDate.value || new Date().toISOString().split('T')[0];
-                const complaint = form.querySelectorAll(".large-box")[0].value || "-";
-                const medicine = form.querySelectorAll(".large-box")[1].value || "-";
+                const complaint = complaintBox.value || "-";
+                const medicine = medicineBox.value || "-";
                 const grandTotalVal = grandTotal.value || "0.00";
 
                 const printWindow = window.open('', '', 'height=600,width=800');
@@ -61,7 +81,6 @@
                 printWindow.document.write('<style>');
                 printWindow.document.write('body { font-family: Arial, sans-serif; padding: 30px; }');
                 
-                /* HEADER STYLES */
                 printWindow.document.write('.top-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 3px solid #333; padding-bottom: 15px; }');
                 printWindow.document.write('.doc-details { text-align: left; font-size: 14px; }');
                 printWindow.document.write('.doc-name { font-size: 18px; font-weight: bold; color: #000; }');
@@ -70,7 +89,6 @@
 
                 printWindow.document.write('.receipt-title { text-align: center; margin: 10px 0 20px 0; font-size: 20px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }');
                 
-                /* CONTENT STYLES - CHANGED .info-grid TO FLEXBOX FOR EXTREME RIGHT DATE */
                 printWindow.document.write('.info-grid { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border: 1px solid #ddd; padding: 10px; border-radius: 5px; }');
                 
                 printWindow.document.write('.section-title { font-weight: bold; margin-top: 15px; background: #eee; padding: 5px 10px; border-left: 4px solid #333; }');
@@ -81,15 +99,12 @@
                 printWindow.document.write('</style>');
                 printWindow.document.write('</head><body>');
                 
-                // === TOP HEADER (Doctor Left, Clinic Right) ===
                 printWindow.document.write('<div class="top-header">');
-                    // Left Side: Doctor Info
                     printWindow.document.write('<div class="doc-details">');
                         printWindow.document.write('<div class="doc-name">Dr. S. S. Gupta</div>');
                         printWindow.document.write('<div>Designation</div>');
                     printWindow.document.write('</div>');
 
-                    // Right Side: Clinic Info
                     printWindow.document.write('<div class="clinic-details">');
                         printWindow.document.write('<div class="clinic-name">Your Clinic Name</div>');
                         printWindow.document.write('1234, Street Name, Colony<br>');
@@ -100,7 +115,6 @@
 
                 printWindow.document.write('<div class="receipt-title">Patient Receipt</div>');
                 
-                // NAME (Left) and DATE (Extreme Right)
                 printWindow.document.write('<div class="info-grid">');
                 printWindow.document.write(`<div><strong>Patient Name:</strong> ${name}</div>`);
                 printWindow.document.write(`<div><strong>Date:</strong> ${date}</div>`);
@@ -126,12 +140,13 @@
             });
         }
 
-        /* ================= AUTOCOMPLETE (With Auto-Fill Logic) ================= */
+        /* ================= AUTOCOMPLETE & FILL ================= */
         function autoFillPatientDetails(record) {
             patientNameInput.value = record.B_PName || "";
             fatherNameInput.value = record.B_FName || "";
             if(sexInput) sexInput.value = record.B_Sex || "";
             if(ageInput) ageInput.value = record.B_Age || "";
+            
             const addressBox = form.querySelector(".address-box");
             if(addressBox) addressBox.value = record.B_To || "";
             if(oldRecordBtn) { oldRecordBtn.disabled = false; oldRecordBtn.style.opacity = "1"; oldRecordBtn.style.cursor = "pointer"; }
@@ -143,11 +158,7 @@
                 
                 if (query.length < 1) {
                     suggestionsList.classList.add("hidden");
-                    if(oldRecordBtn) {
-                        oldRecordBtn.disabled = true;
-                        oldRecordBtn.style.opacity = "0.5";
-                        oldRecordBtn.style.cursor = "not-allowed";
-                    }
+                    if(oldRecordBtn) { oldRecordBtn.disabled = true; oldRecordBtn.style.opacity = "0.5"; oldRecordBtn.style.cursor = "not-allowed"; }
                     return;
                 }
                 
@@ -158,11 +169,7 @@
                     suggestionsList.innerHTML = "";
                     
                     if (names.length > 0) {
-                        if(oldRecordBtn) {
-                            oldRecordBtn.disabled = false;
-                            oldRecordBtn.style.opacity = "1";
-                            oldRecordBtn.style.cursor = "pointer";
-                        }
+                        if(oldRecordBtn) { oldRecordBtn.disabled = false; oldRecordBtn.style.opacity = "1"; oldRecordBtn.style.cursor = "pointer"; }
                         names.forEach(item => {
                             const li = document.createElement("li");
                             li.textContent = item.B_PName;
@@ -182,11 +189,7 @@
                         suggestionsList.classList.remove("hidden");
                     } else {
                         suggestionsList.classList.add("hidden");
-                        if(oldRecordBtn) {
-                            oldRecordBtn.disabled = true;
-                            oldRecordBtn.style.opacity = "0.5";
-                            oldRecordBtn.style.cursor = "not-allowed";
-                        }
+                        if(oldRecordBtn) { oldRecordBtn.disabled = true; oldRecordBtn.style.opacity = "0.5"; oldRecordBtn.style.cursor = "not-allowed"; }
                     }
                 } catch (err) { console.error(err); }
             });
@@ -196,7 +199,7 @@
             });
         }
 
-        /* OLD RECORD BUTTON (Manual Search) */
+        /* OLD RECORD BUTTON */
         if (oldRecordBtn) {
             oldRecordBtn.addEventListener("click", async () => {
                 const nameInput = document.getElementById("patientNameInput");
@@ -268,8 +271,8 @@
                 { el: fatherNameInput, name: "Father's Name" },
                 { el: sexInput, name: "Gender" },
                 { el: ageInput, name: "Age" },
-                { el: form.querySelectorAll(".large-box")[0], name: "Chief Complaint" },
-                { el: form.querySelectorAll(".large-box")[1], name: "Medicine" }
+                { el: complaintBox, name: "Chief Complaint" },
+                { el: medicineBox, name: "Medicine" }
             ];
             for (let field of requiredFields) {
                 if (!field.el || field.el.value.trim() === "" || field.el.value === "Select") {
@@ -315,6 +318,11 @@
             form.reset();
             billingFields.forEach(f => f.value = "0.00");
             if (grandTotal) grandTotal.value = "0.00";
+            
+            // Reset Textarea Heights
+            if(complaintBox) complaintBox.style.height = "auto";
+            if(medicineBox) medicineBox.style.height = "auto";
+
             calculateGrandTotal();
             toggleEditMode(false); 
             loadNextSno(); 
@@ -328,70 +336,21 @@
             if(sexInput) sexInput.value = record.B_Sex || "";
             (getEl("age") || form.querySelector("#age")).value = record.B_Age || "";
             (getEl("address") || form.querySelector(".address-box")).value = record.B_To || "";
-            const boxes = form.querySelectorAll(".large-box");
-            if (boxes[0]) boxes[0].value = record.B_Perticu1 || "";
-            if (boxes[1]) boxes[1].value = record.B_Perticu2 || "";
+            
+            // Fill Textareas
+            if (complaintBox) complaintBox.value = record.B_Perticu1 || "";
+            if (medicineBox) medicineBox.value = record.B_Perticu2 || "";
+            
+            // Adjust Heights Immediately
+            adjustTextareaHeight(complaintBox);
+            adjustTextareaHeight(medicineBox);
+
             snoInput.value = record.B_Sno || "";
             if (visitDate && record.B_Date) visitDate.value = new Date(record.B_Date).toISOString().split('T')[0];
             total.value = (record.B_PerticuAmt1 || 0).toFixed(2);
             cartage.value = (record.B_Cart || 0).toFixed(2);
             conveyance.value = (record.B_Conv || 0).toFixed(2);
             grandTotal.value = (record.B_TotalAmt || 0).toFixed(2);
-        }
-
-        billingFields.forEach(field => {
-            field.addEventListener("focus", () => { if (parseFloat(field.value) === 0) field.value = ""; });
-            field.addEventListener("blur", () => { if (field.value.trim() === "") field.value = "0"; calculateGrandTotal(); });
-            field.addEventListener("input", calculateGrandTotal);
-        });
-        
-        if (cancelBtn) cancelBtn.addEventListener("click", resetForm);
-        if (closeModalBtn) closeModalBtn.onclick = () => { modal.style.display = "none"; };
-
-        /* CRUD BUTTONS */
-        if (saveBtn) {
-            saveBtn.addEventListener("click", async (e) => {
-                e.preventDefault(); 
-                if (!validateForm()) return; 
-                if (!confirm("Are you sure you want to save this record?")) return;
-                saveBtn.disabled = true; saveBtn.innerText = "Saving...";
-                try {
-                    const res = await fetch(`${API_BASE_URL}/api/visits`, {
-                        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(getPayload())
-                    });
-                    if (res.ok) { alert("Saved!"); resetForm(); } else { alert("Save failed."); }
-                } catch (err) { alert("Error."); } finally { saveBtn.disabled = false; saveBtn.innerText = "Save"; }
-            });
-        }
-
-        if (updateBtn) {
-            updateBtn.addEventListener("click", async (e) => {
-                e.preventDefault();
-                const currentSno = snoInput.value;
-                if (!currentSno) return;
-                if (!validateForm()) return;
-                if (!confirm("Are you sure you want to update this record?")) return;
-                updateBtn.disabled = true; updateBtn.innerText = "Updating...";
-                try {
-                    const res = await fetch(`${API_BASE_URL}/api/visits/${currentSno}`, {
-                        method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(getPayload())
-                    });
-                    if (res.ok) { alert("Updated successfully!"); resetForm(); } else { alert("Update failed."); }
-                } catch (err) { alert("Error."); } finally { updateBtn.disabled = false; updateBtn.innerText = "Update"; }
-            });
-        }
-
-        if (deleteBtn) {
-            deleteBtn.addEventListener("click", async (e) => {
-                e.preventDefault();
-                const currentSno = snoInput.value;
-                if (!confirm(`Are you sure you want to delete record #${currentSno}?`)) return;
-                deleteBtn.disabled = true; deleteBtn.innerText = "Deleting...";
-                try {
-                    const res = await fetch(`${API_BASE_URL}/api/visits/${currentSno}`, { method: "DELETE" });
-                    if (res.ok) { alert("Deleted successfully!"); resetForm(); } else { alert("Delete failed."); }
-                } catch (err) { alert("Error."); } finally { deleteBtn.disabled = false; deleteBtn.innerText = "Delete"; }
-            });
         }
 
         async function loadNextSno() {
@@ -411,8 +370,8 @@
                 fatherName: getEl("fatherNameInput").value, 
                 age: (getEl("age") || form.querySelector("#age")).value,
                 address: (getEl("address") || form.querySelector(".address-box")).value,
-                chiefComplaint: form.querySelectorAll(".large-box")[0].value,
-                medicine: form.querySelectorAll(".large-box")[1].value,
+                chiefComplaint: complaintBox.value,
+                medicine: medicineBox.value,
                 total: total.value,
                 cartage: cartage.value,
                 conveyance: conveyance.value,

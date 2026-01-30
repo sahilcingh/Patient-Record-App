@@ -3,9 +3,7 @@
   box-sizing: border-box;
 }
 
-/* =========================================
-   DESKTOP DEFAULT (PC VIEW)
-   ========================================= */
+/* DESKTOP DEFAULT */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #eef2f7;
@@ -53,13 +51,13 @@ body {
 .header h1 { margin: 0; font-size: 1.5rem; font-weight: 600; }
 .date { font-weight: 600; color: #e3f2fd; font-size: 0.9rem; }
 
-/* FORM LAYOUT */
+/* FORM LAYOUT - SCROLLABLE ON DESKTOP IF CONTENT GROWS */
 #patientForm {
   display: flex;
   flex-direction: column;
   flex: 1;
   justify-content: space-between;
-  overflow: hidden;
+  overflow-y: auto; /* Allow Scroll */
 }
 
 .section {
@@ -74,72 +72,25 @@ body {
 
 .patient-data-box { flex: 0 0 auto; gap: 1vh; }
 
-/* ROW ALIGNMENT (Desktop) */
-.form-row {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  width: 100%;
-}
-
-.input-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
+/* ... (Rest of CSS remains same) ... */
+.form-row { display: flex; align-items: center; gap: 15px; width: 100%; }
+.input-group { display: flex; align-items: center; gap: 10px; }
 .align-top { align-items: flex-start; }
-
-/* Desktop Label Widths */
-.aligned-label {
-    flex: 0 0 140px; 
-    font-weight: 600;
-    color: #495057;
-    white-space: nowrap;
-    font-size: 0.9rem;
-    text-align: left;
-}
-
-.input-group label {
-  font-weight: 600;
-  color: #495057;
-  font-size: 0.9rem;
-}
-
-/* Desktop Field Widths */
+.aligned-label { flex: 0 0 140px; font-weight: 600; color: #495057; white-space: nowrap; font-size: 0.9rem; text-align: left; }
+.input-group label { font-weight: 600; color: #495057; font-size: 0.9rem; }
 .fixed-left { width: auto; flex-shrink: 0; }
 .col-date { margin-left: auto; margin-right: auto; }
 .fixed-right { width: 160px; flex-shrink: 0; justify-content: flex-end; }
 .fixed-right select, .fixed-right input { width: 100px; }
 .grow { flex: 1; display: flex; position: relative; } 
 .grow input { width: 100%; }
-
 .address-box { flex: 1; height: 5vh; min-height: 30px; resize: none; }
-
-/* AUTOCOMPLETE */
 .autocomplete-wrapper { position: relative; width: 100%; }
-.suggestions-list {
-    position: absolute; top: 100%; left: 0; right: 0;
-    background: white; border: 1px solid #ced4da;
-    border-radius: 0 0 5px 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    max-height: 150px; overflow-y: auto; z-index: 1000;
-    list-style: none; padding: 0; margin: 0;
-}
-.suggestions-list li {
-    padding: 8px 10px; cursor: pointer; border-bottom: 1px solid #eee;
-    font-size: 13px; color: #333;
-}
+.suggestions-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ced4da; border-radius: 0 0 5px 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-height: 150px; overflow-y: auto; z-index: 1000; list-style: none; padding: 0; margin: 0; }
+.suggestions-list li { padding: 8px 10px; cursor: pointer; border-bottom: 1px solid #eee; font-size: 13px; color: #333; }
 .suggestions-list li:hover { background-color: #e9ecef; color: #007bff; }
-
-/* MODAL */
-.modal-overlay { 
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-    background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; 
-}
-.modal-content { 
-    background: white; padding: 20px; border-radius: 8px; 
-    width: 700px; max-width: 95%; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
+.modal-content { background: white; padding: 20px; border-radius: 8px; width: 700px; max-width: 95%; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
 .modal-header h3 { color: #007bff; font-size: 1.2rem; margin: 0; }
 .table-container { border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden; }
@@ -152,141 +103,47 @@ body {
 .select-btn:hover { background-color: #f8f9fa; border-color: #adb5bd; }
 .close-modal { font-size: 24px; cursor: pointer; border: none; background: none; color: #aaa; }
 
-/* === OTHER SECTIONS (SPECIFICITY FIX) === */
-/* Using .section.two-col forces display:grid to win over display:flex */
-.section.two-col { 
-  display: grid; 
-  grid-template-columns: 1fr 1fr; /* Side by side on Desktop */
-  gap: 20px; 
-  flex: 1; 
-  min-height: 0; 
-}
+/* === GRID LAYOUT FIX === */
+.section.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; min-height: 0; }
 .two-col > div { display: flex; flex-direction: column; height: 100%; }
 .large-box { width: 100%; flex: 1; resize: none; min-height: 40px; }
 h3 { margin-top: 0; color: #0056b3; font-size: 1rem; margin-bottom: 0.5vh; border-bottom: 1px solid #e6f2ff; }
 
-/* BILLING */
 .billing-section { flex: 0 0 auto; }
 .grid.billing { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; align-items: end; width: 100%; }
 .billing .field { display: flex; flex-direction: column; gap: 0.5vh; }
 .highlight input { background-color: #d4edda; border-color: #c3e6cb; color: #155724; font-weight: 700; height: 40px; }
 h2 { margin: 0 0 1vh 0; color: #0056b3; font-size: 1.1rem; border-bottom: 1px solid #e6f2ff; }
-
-/* FOOTER */
 .footer { flex: 0 0 auto; display: flex; justify-content: space-between; margin-top: 1vh; padding-top: 1vh; border-top: 2px solid #e9ecef; }
-
-/* INPUTS & BUTTONS */
 input, select, textarea { padding: 5px 10px; border: 1px solid #ced4da; background-color: #fcfcfc; border-radius: 5px; font-size: 14px; color: #495057; height: 35px; }
 input:focus, select:focus, textarea:focus { outline: none; border-color: #4facfe; box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.25); }
 .right-align { text-align: right; }
-
 button { padding: 8px 20px; margin-left: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; background-color: #f8f9fa; color: #495057; border: 1px solid #ced4da; }
 button.primary { background: linear-gradient(to bottom, #007bff, #0069d9); color: white; border: 1px solid #0062cc; }
 button.danger { background: linear-gradient(to bottom, #dc3545, #c82333); color: white; border: 1px solid #bd2130; margin-left: 0; }
 .nav-button { padding: 0 15px; height: 35px; background: linear-gradient(to bottom, #28a745, #218838); border: 1px solid #1e7e34; color: white; border-radius: 4px; cursor: pointer; font-weight: 600; white-space: nowrap; display: flex; align-items: center; }
 .hidden { display: none; }
 
-/* =========================================
-   MOBILE RESPONSIVENESS (OVERRIDE)
-   ========================================= */
 @media (max-width: 768px) {
-  
-  /* ALLOW SCROLLING */
-  html, body {
-    height: auto !important; 
-    overflow-y: auto !important; 
-    display: block; 
-    padding: 10px;
-  }
-
-  .app {
-    height: auto !important;
-    padding: 0;
-    padding-bottom: 60px; /* Ensures footer is never hidden */
-  }
-
-  /* UNLOCK CARD HEIGHT */
-  .card {
-    height: auto !important;
-    overflow: visible;
-    padding: 15px;
-  }
-
-  #patientForm {
-    overflow: visible;
-    gap: 15px;
-  }
-
+  html, body { height: auto !important; overflow-y: auto !important; display: block; padding: 10px; }
+  .app { height: auto !important; padding: 0; padding-bottom: 60px; }
+  .card { height: auto !important; overflow: visible; padding: 15px; }
+  #patientForm { overflow: visible; gap: 15px; }
   .section { padding: 15px; }
-
-  /* STACK EVERYTHING VERTICALLY */
-  .form-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 15px;
-  }
-
-  /* RESET WIDTHS */
-  .input-group, .fixed-left, .fixed-right, .col-date, .grow {
-    width: 100% !important;
-    margin: 0;
-  }
-
-  /* LABELS ABOVE INPUTS */
-  .input-group {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
-  }
-
-  .aligned-label {
-    flex: none;
-    min-width: auto;
-  }
-
-  /* BIGGER TOUCH TARGETS */
-  input, select, textarea {
-    width: 100%;
-    height: 45px;
-  }
-
+  .form-row { flex-direction: column; align-items: stretch; gap: 15px; }
+  .input-group, .fixed-left, .fixed-right, .col-date, .grow { width: 100% !important; margin: 0; }
+  .input-group { flex-direction: column; align-items: flex-start; gap: 5px; }
+  .aligned-label { flex: none; min-width: auto; }
+  input, select, textarea { width: 100%; height: 45px; }
   .address-box { height: 80px; }
-  
-  /* LEFT ALIGN TEXT ON MOBILE */
   .right-align { text-align: left; }
-
-  /* FULL WIDTH BUTTONS */
-  .nav-button { 
-    width: 100%; 
-    justify-content: center; 
-    margin-top: 5px; 
-  }
-
+  .nav-button { width: 100%; justify-content: center; margin-top: 5px; }
   .grid.billing { grid-template-columns: 1fr 1fr; }
   
-  /* === FIX FOR MOBILE STACKING === */
-  .section.two-col { 
-      grid-template-columns: 1fr; /* Stack vertically on mobile */
-  }
+  /* MOBILE STACK FOR COMPLAINT/MEDICINE */
+  .section.two-col { grid-template-columns: 1fr; }
 
-  /* FOOTER STACK */
-  .footer {
-    flex-direction: column;
-    gap: 15px;
-    height: auto;
-    margin-top: 20px;
-  }
-  
-  .footer > div {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
-  }
-
-  button {
-    margin-left: 0;
-    width: 100%;
-    padding: 12px;
-  }
+  .footer { flex-direction: column; gap: 15px; height: auto; margin-top: 20px; }
+  .footer > div { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+  button { margin-left: 0; width: 100%; padding: 12px; }
 }
