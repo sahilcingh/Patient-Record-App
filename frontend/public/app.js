@@ -39,7 +39,7 @@
         const tableBody = getEl("historyTableBody");
         const closeModalBtn = getEl("closeModalBtn");
 
-        // Textareas that need auto-resize
+        // Textareas
         const addressBox = form.querySelector(".address-box");
         const complaintBox = form.querySelectorAll(".large-box")[0];
         const medicineBox = form.querySelectorAll(".large-box")[1];
@@ -52,20 +52,21 @@
             oldRecordBtn.style.cursor = "not-allowed";
         }
 
-        /* ================= 1. AUTO-EXPAND LOGIC ================= */
+        /* ================= 1. AUTO-EXPAND LOGIC (ROBUST) ================= */
         function adjustTextareaHeight(el) {
             if (!el) return;
-            // 1. Reset height to auto to correctly calculate new scrollHeight (shrink if deleted)
+            // Force reset to calculate shrink
             el.style.height = "auto";
-            // 2. Set new height based on content
-            el.style.height = (el.scrollHeight) + "px";
+            // Calculate new height (scrollHeight includes padding)
+            // Add 2px buffer to prevent jitter
+            el.style.height = (el.scrollHeight + 2) + "px";
         }
 
-        // Attach listeners to grow while typing
+        // Attach listeners for live typing
         [addressBox, complaintBox, medicineBox].forEach(box => {
             if(box) {
                 box.addEventListener("input", () => adjustTextareaHeight(box));
-                // Also trigger on focus to be safe
+                // Also trigger on focus just in case
                 box.addEventListener("focus", () => adjustTextareaHeight(box));
             }
         });
@@ -143,7 +144,7 @@
             });
         }
 
-        /* ================= AUTOCOMPLETE & FILL ================= */
+        /* ================= AUTOCOMPLETE & FILL (UPDATED) ================= */
         function autoFillPatientDetails(record) {
             patientNameInput.value = record.B_PName || "";
             fatherNameInput.value = record.B_FName || "";
@@ -152,7 +153,8 @@
             
             if(addressBox) {
                 addressBox.value = record.B_To || "";
-                adjustTextareaHeight(addressBox); // RESIZE ADDRESS
+                // Use setTimeout to allow DOM update before resizing
+                setTimeout(() => adjustTextareaHeight(addressBox), 0);
             }
 
             if(oldRecordBtn) { oldRecordBtn.disabled = false; oldRecordBtn.style.opacity = "1"; oldRecordBtn.style.cursor = "pointer"; }
@@ -347,10 +349,12 @@
             if(complaintBox) complaintBox.value = record.B_Perticu1 || "";
             if(medicineBox) medicineBox.value = record.B_Perticu2 || "";
             
-            // Resize all boxes on data load
-            adjustTextareaHeight(addressBox);
-            adjustTextareaHeight(complaintBox);
-            adjustTextareaHeight(medicineBox);
+            // FORCE RESIZE with Timeout (Critical for Mobile)
+            setTimeout(() => {
+                adjustTextareaHeight(addressBox);
+                adjustTextareaHeight(complaintBox);
+                adjustTextareaHeight(medicineBox);
+            }, 0);
 
             snoInput.value = record.B_Sno || "";
             if (visitDate && record.B_Date) visitDate.value = new Date(record.B_Date).toISOString().split('T')[0];

@@ -51,7 +51,7 @@ body {
 .header h1 { margin: 0; font-size: 1.5rem; font-weight: 600; }
 .date { font-weight: 600; color: #e3f2fd; font-size: 0.9rem; }
 
-/* FORM LAYOUT - Allow Vertical Scroll on Desktop if boxes grow */
+/* FORM LAYOUT */
 #patientForm {
   display: flex;
   flex-direction: column;
@@ -89,7 +89,7 @@ body {
     flex: 1; 
     min-height: 35px; 
     resize: none; 
-    overflow-y: hidden; /* Hide scrollbar */
+    overflow-y: hidden !important; /* Force hide scrollbar */
     display: block;
 }
 
@@ -98,7 +98,7 @@ body {
     flex: 1; 
     resize: none; 
     min-height: 40px; 
-    overflow-y: hidden; /* Hide scrollbar */
+    overflow-y: hidden !important; /* Force hide scrollbar */
     display: block;
 }
 
@@ -154,10 +154,9 @@ button.danger { background: linear-gradient(to bottom, #dc3545, #c82333); color:
   
   input, select { width: 100%; height: 45px; }
   
-  /* FIXED: REMOVED !important SO JS CAN RESIZE */
+  /* ALLOW JS TO CONTROL HEIGHT */
   textarea {
       min-height: 45px;
-      /* removed height: auto; */
   }
   
   .right-align { text-align: left; }
