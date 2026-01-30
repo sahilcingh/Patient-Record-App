@@ -51,13 +51,13 @@ body {
 .header h1 { margin: 0; font-size: 1.5rem; font-weight: 600; }
 .date { font-weight: 600; color: #e3f2fd; font-size: 0.9rem; }
 
-/* FORM LAYOUT - SCROLLABLE ON DESKTOP IF CONTENT GROWS */
+/* FORM LAYOUT - Allow Vertical Scroll on Desktop if boxes grow */
 #patientForm {
   display: flex;
   flex-direction: column;
   flex: 1;
   justify-content: space-between;
-  overflow-y: auto; /* Allow Scroll */
+  overflow-y: auto; 
 }
 
 .section {
@@ -84,13 +84,13 @@ body {
 .grow { flex: 1; display: flex; position: relative; } 
 .grow input { width: 100%; }
 
-/* === AUTO-RESIZING TEXTAREAS === */
+/* === AUTO-RESIZING BOXES (UPDATED) === */
 .address-box { 
     flex: 1; 
-    min-height: 35px; /* Minimum height */
-    height: auto; 
+    min-height: 35px; 
     resize: none; 
     overflow-y: hidden; /* Hide scrollbar */
+    display: block;
 }
 
 .large-box { 
@@ -98,11 +98,11 @@ body {
     flex: 1; 
     resize: none; 
     min-height: 40px; 
-    height: auto; 
     overflow-y: hidden; /* Hide scrollbar */
+    display: block;
 }
 
-/* ... (Standard Inputs) ... */
+/* ... Standard Styles ... */
 .autocomplete-wrapper { position: relative; width: 100%; }
 .suggestions-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ced4da; border-radius: 0 0 5px 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-height: 150px; overflow-y: auto; z-index: 1000; list-style: none; padding: 0; margin: 0; }
 .suggestions-list li { padding: 8px 10px; cursor: pointer; border-bottom: 1px solid #eee; font-size: 13px; color: #333; }
@@ -154,14 +154,12 @@ button.danger { background: linear-gradient(to bottom, #dc3545, #c82333); color:
   
   input, select { width: 100%; height: 45px; }
   
-  /* TEXTAREA HEIGHT UNLOCKED FOR MOBILE */
+  /* FIXED: REMOVED !important SO JS CAN RESIZE */
   textarea {
-      height: auto; 
       min-height: 45px;
+      /* removed height: auto; */
   }
   
-  .address-box { height: auto !important; } /* Allow expanding */
-
   .right-align { text-align: left; }
   .nav-button { width: 100%; justify-content: center; margin-top: 5px; }
   .grid.billing { grid-template-columns: 1fr 1fr; }

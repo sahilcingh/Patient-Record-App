@@ -55,14 +55,20 @@
         /* ================= 1. AUTO-EXPAND LOGIC ================= */
         function adjustTextareaHeight(el) {
             if (!el) return;
-            el.style.height = "auto"; // Reset to shrink if needed
-            el.style.height = (el.scrollHeight) + "px"; // Expand to fit content
+            // 1. Reset height to auto to correctly calculate new scrollHeight (shrink if deleted)
+            el.style.height = "auto";
+            // 2. Set new height based on content
+            el.style.height = (el.scrollHeight) + "px";
         }
 
         // Attach listeners to grow while typing
-        if(addressBox) addressBox.addEventListener("input", () => adjustTextareaHeight(addressBox));
-        if(complaintBox) complaintBox.addEventListener("input", () => adjustTextareaHeight(complaintBox));
-        if(medicineBox) medicineBox.addEventListener("input", () => adjustTextareaHeight(medicineBox));
+        [addressBox, complaintBox, medicineBox].forEach(box => {
+            if(box) {
+                box.addEventListener("input", () => adjustTextareaHeight(box));
+                // Also trigger on focus to be safe
+                box.addEventListener("focus", () => adjustTextareaHeight(box));
+            }
+        });
 
         /* ================= PRINT BILL FUNCTION ================= */
         if (printBtn) {
@@ -146,7 +152,7 @@
             
             if(addressBox) {
                 addressBox.value = record.B_To || "";
-                adjustTextareaHeight(addressBox); // Resize Address on Load
+                adjustTextareaHeight(addressBox); // RESIZE ADDRESS
             }
 
             if(oldRecordBtn) { oldRecordBtn.disabled = false; oldRecordBtn.style.opacity = "1"; oldRecordBtn.style.cursor = "pointer"; }
