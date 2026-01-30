@@ -57,8 +57,8 @@ body {
   flex-direction: column;
   flex: 1;
   justify-content: space-between;
-  overflow-y: auto; /* IMPORTANT: Allows the whole form to scroll */
-  padding-right: 5px; /* Prevent scrollbar overlapping content */
+  overflow-y: auto; 
+  padding-right: 5px; 
 }
 
 .section {
@@ -85,22 +85,21 @@ body {
 .grow { flex: 1; display: flex; position: relative; } 
 .grow input { width: 100%; }
 
-/* === AUTO-RESIZING BOXES (FIXED) === */
-/* Removed 'flex: 1' to allow natural growth */
+/* === AUTO-RESIZING BOXES (FIXED DEFAULT HEIGHT) === */
 .address-box { 
     width: 100%;
-    min-height: 35px; 
+    min-height: 60px; /* Starts taller now */
     resize: none; 
-    overflow-y: hidden !important; /* STRICTLY NO SCROLLBAR */
+    overflow-y: hidden !important; 
     display: block;
     height: auto;
 }
 
 .large-box { 
     width: 100%; 
-    min-height: 40px; 
+    min-height: 100px; /* Starts Big (like a box) */
     resize: none; 
-    overflow-y: hidden !important; /* STRICTLY NO SCROLLBAR */
+    overflow-y: hidden !important; 
     display: block;
     height: auto;
 }
@@ -159,9 +158,9 @@ button.danger { background: linear-gradient(to bottom, #dc3545, #c82333); color:
   
   input, select { width: 100%; height: 45px; }
   
-  /* FORCE TEXTAREA TO GROW */
+  /* FORCE TEXTAREA TO GROW ON MOBILE TOO */
   textarea {
-      min-height: 45px;
+      min-height: 100px; /* Big by default on mobile too */
       height: auto;
   }
   
