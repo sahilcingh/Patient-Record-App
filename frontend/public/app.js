@@ -39,7 +39,8 @@
         const tableBody = getEl("historyTableBody");
         const closeModalBtn = getEl("closeModalBtn");
 
-        // Textareas
+        // Textareas that need auto-resize
+        const addressBox = form.querySelector(".address-box");
         const complaintBox = form.querySelectorAll(".large-box")[0];
         const medicineBox = form.querySelectorAll(".large-box")[1];
 
@@ -51,21 +52,17 @@
             oldRecordBtn.style.cursor = "not-allowed";
         }
 
-        /* ================= 1. AUTO-EXPAND TEXTAREA LOGIC ================= */
+        /* ================= 1. AUTO-EXPAND LOGIC ================= */
         function adjustTextareaHeight(el) {
             if (!el) return;
             el.style.height = "auto"; // Reset to shrink if needed
-            // Set height to scrollHeight (content height)
-            el.style.height = (el.scrollHeight) + "px";
+            el.style.height = (el.scrollHeight) + "px"; // Expand to fit content
         }
 
         // Attach listeners to grow while typing
-        if(complaintBox) {
-            complaintBox.addEventListener("input", () => adjustTextareaHeight(complaintBox));
-        }
-        if(medicineBox) {
-            medicineBox.addEventListener("input", () => adjustTextareaHeight(medicineBox));
-        }
+        if(addressBox) addressBox.addEventListener("input", () => adjustTextareaHeight(addressBox));
+        if(complaintBox) complaintBox.addEventListener("input", () => adjustTextareaHeight(complaintBox));
+        if(medicineBox) medicineBox.addEventListener("input", () => adjustTextareaHeight(medicineBox));
 
         /* ================= PRINT BILL FUNCTION ================= */
         if (printBtn) {
@@ -147,8 +144,11 @@
             if(sexInput) sexInput.value = record.B_Sex || "";
             if(ageInput) ageInput.value = record.B_Age || "";
             
-            const addressBox = form.querySelector(".address-box");
-            if(addressBox) addressBox.value = record.B_To || "";
+            if(addressBox) {
+                addressBox.value = record.B_To || "";
+                adjustTextareaHeight(addressBox); // Resize Address on Load
+            }
+
             if(oldRecordBtn) { oldRecordBtn.disabled = false; oldRecordBtn.style.opacity = "1"; oldRecordBtn.style.cursor = "pointer"; }
         }
 
@@ -320,6 +320,7 @@
             if (grandTotal) grandTotal.value = "0.00";
             
             // Reset Textarea Heights
+            if(addressBox) addressBox.style.height = "auto";
             if(complaintBox) complaintBox.style.height = "auto";
             if(medicineBox) medicineBox.style.height = "auto";
 
@@ -335,13 +336,13 @@
             getEl("fatherNameInput").value = record.B_FName || "";
             if(sexInput) sexInput.value = record.B_Sex || "";
             (getEl("age") || form.querySelector("#age")).value = record.B_Age || "";
-            (getEl("address") || form.querySelector(".address-box")).value = record.B_To || "";
             
-            // Fill Textareas
-            if (complaintBox) complaintBox.value = record.B_Perticu1 || "";
-            if (medicineBox) medicineBox.value = record.B_Perticu2 || "";
+            if(addressBox) addressBox.value = record.B_To || "";
+            if(complaintBox) complaintBox.value = record.B_Perticu1 || "";
+            if(medicineBox) medicineBox.value = record.B_Perticu2 || "";
             
-            // Adjust Heights Immediately
+            // Resize all boxes on data load
+            adjustTextareaHeight(addressBox);
             adjustTextareaHeight(complaintBox);
             adjustTextareaHeight(medicineBox);
 
