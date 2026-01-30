@@ -55,10 +55,15 @@ function App() {
               </div>
             </div>
 
+            {/* ROW 3: Father's Name + Mobile Number */}
             <div className="form-row">
               <div className="input-group grow">
                 <label className="aligned-label">Father's Name</label>
                 <input type="text" id="fatherNameInput" name="fatherName" />
+              </div>
+              <div className="input-group fixed-right">
+                <label>Mobile No.</label>
+                <input type="text" id="mobile" placeholder="98XXXXXXXX" maxLength="10" className="right-align" />
               </div>
             </div>
 
@@ -111,13 +116,13 @@ function App() {
                <button type="button" id="deleteBtn" className="danger hidden">Delete</button>
             </div>
             <div>
-              {/* PRINT BUTTON ADDED HERE */}
+              <button type="button" id="whatsappBtn" style={{background: "#25D366", color: "white", border: "1px solid #1da851"}}>WhatsApp</button>
               <button type="button" id="printBtn" style={{background: "#6c757d", color: "white", border: "1px solid #5a6268"}}>Print Bill</button>
               
               <button type="button" id="cancelBtn">Cancel</button>
               <button type="submit" id="saveBtn" className="primary">Save</button>
               <button type="button" id="updateBtn" className="primary hidden">Update</button>
-              <button type="button">Back</button>
+              {/* Back Button Removed */}
             </div>
           </footer>
         </form>
