@@ -67,22 +67,46 @@
             }
         });
 
-        /* ================= PRINT BILL FUNCTION (VALIDATED) ================= */
+        /* ================= PRINT BILL FUNCTION (WITH VALIDATION) ================= */
         if (printBtn) {
             printBtn.addEventListener("click", () => {
-                // 1. VALIDATION CHECK
-                const name = patientNameInput.value.trim();
                 
+                // --- 1. VALIDATION CHECKS ---
+                const name = patientNameInput.value.trim();
+                const complaint = complaintBox.value.trim();
+                const medicine = medicineBox.value.trim();
+                const grandTotalVal = grandTotal.value.trim();
+
+                // Check Name
                 if (!name) {
-                    alert("⚠️ Cannot Print: Patient Name is required.");
+                    alert("⚠️ Cannot Print: Patient Name is missing.");
                     patientNameInput.focus();
-                    return; // Stop here if no name
+                    return;
                 }
 
+                // Check Complaint
+                if (!complaint) {
+                    alert("⚠️ Cannot Print: Please enter the Chief Complaint.");
+                    complaintBox.focus();
+                    return;
+                }
+
+                // Check Medicine
+                if (!medicine) {
+                    alert("⚠️ Cannot Print: Please enter the Medicine.");
+                    medicineBox.focus();
+                    return;
+                }
+
+                // Check Billing (Ensure it's not empty)
+                if (!grandTotalVal) {
+                    alert("⚠️ Cannot Print: Billing section is incomplete.");
+                    grandTotal.focus();
+                    return;
+                }
+
+                // --- 2. GENERATE BILL HTML ---
                 const date = visitDate.value || new Date().toISOString().split('T')[0];
-                const complaint = complaintBox.value || "-";
-                const medicine = medicineBox.value || "-";
-                const grandTotalVal = grandTotal.value || "0.00";
 
                 const printWindow = window.open('', '', 'height=600,width=800');
                 printWindow.document.write('<html><head><title>Print Bill</title>');
