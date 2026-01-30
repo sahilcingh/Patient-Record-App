@@ -39,7 +39,7 @@
         const tableBody = getEl("historyTableBody");
         const closeModalBtn = getEl("closeModalBtn");
 
-        // Textareas that need auto-resize
+        // Textareas
         const addressBox = form.querySelector(".address-box");
         const complaintBox = form.querySelectorAll(".large-box")[0];
         const medicineBox = form.querySelectorAll(".large-box")[1];
@@ -55,23 +55,19 @@
         /* ================= 1. AUTO-EXPAND LOGIC ================= */
         function adjustTextareaHeight(el) {
             if (!el) return;
-            // 1. Reset height to auto to correctly calculate new scrollHeight (shrink if deleted)
             el.style.height = "auto";
-            // 2. Set new height based on content + small buffer
             el.style.height = (el.scrollHeight + 5) + "px";
         }
 
-        // Attach listeners for live typing
         [addressBox, complaintBox, medicineBox].forEach(box => {
             if(box) {
                 box.addEventListener("input", () => adjustTextareaHeight(box));
-                // Also trigger on focus/blur to be safe
                 box.addEventListener("focus", () => adjustTextareaHeight(box));
                 box.addEventListener("blur", () => adjustTextareaHeight(box));
             }
         });
 
-        /* ================= PRINT BILL FUNCTION ================= */
+        /* ================= PRINT BILL FUNCTION (CUSTOM HEADER) ================= */
         if (printBtn) {
             printBtn.addEventListener("click", () => {
                 const name = patientNameInput.value || "N/A";
@@ -83,45 +79,46 @@
                 const printWindow = window.open('', '', 'height=600,width=800');
                 printWindow.document.write('<html><head><title>Print Bill</title>');
                 printWindow.document.write('<style>');
-                printWindow.document.write('body { font-family: Arial, sans-serif; padding: 30px; }');
+                printWindow.document.write('body { font-family: Arial, sans-serif; padding: 20px; -webkit-print-color-adjust: exact; }');
                 
-                printWindow.document.write('.top-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 3px solid #333; padding-bottom: 15px; }');
-                printWindow.document.write('.doc-details { text-align: left; font-size: 14px; }');
-                printWindow.document.write('.doc-name { font-size: 18px; font-weight: bold; color: #000; }');
-                printWindow.document.write('.clinic-details { text-align: right; font-size: 11px; color: #555; line-height: 1.4; }');
-                printWindow.document.write('.clinic-name { font-size: 14px; font-weight: bold; color: #000; }');
+                /* === NEW HEADER STYLES (MATCHING IMAGE) === */
+                printWindow.document.write('.print-header { background-color: #ffff00; color: #ff0000; text-align: center; padding: 15px; margin-bottom: 20px; border: 1px solid #ddd; }');
+                printWindow.document.write('.clinic-name { font-size: 22px; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px; }');
+                printWindow.document.write('.dr-name { font-size: 32px; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }');
+                printWindow.document.write('.designation { font-size: 16px; font-weight: bold; margin-bottom: 2px; }');
+                printWindow.document.write('.address-line { color: #000; font-size: 12px; margin-top: 10px; font-weight: normal; }');
 
-                printWindow.document.write('.receipt-title { text-align: center; margin: 10px 0 20px 0; font-size: 20px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }');
+                /* CONTENT STYLES */
+                printWindow.document.write('.receipt-title { text-align: center; margin: 10px 0 20px 0; font-size: 18px; font-weight: bold; text-transform: uppercase; border-bottom: 2px solid #333; display: inline-block; padding-bottom: 5px; }');
+                printWindow.document.write('.title-container { text-align: center; }');
+
+                printWindow.document.write('.info-grid { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border: 1px solid #333; padding: 10px; font-weight: bold; }');
                 
-                printWindow.document.write('.info-grid { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border: 1px solid #ddd; padding: 10px; border-radius: 5px; }');
+                printWindow.document.write('.section-title { font-weight: bold; margin-top: 10px; background: #eee; padding: 5px; border-left: 5px solid #ff0000; }');
+                printWindow.document.write('.content-box { border: 1px solid #ccc; padding: 10px; min-height: 50px; margin-bottom: 10px; white-space: pre-wrap; font-size: 14px; }');
                 
-                printWindow.document.write('.section-title { font-weight: bold; margin-top: 15px; background: #eee; padding: 5px 10px; border-left: 4px solid #333; }');
-                printWindow.document.write('.content-box { border: 1px solid #ccc; padding: 10px; min-height: 60px; margin-bottom: 10px; white-space: pre-wrap; font-size: 13px; }');
-                printWindow.document.write('.billing-table { width: 100%; border-collapse: collapse; margin-top: 20px; }');
-                printWindow.document.write('.billing-table th, .billing-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }');
-                printWindow.document.write('.total-row { font-weight: bold; background-color: #f8f9fa; font-size: 15px; }');
+                printWindow.document.write('.billing-table { width: 100%; border-collapse: collapse; margin-top: 15px; }');
+                printWindow.document.write('.billing-table th, .billing-table td { border: 1px solid #000; padding: 8px; text-align: left; }');
+                printWindow.document.write('.total-row { font-weight: bold; background-color: #f0f0f0; }');
                 printWindow.document.write('</style>');
                 printWindow.document.write('</head><body>');
                 
-                printWindow.document.write('<div class="top-header">');
-                    printWindow.document.write('<div class="doc-details">');
-                        printWindow.document.write('<div class="doc-name">Dr. S. S. Gupta</div>');
-                        printWindow.document.write('<div>Designation</div>');
-                    printWindow.document.write('</div>');
-
-                    printWindow.document.write('<div class="clinic-details">');
-                        printWindow.document.write('<div class="clinic-name">Your Clinic Name</div>');
-                        printWindow.document.write('1234, Street Name, Colony<br>');
-                        printWindow.document.write('City, State - Zip Code<br>');
-                        printWindow.document.write('Phone: 9999999999');
-                    printWindow.document.write('</div>');
+                // === HEADER HTML ===
+                printWindow.document.write('<div class="print-header">');
+                    printWindow.document.write('<div class="clinic-name">S.S. HOMOEO CARE CLINIC</div>');
+                    printWindow.document.write('<div class="dr-name">DR. S.S. GUPTA</div>');
+                    printWindow.document.write('<div class="designation">M.D. (Homoeo)</div>');
+                    printWindow.document.write('<div class="designation">Psychiatrist</div>');
+                    // Kept address small at bottom of header as per standard billing requirements
+                    printWindow.document.write('<div class="address-line">Address: Your Clinic Address Here | Phone: 9999999999</div>');
                 printWindow.document.write('</div>');
 
-                printWindow.document.write('<div class="receipt-title">Patient Receipt</div>');
+                printWindow.document.write('<div class="title-container"><div class="receipt-title">Patient Receipt</div></div>');
                 
+                // Info Grid (Name Left, Date Right)
                 printWindow.document.write('<div class="info-grid">');
-                printWindow.document.write(`<div><strong>Patient Name:</strong> ${name}</div>`);
-                printWindow.document.write(`<div><strong>Date:</strong> ${date}</div>`);
+                printWindow.document.write(`<div>NAME: ${name.toUpperCase()}</div>`);
+                printWindow.document.write(`<div>DATE: ${date}</div>`);
                 printWindow.document.write('</div>');
 
                 printWindow.document.write('<div class="section-title">Chief Complaint</div>');
@@ -140,7 +137,11 @@
 
                 printWindow.document.write('</body></html>');
                 printWindow.document.close();
-                printWindow.print();
+                
+                // Delay print to allow styles to load (especially background colors)
+                setTimeout(() => {
+                    printWindow.print();
+                }, 500);
             });
         }
 
@@ -151,12 +152,10 @@
             if(sexInput) sexInput.value = record.B_Sex || "";
             if(ageInput) ageInput.value = record.B_Age || "";
             
-            if(addressBox) addressBox.value = record.B_To || "";
-            
-            // DELAYED RESIZE (Crucial for Mobile)
-            setTimeout(() => {
-                adjustTextareaHeight(addressBox);
-            }, 50);
+            if(addressBox) {
+                addressBox.value = record.B_To || "";
+                setTimeout(() => adjustTextareaHeight(addressBox), 50);
+            }
 
             if(oldRecordBtn) { oldRecordBtn.disabled = false; oldRecordBtn.style.opacity = "1"; oldRecordBtn.style.cursor = "pointer"; }
         }
@@ -328,7 +327,6 @@
             billingFields.forEach(f => f.value = "0.00");
             if (grandTotal) grandTotal.value = "0.00";
             
-            // Reset Textarea Heights
             if(addressBox) addressBox.style.height = "auto";
             if(complaintBox) complaintBox.style.height = "auto";
             if(medicineBox) medicineBox.style.height = "auto";
@@ -350,7 +348,6 @@
             if(complaintBox) complaintBox.value = record.B_Perticu1 || "";
             if(medicineBox) medicineBox.value = record.B_Perticu2 || "";
             
-            // DELAYED RESIZE (Crucial for Mobile)
             setTimeout(() => {
                 adjustTextareaHeight(addressBox);
                 adjustTextareaHeight(complaintBox);
