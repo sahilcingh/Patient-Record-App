@@ -67,7 +67,7 @@
             }
         });
 
-        /* ================= PRINT BILL FUNCTION (CUSTOM HEADER) ================= */
+        /* ================= PRINT BILL FUNCTION ================= */
         if (printBtn) {
             printBtn.addEventListener("click", () => {
                 const name = patientNameInput.value || "N/A";
@@ -81,14 +81,12 @@
                 printWindow.document.write('<style>');
                 printWindow.document.write('body { font-family: Arial, sans-serif; padding: 20px; -webkit-print-color-adjust: exact; }');
                 
-                /* === NEW HEADER STYLES (MATCHING IMAGE) === */
                 printWindow.document.write('.print-header { background-color: #ffff00; color: #ff0000; text-align: center; padding: 15px; margin-bottom: 20px; border: 1px solid #ddd; }');
                 printWindow.document.write('.clinic-name { font-size: 22px; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px; }');
                 printWindow.document.write('.dr-name { font-size: 32px; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }');
                 printWindow.document.write('.designation { font-size: 16px; font-weight: bold; margin-bottom: 2px; }');
                 printWindow.document.write('.address-line { color: #000; font-size: 12px; margin-top: 10px; font-weight: normal; }');
 
-                /* CONTENT STYLES */
                 printWindow.document.write('.receipt-title { text-align: center; margin: 10px 0 20px 0; font-size: 18px; font-weight: bold; text-transform: uppercase; border-bottom: 2px solid #333; display: inline-block; padding-bottom: 5px; }');
                 printWindow.document.write('.title-container { text-align: center; }');
 
@@ -103,19 +101,16 @@
                 printWindow.document.write('</style>');
                 printWindow.document.write('</head><body>');
                 
-                // === HEADER HTML ===
                 printWindow.document.write('<div class="print-header">');
                     printWindow.document.write('<div class="clinic-name">S.S. HOMOEO CARE CLINIC</div>');
                     printWindow.document.write('<div class="dr-name">DR. S.S. GUPTA</div>');
                     printWindow.document.write('<div class="designation">M.D. (Homoeo)</div>');
                     printWindow.document.write('<div class="designation">Psychiatrist</div>');
-                    // Kept address small at bottom of header as per standard billing requirements
                     printWindow.document.write('<div class="address-line">Address: Your Clinic Address Here | Phone: 9999999999</div>');
                 printWindow.document.write('</div>');
 
                 printWindow.document.write('<div class="title-container"><div class="receipt-title">Patient Receipt</div></div>');
                 
-                // Info Grid (Name Left, Date Right)
                 printWindow.document.write('<div class="info-grid">');
                 printWindow.document.write(`<div>NAME: ${name.toUpperCase()}</div>`);
                 printWindow.document.write(`<div>DATE: ${date}</div>`);
@@ -138,15 +133,13 @@
                 printWindow.document.write('</body></html>');
                 printWindow.document.close();
                 
-                // Delay print to allow styles to load (especially background colors)
-                setTimeout(() => {
-                    printWindow.print();
-                }, 500);
+                setTimeout(() => { printWindow.print(); }, 500);
             });
         }
 
-        /* ================= AUTOCOMPLETE & FILL ================= */
+        /* ================= AUTOCOMPLETE & FILL (FIXED) ================= */
         function autoFillPatientDetails(record) {
+            // 1. Fill Basic Info (Always update)
             patientNameInput.value = record.B_PName || "";
             fatherNameInput.value = record.B_FName || "";
             if(sexInput) sexInput.value = record.B_Sex || "";
@@ -157,6 +150,23 @@
                 setTimeout(() => adjustTextareaHeight(addressBox), 50);
             }
 
+            // 2. CLEAR Visit-Specific Info (The Fix)
+            if(complaintBox) {
+                complaintBox.value = ""; // Clear old complaint
+                adjustTextareaHeight(complaintBox);
+            }
+            if(medicineBox) {
+                medicineBox.value = ""; // Clear old medicine
+                adjustTextareaHeight(medicineBox);
+            }
+
+            // 3. RESET Billing (The Fix)
+            if(total) total.value = "0.00";
+            if(cartage) cartage.value = "0.00";
+            if(conveyance) conveyance.value = "0.00";
+            if(grandTotal) grandTotal.value = "0.00";
+
+            // 4. Enable Old Record Button
             if(oldRecordBtn) { oldRecordBtn.disabled = false; oldRecordBtn.style.opacity = "1"; oldRecordBtn.style.cursor = "pointer"; }
         }
 
@@ -188,6 +198,7 @@
                                     const searchRes = await fetch(`${API_BASE_URL}/api/visits/search?name=${encodeURIComponent(item.B_PName)}`);
                                     const searchData = await searchRes.json();
                                     if(searchData.records && searchData.records.length > 0) {
+                                        // Auto-fill basic info AND clear old clinical data
                                         autoFillPatientDetails(searchData.records[0]);
                                     }
                                 } catch(e) { console.error(e); }
