@@ -116,7 +116,7 @@ function App() {
                <button type="button" id="deleteBtn" className="danger hidden">Delete</button>
             </div>
             <div>
-              <button type="button" id="whatsappBtn" style={{background: "#25D366", color: "white", border: "1px solid #1da851"}}>WhatsApp</button>
+              {/* <button type="button" id="whatsappBtn" style={{background: "#25D366", color: "white", border: "1px solid #1da851"}}>WhatsApp</button> */}
               <button type="button" id="printBtn" style={{background: "#6c757d", color: "white", border: "1px solid #5a6268"}}>Print Bill</button>
               
               <button type="button" id="cancelBtn">Cancel</button>
