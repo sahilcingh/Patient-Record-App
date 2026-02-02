@@ -1,7 +1,7 @@
 import sql from "mssql";
 import { config } from "../config/db.js";
 
-// 1. CREATE VISIT
+// 1. SAVE: Include B_Mobile in Insert
 export const createVisit = async (req, res) => {
   try {
     const pool = await sql.connect(config);
@@ -10,6 +10,7 @@ export const createVisit = async (req, res) => {
         chiefComplaint, medicine, total, cartage, conveyance, grandTotal 
     } = req.body;
 
+    // Generate next Sno
     const result = await pool.request().query("SELECT MAX(B_Sno) as maxSno FROM Pat_Master");
     const nextSno = (result.recordset[0].maxSno || 0) + 1;
 
@@ -19,7 +20,7 @@ export const createVisit = async (req, res) => {
       .input("B_PName", sql.VarChar, patientName)
       .input("B_Sex", sql.VarChar, sex)
       .input("B_FName", sql.VarChar, fatherName)
-      .input("B_Mobile", sql.VarChar, mobile || "") 
+      .input("B_Mobile", sql.VarChar, mobile || "") // Save Mobile
       .input("B_Age", sql.VarChar, age)
       .input("B_To", sql.VarChar, address)
       .input("B_Perticu1", sql.VarChar, chiefComplaint)
@@ -45,7 +46,38 @@ export const createVisit = async (req, res) => {
   }
 };
 
-// 2. UPDATE VISIT
+// 2. SEARCH: Find by Name OR Mobile
+export const searchVisits = async (req, res) => {
+    try {
+      const { name, mobile } = req.query; 
+      const pool = await sql.connect(config);
+      
+      let query = "SELECT * FROM Pat_Master WHERE 1=1";
+      const reqSql = pool.request();
+
+      // If searching by Name
+      if(name) {
+          query += " AND B_PName LIKE @name";
+          reqSql.input("name", sql.VarChar, `%${name}%`);
+      }
+      
+      // If searching by Mobile (Exact Match)
+      if(mobile) {
+          query += " AND B_Mobile = @mobile";
+          reqSql.input("mobile", sql.VarChar, mobile);
+      }
+
+      query += " ORDER BY B_Date DESC"; // Get latest record first
+
+      const result = await reqSql.query(query);
+      res.json({ records: result.recordset });
+    } catch (error) { 
+      console.error("Search Error:", error);
+      res.status(500).json({ message: "Search failed" }); 
+    }
+};
+
+// 3. UPDATE: Include B_Mobile in Update
 export const updateVisit = async (req, res) => {
     try {
       const { sno } = req.params;
@@ -61,7 +93,7 @@ export const updateVisit = async (req, res) => {
         .input("B_PName", sql.VarChar, patientName)
         .input("B_Sex", sql.VarChar, sex)
         .input("B_FName", sql.VarChar, fatherName)
-        .input("B_Mobile", sql.VarChar, mobile || "") 
+        .input("B_Mobile", sql.VarChar, mobile || "") // Update Mobile
         .input("B_Age", sql.VarChar, age)
         .input("B_To", sql.VarChar, address)
         .input("B_Perticu1", sql.VarChar, chiefComplaint)
@@ -83,82 +115,4 @@ export const updateVisit = async (req, res) => {
       console.error("Update Error:", error);
       res.status(500).json({ message: "Error updating visit" });
     }
-};
-
-// 3. NEW: GET MOBILE SUGGESTIONS
-export const getMobileSuggestions = async (req, res) => {
-  try {
-    const { query } = req.query;
-    if (!query) return res.json([]);
-    const pool = await sql.connect(config);
-    const result = await pool.request()
-      .input("search", sql.VarChar, `${query}%`)
-      .query(`SELECT DISTINCT TOP 10 B_Mobile, B_PName FROM Pat_Master WHERE B_Mobile LIKE @search AND B_Mobile IS NOT NULL AND B_Mobile <> ''`);
-    res.json(result.recordset);
-  } catch (error) {
-    console.error("Mobile Suggestion Error:", error);
-    res.status(500).json({ message: "Error fetching suggestions" });
-  }
-};
-
-// ... Standard Getters ...
-export const getNextSno = async (req, res) => {
-  try {
-    const pool = await sql.connect(config);
-    const result = await pool.request().query("SELECT MAX(B_Sno) as maxSno FROM Pat_Master");
-    const nextSno = (result.recordset[0].maxSno || 0) + 1;
-    res.json({ nextSno });
-  } catch (error) { res.status(500).json({ message: "Error" }); }
-};
-
-export const searchVisits = async (req, res) => {
-    try {
-      const { name, mobile } = req.query; // Added mobile support
-      const pool = await sql.connect(config);
-      let query = "SELECT * FROM Pat_Master WHERE 1=1";
-      
-      if(name) {
-          query += " AND B_PName LIKE @name";
-      }
-      if(mobile) {
-          query += " AND B_Mobile = @mobile";
-      }
-      query += " ORDER BY B_Date DESC";
-
-      const reqSql = pool.request();
-      if(name) reqSql.input("name", sql.VarChar, `%${name}%`);
-      if(mobile) reqSql.input("mobile", sql.VarChar, mobile);
-
-      const result = await reqSql.query(query);
-      res.json({ records: result.recordset });
-    } catch (error) { res.status(500).json({ message: "Search failed" }); }
-};
-
-export const getNameSuggestions = async (req, res) => {
-  try {
-    const { query } = req.query;
-    if (!query) return res.json([]);
-    const pool = await sql.connect(config);
-    const result = await pool.request().input("search", sql.VarChar, `${query}%`).query(`SELECT DISTINCT TOP 10 B_PName FROM Pat_Master WHERE B_PName LIKE @search ORDER BY B_PName`);
-    res.json(result.recordset);
-  } catch (error) { res.status(500).json({ message: "Error" }); }
-};
-
-export const getVisitBySno = async (req, res) => {
-    try {
-      const { sno } = req.params;
-      const pool = await sql.connect(config);
-      const result = await pool.request().input("sno", sql.Int, sno).query("SELECT * FROM Pat_Master WHERE B_Sno = @sno");
-      if (result.recordset.length === 0) return res.status(404).json({ message: "Visit not found" });
-      res.json(result.recordset[0]);
-    } catch (error) { res.status(500).json({ message: "Error" }); }
-};
-
-export const deleteVisit = async (req, res) => {
-    try {
-      const { sno } = req.params;
-      const pool = await sql.connect(config);
-      await pool.request().input("sno", sql.Int, sno).query("DELETE FROM Pat_Master WHERE B_Sno = @sno");
-      res.json({ message: "Visit deleted successfully" });
-    } catch (error) { res.status(500).json({ message: "Error" }); }
 };
