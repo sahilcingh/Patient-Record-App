@@ -12,7 +12,7 @@
         if (form.dataset.initialized === "true") return;
         form.dataset.initialized = "true";
 
-        // Elements
+        // --- ELEMENTS ---
         const snoInput = getEl("sno");
         const ageInput = getEl("age"); 
         const sexInput = getEl("sex");
@@ -37,7 +37,7 @@
         const oldRecordBtn = getEl("oldRecordBtn");
         const printBtn = getEl("printBtn"); 
 
-        const modal = getEl("historyModal");
+        const historyModal = getEl("historyModal");
         const tableBody = getEl("historyTableBody");
         const closeModalBtn = getEl("closeModalBtn");
 
@@ -54,14 +54,27 @@
         const complaintBox = form.querySelectorAll(".large-box")[0];
         const medicineBox = form.querySelectorAll(".large-box")[1];
 
-        let isEditMode = false;
         let currentModalCallback = null; 
 
-        if(oldRecordBtn) {
-            oldRecordBtn.disabled = true;
-            oldRecordBtn.style.opacity = "0.5";
-            oldRecordBtn.style.cursor = "not-allowed";
+        // Enable button if fields are filled manually
+        function checkOldRecordButton() {
+            if (patientNameInput.value.trim().length > 0 || mobileInput.value.trim().length === 10) {
+                oldRecordBtn.disabled = false;
+                oldRecordBtn.style.opacity = "1";
+                oldRecordBtn.style.cursor = "pointer";
+            } else {
+                oldRecordBtn.disabled = true;
+                oldRecordBtn.style.opacity = "0.5";
+                oldRecordBtn.style.cursor = "not-allowed";
+            }
         }
+
+        // Attach check to inputs
+        patientNameInput.addEventListener("input", checkOldRecordButton);
+        mobileInput.addEventListener("input", checkOldRecordButton);
+
+        // Initial State
+        checkOldRecordButton();
 
         /* ================= 1. SMART POPUP SYSTEM ================= */
         function showModal(type, title, message, onOk = null) {
@@ -96,29 +109,17 @@
         modalCancelBtn.addEventListener("click", () => { customModal.style.display = "none"; currentModalCallback = null; });
         modalOkBtn.addEventListener("click", () => { customModal.style.display = "none"; if (currentModalCallback) currentModalCallback(); currentModalCallback = null; });
 
-        /* ================= 2. BILLING LOGIC (CLEAR ON CLICK) ================= */
+        /* ================= 2. BILLING LOGIC ================= */
         function setupBillingField(input) {
-            // 1. Clear on Focus (Click) if value is 0
             input.addEventListener("focus", function() {
-                if (this.value === "0" || this.value === "0.00") {
-                    this.value = "";
-                }
+                if (this.value === "0" || this.value === "0.00") { this.value = ""; }
             });
-
-            // 2. Format on Blur (Click away)
             input.addEventListener("blur", function() {
-                if (this.value.trim() === "" || isNaN(parseFloat(this.value))) {
-                    this.value = "0.00";
-                } else {
-                    this.value = parseFloat(this.value).toFixed(2);
-                }
+                if (this.value.trim() === "" || isNaN(parseFloat(this.value))) { this.value = "0.00"; } 
+                else { this.value = parseFloat(this.value).toFixed(2); }
                 calculateGrandTotal();
             });
-
-            // 3. Update Grand Total on type
-            input.addEventListener("input", function() {
-                calculateGrandTotal();
-            });
+            input.addEventListener("input", function() { calculateGrandTotal(); });
         }
         billingFields.forEach(field => setupBillingField(field));
 
@@ -129,36 +130,29 @@
             if (grandTotal) grandTotal.value = (t + c + v).toFixed(2);
         }
 
-        /* ================= 3. STRICT AGE & MOBILE LOGIC ================= */
-        if (ageInput) {
-            ageInput.addEventListener("input", function() {
-                // Remove non-numbers
-                let val = this.value.replace(/[^0-9]/g, '');
-                
-                // Limit to 3 digits
-                if (val.length > 3) val = val.slice(0, 3);
-                
-                // Max Value Check (110)
-                if (parseInt(val) > 110) {
-                    val = "110";
-                    // Optional: You could show a quick toast/modal here if desired
-                }
-                
-                this.value = val;
-            });
+        /* ================= 3. AUTO-EXPAND LOGIC ================= */
+        function adjustTextareaHeight(el) {
+            if (!el) return;
+            el.style.height = "auto";
+            el.style.height = (el.scrollHeight + 5) + "px";
         }
+        [addressBox, complaintBox, medicineBox].forEach(box => {
+            if(box) {
+                box.addEventListener("input", () => adjustTextareaHeight(box));
+                box.addEventListener("focus", () => adjustTextareaHeight(box));
+                box.addEventListener("blur", () => setTimeout(() => adjustTextareaHeight(box), 10));
+            }
+        });
 
+        /* ================= 4. MOBILE LOGIC & AUTOCOMPLETE ================= */
         if (mobileInput) {
             mobileInput.addEventListener("input", async function() {
-                // Strict Numbers Only
+                // Numbers only
                 this.value = this.value.replace(/[^0-9]/g, '');
+                if (this.value.length > 10) this.value = this.value.slice(0, 10);
                 
-                // Strict Length 10
-                if (this.value.length > 10) { 
-                    this.value = this.value.slice(0, 10); 
-                }
+                checkOldRecordButton(); // Update button state
 
-                // Autocomplete Logic
                 const query = this.value.trim();
                 if (query.length < 2) { mobileSuggestionsList.classList.add("hidden"); return; }
                 
@@ -173,6 +167,7 @@
                             li.onclick = async () => {
                                 mobileInput.value = item.B_Mobile; 
                                 mobileSuggestionsList.classList.add("hidden"); 
+                                checkOldRecordButton();
                                 try {
                                     const searchRes = await fetch(`${API_BASE_URL}/api/visits/search?mobile=${encodeURIComponent(item.B_Mobile)}`);
                                     const searchData = await searchRes.json();
@@ -190,27 +185,24 @@
             document.addEventListener("click", function(e) { if (e.target !== mobileInput) mobileSuggestionsList.classList.add("hidden"); });
         }
 
-        /* ================= 4. NAME AUTOCOMPLETE ================= */
+        /* ================= 5. NAME AUTOCOMPLETE ================= */
         if (patientNameInput && suggestionsList) {
             patientNameInput.addEventListener("input", async function() {
+                checkOldRecordButton(); // Update button state
                 const query = this.value.trim();
-                if (query.length < 1) { 
-                    suggestionsList.classList.add("hidden"); 
-                    if(oldRecordBtn) { oldRecordBtn.disabled = true; oldRecordBtn.style.opacity = "0.5"; oldRecordBtn.style.cursor = "not-allowed"; }
-                    return; 
-                }
+                if (query.length < 1) { suggestionsList.classList.add("hidden"); return; }
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/visits/suggestions?query=${encodeURIComponent(query)}`);
                     const names = await res.json();
                     suggestionsList.innerHTML = "";
                     if (names.length > 0) {
-                        if(oldRecordBtn) { oldRecordBtn.disabled = false; oldRecordBtn.style.opacity = "1"; oldRecordBtn.style.cursor = "pointer"; }
                         names.forEach(item => {
                             const li = document.createElement("li");
                             li.textContent = item.B_PName;
                             li.onclick = async () => {
                                 patientNameInput.value = item.B_PName; 
                                 suggestionsList.classList.add("hidden"); 
+                                checkOldRecordButton();
                                 try {
                                     const searchRes = await fetch(`${API_BASE_URL}/api/visits/search?name=${encodeURIComponent(item.B_PName)}`);
                                     const searchData = await searchRes.json();
@@ -228,54 +220,43 @@
             document.addEventListener("click", function(e) { if (e.target !== patientNameInput) suggestionsList.classList.add("hidden"); });
         }
 
+        /* ================= 6. AUTO-FILL ================= */
         function autoFillPatientDetails(record) {
             patientNameInput.value = record.B_PName || "";
             fatherNameInput.value = record.B_FName || "";
             if(sexInput) sexInput.value = record.B_Sex || "";
             if(ageInput) ageInput.value = record.B_Age || "";
             if(mobileInput && record.B_Mobile) mobileInput.value = record.B_Mobile; 
-            
-            if(addressBox) {
-                addressBox.value = record.B_To || "";
-                setTimeout(() => adjustTextareaHeight(addressBox), 50);
-            }
+            if(addressBox) { addressBox.value = record.B_To || ""; setTimeout(() => adjustTextareaHeight(addressBox), 50); }
 
+            // Clear clinical data for new entry
             if(complaintBox) { complaintBox.value = ""; adjustTextareaHeight(complaintBox); }
             if(medicineBox) { medicineBox.value = ""; adjustTextareaHeight(medicineBox); }
-
             if(total) total.value = "0.00";
             if(cartage) cartage.value = "0.00";
             if(conveyance) conveyance.value = "0.00";
             if(grandTotal) grandTotal.value = "0.00";
 
-            if(oldRecordBtn) { oldRecordBtn.disabled = false; oldRecordBtn.style.opacity = "1"; oldRecordBtn.style.cursor = "pointer"; }
+            checkOldRecordButton();
         }
 
-        /* ================= 5. AUTO-EXPAND LOGIC ================= */
-        function adjustTextareaHeight(el) {
-            if (!el) return;
-            el.style.height = "auto";
-            el.style.height = (el.scrollHeight + 5) + "px";
+        /* ================= 7. AGE RESTRICTION ================= */
+        if (ageInput) {
+            ageInput.addEventListener("input", function() {
+                let val = this.value.replace(/[^0-9]/g, '');
+                if (val.length > 3) val = val.slice(0, 3);
+                if (parseInt(val) > 110) val = "110";
+                this.value = val;
+            });
         }
-        [addressBox, complaintBox, medicineBox].forEach(box => {
-            if(box) {
-                box.addEventListener("input", () => adjustTextareaHeight(box));
-                box.addEventListener("focus", () => adjustTextareaHeight(box));
-                box.addEventListener("blur", () => setTimeout(() => adjustTextareaHeight(box), 10));
-            }
-        });
 
-        /* ================= 6. VALIDATION & CRUD ================= */
+        /* ================= 8. VALIDATION ================= */
         function validateForm() { 
             if (!patientNameInput.value.trim()) { showModal('alert', 'Missing Name', 'Please enter the Patient Name.'); patientNameInput.focus(); return false; } 
             if (!fatherNameInput.value.trim()) { showModal('alert', 'Missing Father Name', 'Please enter Father\'s Name.'); fatherNameInput.focus(); return false; }
             if (!sexInput.value || sexInput.value === "Select") { showModal('alert', 'Missing Gender', 'Please select a Gender.'); sexInput.focus(); return false; }
-            
-            // Validate Age
             if (!ageInput.value || parseInt(ageInput.value) <= 0) { showModal('alert', 'Invalid Age', 'Please enter a valid Age.'); ageInput.focus(); return false; }
-            if (parseInt(ageInput.value) > 110) { showModal('alert', 'Invalid Age', 'Age cannot be more than 110.'); ageInput.focus(); return false; }
-
-            // Validate Mobile
+            
             if (!mobileInput.value.trim()) { showModal('alert', 'Missing Mobile', 'Please enter the Mobile Number.'); mobileInput.focus(); return false; }
             if (mobileInput.value.trim().length !== 10) { showModal('alert', 'Invalid Mobile', 'Mobile Number must be exactly 10 digits.'); mobileInput.focus(); return false; }
 
@@ -287,6 +268,7 @@
             return true; 
         }
 
+        /* ================= 9. CRUD ================= */
         if (saveBtn) {
             saveBtn.addEventListener("click", (e) => {
                 e.preventDefault();
@@ -357,27 +339,52 @@
             });
         }
 
-        /* ================= 7. HELPERS ================= */
+        /* ================= 10. HELPER FUNCTIONS (OLD RECORD UPDATED) ================= */
         if (oldRecordBtn) {
             oldRecordBtn.addEventListener("click", async () => {
-                const nameInput = document.getElementById("patientNameInput");
-                const patientName = nameInput?.value.trim();
-                if (!patientName) return;
+                const name = patientNameInput.value.trim();
+                const mobile = mobileInput.value.trim();
+
+                // Validation: Need at least one valid input to search
+                if (!name && mobile.length !== 10) {
+                    showModal('alert', 'Missing Information', 'Please enter a valid Patient Name or a 10-digit Mobile Number to search.');
+                    return;
+                }
+
+                // Construct Query: Prioritize Mobile if valid (it's unique), else Name
+                let queryParam = "";
+                if (mobile.length === 10) {
+                    queryParam = `mobile=${encodeURIComponent(mobile)}`;
+                } else if (name.length > 0) {
+                    queryParam = `name=${encodeURIComponent(name)}`;
+                }
+
                 try {
-                    const res = await fetch(`${API_BASE_URL}/api/visits/search?name=${encodeURIComponent(patientName)}`);
+                    const res = await fetch(`${API_BASE_URL}/api/visits/search?${queryParam}`);
                     const data = await res.json();
+                    
                     if (res.ok && data.records.length > 0) {
                         tableBody.innerHTML = ""; 
                         data.records.forEach(rec => {
                             const date = new Date(rec.B_Date).toLocaleDateString('en-GB'); 
                             const row = document.createElement("tr");
                             row.innerHTML = `<td>${date}</td><td>${rec.B_PName}</td><td>${rec.B_FName || '-'}</td><td>${rec.B_TotalAmt || 0}</td>`;
-                            row.onclick = () => { fillForm(rec); toggleEditMode(true); modal.style.display = "none"; };
+                            
+                            // Load Record
+                            row.onclick = () => { 
+                                fillForm(rec); 
+                                toggleEditMode(true); 
+                                historyModal.style.display = "none"; 
+                            };
                             tableBody.appendChild(row);
                         });
-                        modal.style.display = "flex"; 
-                    } else { showModal('alert', 'Info', 'No records found.'); }
-                } catch (err) { showModal('alert', 'Error', 'Error loading history.'); }
+                        historyModal.style.display = "flex"; 
+                    } else { 
+                        showModal('alert', 'Info', 'No records found.'); 
+                    }
+                } catch (err) { 
+                    showModal('alert', 'Error', 'Error loading history.'); 
+                }
             });
         }
 
@@ -415,6 +422,7 @@
             cartage.value = (record.B_Cart || 0).toFixed(2);
             conveyance.value = (record.B_Conv || 0).toFixed(2);
             grandTotal.value = (record.B_TotalAmt || 0).toFixed(2);
+            checkOldRecordButton();
         }
         
         function resetForm() {
@@ -427,6 +435,7 @@
             toggleEditMode(false);
             loadNextSno();
             visitDate.value = new Date().toISOString().split('T')[0];
+            checkOldRecordButton();
         }
 
         function toggleEditMode(enable) {
@@ -451,7 +460,7 @@
         loadNextSno(); 
         if(visitDate) visitDate.value = new Date().toISOString().split('T')[0];
         if (cancelBtn) cancelBtn.addEventListener("click", resetForm);
-        if (closeModalBtn) closeModalBtn.onclick = () => { modal.style.display = "none"; };
+        if (closeModalBtn) closeModalBtn.onclick = () => { historyModal.style.display = "none"; };
     }
     startApp();
 })();
