@@ -49,18 +49,8 @@ function App() {
                 </div>
               </div>
               
-              {/* BUTTONS CONTAINER */}
-              <div style={{display: "flex", gap: "10px"}}>
-                <button type="button" id="oldRecordBtn" className="nav-button">OLD Record</button>
-                <button 
-                    type="button" 
-                    id="showAllBtn" 
-                    className="nav-button" 
-                    style={{ background: "linear-gradient(to bottom, #17a2b8, #138496)", border: "1px solid #117a8b" }}
-                >
-                    Show All
-                </button>
-              </div>
+              {/* OLD RECORD BUTTON (Kept here) */}
+              <button type="button" id="oldRecordBtn" className="nav-button">OLD Record</button>
 
               <div className="input-group fixed-right">
                 <label>Age</label>
@@ -143,9 +133,21 @@ function App() {
 
           {/* FOOTER */}
           <footer className="footer">
-            <div>
+            {/* LEFT SIDE: Show All & Delete */}
+            <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
+               {/* MOVED SHOW ALL BUTTON HERE */}
+               <button 
+                    type="button" 
+                    id="showAllBtn" 
+                    className="nav-button" 
+                    style={{ background: "linear-gradient(to bottom, #17a2b8, #138496)", border: "1px solid #117a8b", margin: 0 }}
+                >
+                    Show All
+                </button>
                <button type="button" id="deleteBtn" className="danger hidden">Delete</button>
             </div>
+
+            {/* RIGHT SIDE: Actions */}
             <div>
               <button type="button" id="printBtn" style={{background: "#6c757d", color: "white", border: "1px solid #5a6268"}}>Print Bill</button>
               <button type="button" id="cancelBtn">Cancel</button>
@@ -170,7 +172,7 @@ function App() {
         </form>
       </div>
 
-      {/* History / Show All Modal */}
+      {/* History Modal */}
       <div id="historyModal" className="modal-overlay">
         <div className="modal-content">
           <div className="modal-header">
@@ -180,9 +182,7 @@ function App() {
           <div className="modal-body">
             <div className="table-container">
                 <table className="history-table">
-                <thead id="historyTableHead">
-                    {/* Headers injected by JS */}
-                </thead>
+                <thead id="historyTableHead"></thead>
                 <tbody id="historyTableBody"></tbody>
                 </table>
             </div>
