@@ -33,7 +33,7 @@
         const updateBtn = form.querySelector('#updateBtn'); 
         const deleteBtn = form.querySelector('#deleteBtn'); 
         const cancelBtn = form.querySelector('#cancelBtn'); 
-        const saveAsNewBtn = form.querySelector('#saveAsNewBtn'); // NEW
+        const saveAsNewBtn = form.querySelector('#saveAsNewBtn'); 
         const oldRecordBtn = getEl("oldRecordBtn");
         const printBtn = getEl("printBtn"); 
 
@@ -139,7 +139,7 @@
             }
         });
 
-        /* ================= INPUT RESTRICTIONS ================= */
+        /* ================= AGE RESTRICTION ================= */
         if (ageInput) {
             ageInput.addEventListener("input", function() {
                 let val = this.value.replace(/[^0-9]/g, '');
@@ -149,6 +149,7 @@
             });
         }
 
+        /* ================= MOBILE LOGIC ================= */
         if (mobileInput) {
             mobileInput.addEventListener("input", async function() {
                 this.value = this.value.replace(/[^0-9]/g, '');
@@ -222,13 +223,18 @@
             document.addEventListener("click", function(e) { if (e.target !== patientNameInput) suggestionsList.classList.add("hidden"); });
         }
 
-        /* ================= HELPER FUNCTIONS ================= */
+        /* ================= AUTO-FILL (FIXED) ================= */
         function autoFillPatientDetails(record) {
             patientNameInput.value = record.B_PName || "";
             fatherNameInput.value = record.B_FName || "";
             if(sexInput) sexInput.value = record.B_Sex || "";
             if(ageInput) ageInput.value = record.B_Age || "";
-            if(mobileInput && record.B_Mobile) mobileInput.value = record.B_Mobile; 
+            
+            // FIX: Always reset mobile. If null/undefined in DB, set to ""
+            if(mobileInput) {
+                mobileInput.value = record.B_Mobile || ""; 
+            }
+            
             if(addressBox) { addressBox.value = record.B_To || ""; setTimeout(() => adjustTextareaHeight(addressBox), 50); }
 
             if(complaintBox) { complaintBox.value = ""; adjustTextareaHeight(complaintBox); }
@@ -244,18 +250,16 @@
         function toggleEditMode(enable) {
             isEditMode = enable;
             if (enable) {
-                // OLD RECORD MODE
                 saveBtn.classList.add("hidden");
                 updateBtn.classList.remove("hidden");
                 deleteBtn.classList.remove("hidden");
-                saveAsNewBtn.classList.remove("hidden"); // SHOW BUTTON
+                saveAsNewBtn.classList.remove("hidden"); 
                 snoInput.style.backgroundColor = "#e0e0e0"; 
             } else {
-                // NEW RECORD MODE
                 saveBtn.classList.remove("hidden");
                 updateBtn.classList.add("hidden");
                 deleteBtn.classList.add("hidden");
-                saveAsNewBtn.classList.add("hidden"); // HIDE BUTTON
+                saveAsNewBtn.classList.add("hidden"); 
                 snoInput.style.backgroundColor = "white";
             }
         }
@@ -266,7 +270,6 @@
             if (!sexInput.value || sexInput.value === "Select") { showModal('alert', 'Missing Gender', 'Please select a Gender.'); sexInput.focus(); return false; }
             if (!ageInput.value || parseInt(ageInput.value) <= 0) { showModal('alert', 'Invalid Age', 'Please enter a valid Age.'); ageInput.focus(); return false; }
             
-            // Optional Mobile
             const mobileVal = mobileInput.value.trim();
             if (mobileVal.length > 0 && mobileVal.length !== 10) { 
                 showModal('alert', 'Invalid Mobile', 'Mobile Number must be exactly 10 digits (or leave empty).'); 
@@ -281,7 +284,7 @@
             return true; 
         }
 
-        /* ================= 9. CRUD ================= */
+        /* ================= CRUD ================= */
         if (saveBtn) {
             saveBtn.addEventListener("click", (e) => {
                 e.preventDefault();
@@ -333,7 +336,6 @@
             });
         }
 
-        /* ================= 10. SAVE AS NEW RECORD (THE NEW FEATURE) ================= */
         if (saveAsNewBtn) {
             saveAsNewBtn.addEventListener("click", (e) => {
                 e.preventDefault();
@@ -341,31 +343,18 @@
 
                 showModal('confirm', 'Save as New Record', 'Create a NEW visit with today\'s date using these details?', async () => {
                     saveAsNewBtn.disabled = true; saveAsNewBtn.innerText = "Saving...";
-                    
-                    // 1. Get current payload
                     const payload = getPayload();
-                    
-                    // 2. FORCE Date to Today
                     const now = new Date();
                     payload.date = now.toISOString().split('T')[0];
 
                     try {
-                        // 3. Send POST (Create New) instead of PUT
                         const res = await fetch(`${API_BASE_URL}/api/visits`, {
                             method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
                         });
-                        
-                        if (res.ok) { 
-                            showModal('success', 'Created', 'New Visit Created Successfully!'); 
-                            resetForm(); 
-                        } else { 
-                            showModal('alert', 'Error', 'Failed to create record.'); 
-                        }
-                    } catch (err) { 
-                        showModal('alert', 'Error', 'Server Error.'); 
-                    } finally { 
-                        saveAsNewBtn.disabled = false; saveAsNewBtn.innerText = "Save as New Record"; 
-                    }
+                        if (res.ok) { showModal('success', 'Created', 'New Visit Created Successfully!'); resetForm(); } 
+                        else { showModal('alert', 'Error', 'Failed to create record.'); }
+                    } catch (err) { showModal('alert', 'Error', 'Server Error.'); } 
+                    finally { saveAsNewBtn.disabled = false; saveAsNewBtn.innerText = "Save as New Record"; }
                 });
             });
         }
@@ -389,7 +378,7 @@
             });
         }
 
-        /* ================= 11. OLD RECORD VIEWER ================= */
+        /* ================= OLD RECORD VIEWER ================= */
         if (oldRecordBtn) {
             oldRecordBtn.addEventListener("click", async () => {
                 const name = patientNameInput.value.trim();
@@ -475,25 +464,6 @@
             loadNextSno();
             visitDate.value = new Date().toISOString().split('T')[0];
             checkOldRecordButton();
-        }
-
-        function toggleEditMode(enable) {
-            isEditMode = enable;
-            if (enable) {
-                // OLD RECORD MODE
-                saveBtn.classList.add("hidden");
-                updateBtn.classList.remove("hidden");
-                deleteBtn.classList.remove("hidden");
-                saveAsNewBtn.classList.remove("hidden"); // Show Button
-                snoInput.style.backgroundColor = "#e0e0e0"; 
-            } else {
-                // NEW RECORD MODE
-                saveBtn.classList.remove("hidden");
-                updateBtn.classList.add("hidden");
-                deleteBtn.classList.add("hidden");
-                saveAsNewBtn.classList.add("hidden"); // Hide Button
-                snoInput.style.backgroundColor = "white";
-            }
         }
 
         async function loadNextSno() {
