@@ -67,45 +67,19 @@
             }
         });
 
-        /* ================= PRINT BILL FUNCTION (WITH VALIDATION) ================= */
+        /* ================= 2. PRINT BILL FUNCTION ================= */
         if (printBtn) {
             printBtn.addEventListener("click", () => {
-                
-                // --- 1. VALIDATION CHECKS ---
                 const name = patientNameInput.value.trim();
                 const complaint = complaintBox.value.trim();
                 const medicine = medicineBox.value.trim();
                 const grandTotalVal = grandTotal.value.trim();
 
-                // Check Name
-                if (!name) {
-                    alert("⚠️ Cannot Print: Patient Name is missing.");
-                    patientNameInput.focus();
-                    return;
-                }
+                if (!name) { alert("⚠️ Cannot Print: Patient Name is missing."); patientNameInput.focus(); return; }
+                if (!complaint) { alert("⚠️ Cannot Print: Please enter the Chief Complaint."); complaintBox.focus(); return; }
+                if (!medicine) { alert("⚠️ Cannot Print: Please enter the Medicine."); medicineBox.focus(); return; }
+                if (!grandTotalVal) { alert("⚠️ Cannot Print: Billing section is incomplete."); grandTotal.focus(); return; }
 
-                // Check Complaint
-                if (!complaint) {
-                    alert("⚠️ Cannot Print: Please enter the Chief Complaint.");
-                    complaintBox.focus();
-                    return;
-                }
-
-                // Check Medicine
-                if (!medicine) {
-                    alert("⚠️ Cannot Print: Please enter the Medicine.");
-                    medicineBox.focus();
-                    return;
-                }
-
-                // Check Billing (Ensure it's not empty)
-                if (!grandTotalVal) {
-                    alert("⚠️ Cannot Print: Billing section is incomplete.");
-                    grandTotal.focus();
-                    return;
-                }
-
-                // --- 2. GENERATE BILL HTML ---
                 const date = visitDate.value || new Date().toISOString().split('T')[0];
 
                 const printWindow = window.open('', '', 'height=600,width=800');
@@ -123,10 +97,8 @@
                 printWindow.document.write('.title-container { text-align: center; }');
 
                 printWindow.document.write('.info-grid { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border: 1px solid #333; padding: 10px; font-weight: bold; }');
-                
                 printWindow.document.write('.section-title { font-weight: bold; margin-top: 10px; background: #eee; padding: 5px; border-left: 5px solid #ff0000; }');
                 printWindow.document.write('.content-box { border: 1px solid #ccc; padding: 10px; min-height: 50px; margin-bottom: 10px; white-space: pre-wrap; font-size: 14px; }');
-                
                 printWindow.document.write('.billing-table { width: 100%; border-collapse: collapse; margin-top: 15px; }');
                 printWindow.document.write('.billing-table th, .billing-table td { border: 1px solid #000; padding: 8px; text-align: left; }');
                 printWindow.document.write('.total-row { font-weight: bold; background-color: #f0f0f0; }');
@@ -142,7 +114,6 @@
                 printWindow.document.write('</div>');
 
                 printWindow.document.write('<div class="title-container"><div class="receipt-title">Patient Receipt</div></div>');
-                
                 printWindow.document.write('<div class="info-grid">');
                 printWindow.document.write(`<div>NAME: ${name.toUpperCase()}</div>`);
                 printWindow.document.write(`<div>DATE: ${date}</div>`);
@@ -164,12 +135,11 @@
 
                 printWindow.document.write('</body></html>');
                 printWindow.document.close();
-                
                 setTimeout(() => { printWindow.print(); }, 500);
             });
         }
 
-        /* ================= AUTOCOMPLETE & FILL ================= */
+        /* ================= 3. AUTOCOMPLETE & AUTO-FILL ================= */
         function autoFillPatientDetails(record) {
             patientNameInput.value = record.B_PName || "";
             fatherNameInput.value = record.B_FName || "";
@@ -181,17 +151,10 @@
                 setTimeout(() => adjustTextareaHeight(addressBox), 50);
             }
 
-            // Clear old clinical data
-            if(complaintBox) {
-                complaintBox.value = ""; 
-                adjustTextareaHeight(complaintBox);
-            }
-            if(medicineBox) {
-                medicineBox.value = ""; 
-                adjustTextareaHeight(medicineBox);
-            }
+            // Clear old data
+            if(complaintBox) { complaintBox.value = ""; adjustTextareaHeight(complaintBox); }
+            if(medicineBox) { medicineBox.value = ""; adjustTextareaHeight(medicineBox); }
 
-            // Reset Billing
             if(total) total.value = "0.00";
             if(cartage) cartage.value = "0.00";
             if(conveyance) conveyance.value = "0.00";
@@ -203,19 +166,15 @@
         if (patientNameInput && suggestionsList) {
             patientNameInput.addEventListener("input", async function() {
                 const query = this.value.trim();
-                
                 if (query.length < 1) {
                     suggestionsList.classList.add("hidden");
                     if(oldRecordBtn) { oldRecordBtn.disabled = true; oldRecordBtn.style.opacity = "0.5"; oldRecordBtn.style.cursor = "not-allowed"; }
                     return;
                 }
-                
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/visits/suggestions?query=${encodeURIComponent(query)}`);
                     const names = await res.json();
-                    
                     suggestionsList.innerHTML = "";
-                    
                     if (names.length > 0) {
                         if(oldRecordBtn) { oldRecordBtn.disabled = false; oldRecordBtn.style.opacity = "1"; oldRecordBtn.style.cursor = "pointer"; }
                         names.forEach(item => {
@@ -241,13 +200,12 @@
                     }
                 } catch (err) { console.error(err); }
             });
-
             document.addEventListener("click", function(e) {
                 if (e.target !== patientNameInput) suggestionsList.classList.add("hidden");
             });
         }
 
-        /* OLD RECORD BUTTON */
+        /* ================= 4. OLD RECORD BUTTON ================= */
         if (oldRecordBtn) {
             oldRecordBtn.addEventListener("click", async () => {
                 const nameInput = document.getElementById("patientNameInput");
@@ -262,12 +220,7 @@
                         data.records.forEach(rec => {
                             const date = new Date(rec.B_Date).toLocaleDateString('en-GB'); 
                             const row = document.createElement("tr");
-                            row.innerHTML = `
-                                <td>${date}</td>
-                                <td>${rec.B_PName}</td>
-                                <td>${rec.B_FName || '-'}</td>
-                                <td>${rec.B_TotalAmt || 0}</td>
-                            `;
+                            row.innerHTML = `<td>${date}</td><td>${rec.B_PName}</td><td>${rec.B_FName || '-'}</td><td>${rec.B_TotalAmt || 0}</td>`;
                             row.onclick = () => {
                                 fillForm(rec);
                                 toggleEditMode(true);
@@ -281,7 +234,7 @@
             });
         }
 
-        /* REST OF LOGIC */
+        /* ================= 5. FORM LOGIC & HELPERS ================= */
         form.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
                 const target = e.target;
@@ -428,6 +381,53 @@
             };
         }
 
+        /* ================= 6. CRUD OPERATIONS (RESTORED) ================= */
+        if (saveBtn) {
+            saveBtn.addEventListener("click", async (e) => {
+                e.preventDefault(); 
+                if (!validateForm()) return; 
+                if (!confirm("Are you sure you want to save this record?")) return;
+                saveBtn.disabled = true; saveBtn.innerText = "Saving...";
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/visits`, {
+                        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(getPayload())
+                    });
+                    if (res.ok) { alert("Saved!"); resetForm(); } else { alert("Save failed."); }
+                } catch (err) { alert("Error."); } finally { saveBtn.disabled = false; saveBtn.innerText = "Save"; }
+            });
+        }
+
+        if (updateBtn) {
+            updateBtn.addEventListener("click", async (e) => {
+                e.preventDefault();
+                const currentSno = snoInput.value;
+                if (!currentSno) return;
+                if (!validateForm()) return;
+                if (!confirm("Are you sure you want to update this record?")) return;
+                updateBtn.disabled = true; updateBtn.innerText = "Updating...";
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/visits/${currentSno}`, {
+                        method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(getPayload())
+                    });
+                    if (res.ok) { alert("Updated successfully!"); resetForm(); } else { alert("Update failed."); }
+                } catch (err) { alert("Error."); } finally { updateBtn.disabled = false; updateBtn.innerText = "Update"; }
+            });
+        }
+
+        if (deleteBtn) {
+            deleteBtn.addEventListener("click", async (e) => {
+                e.preventDefault();
+                const currentSno = snoInput.value;
+                if (!confirm(`Are you sure you want to delete record #${currentSno}?`)) return;
+                deleteBtn.disabled = true; deleteBtn.innerText = "Deleting...";
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/visits/${currentSno}`, { method: "DELETE" });
+                    if (res.ok) { alert("Deleted successfully!"); resetForm(); } else { alert("Delete failed."); }
+                } catch (err) { alert("Error."); } finally { deleteBtn.disabled = false; deleteBtn.innerText = "Delete"; }
+            });
+        }
+
+        /* ================= 7. INITIALIZE ================= */
         loadNextSno(); 
         toggleEditMode(false); 
         if(visitDate) {
@@ -435,6 +435,9 @@
              visitDate.value = now.toISOString().split('T')[0];
              visitDate.focus(); 
         }
+        
+        if (cancelBtn) cancelBtn.addEventListener("click", resetForm);
+        if (closeModalBtn) closeModalBtn.onclick = () => { modal.style.display = "none"; };
     }
     startApp();
 })();
