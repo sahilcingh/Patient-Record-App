@@ -55,7 +55,7 @@
         const medicineBox = form.querySelectorAll(".large-box")[1];
 
         let isEditMode = false;
-        let currentModalCallback = null; // Store function to run on OK
+        let currentModalCallback = null; 
 
         if(oldRecordBtn) {
             oldRecordBtn.disabled = true;
@@ -64,7 +64,6 @@
         }
 
         /* ================= SMART POPUP SYSTEM ================= */
-        // Replaces alert() and confirm() with a beautiful modal
         function showModal(type, title, message, onOk = null) {
             modalTitle.textContent = title;
             modalMessage.textContent = message;
@@ -72,7 +71,7 @@
 
             if (type === 'alert') {
                 modalIcon.textContent = "⚠️";
-                modalCancelBtn.style.display = "none"; // Hide cancel for alerts
+                modalCancelBtn.style.display = "none"; 
                 modalOkBtn.textContent = "OK";
                 modalOkBtn.className = "primary-btn";
             } else if (type === 'confirm') {
@@ -96,7 +95,6 @@
             customModal.style.display = "flex";
         }
 
-        // Modal Button Listeners
         modalCancelBtn.addEventListener("click", () => {
             customModal.style.display = "none";
             currentModalCallback = null;
@@ -213,27 +211,51 @@
             if(oldRecordBtn) { oldRecordBtn.disabled = false; oldRecordBtn.style.opacity = "1"; oldRecordBtn.style.cursor = "pointer"; }
         }
 
-        /* ================= VALIDATION & ACTIONS ================= */
+        /* ================= STRICT VALIDATION (THE FIX) ================= */
         function validateForm() { 
+            // 1. Patient Name
             if (!patientNameInput.value.trim()) { 
-                showModal('alert', 'Missing Name', 'Please enter the Patient Name.'); 
+                showModal('alert', 'Missing Information', 'Please enter the Patient Name.'); 
+                patientNameInput.focus();
                 return false; 
             } 
+            // 2. Mobile Number
             if (!mobileInput.value.trim()) { 
-                showModal('alert', 'Missing Mobile', 'Please enter the Mobile Number.'); 
+                showModal('alert', 'Missing Information', 'Please enter the Mobile Number.'); 
+                mobileInput.focus();
                 return false; 
             }
             if (mobileInput.value.trim().length < 10) { 
-                showModal('alert', 'Invalid Mobile', 'Mobile Number must be 10 digits.'); 
+                showModal('alert', 'Invalid Input', 'Mobile Number must be 10 digits.'); 
+                mobileInput.focus();
                 return false; 
             }
+            // 3. Complaint
+            if (!complaintBox.value.trim()) {
+                showModal('alert', 'Missing Information', 'Please enter the Chief Complaint.');
+                complaintBox.focus();
+                return false;
+            }
+            // 4. Medicine
+            if (!medicineBox.value.trim()) {
+                showModal('alert', 'Missing Information', 'Please enter the Medicine.');
+                medicineBox.focus();
+                return false;
+            }
+            // 5. Billing (Grand Total)
+            if (!grandTotal.value.trim() || parseFloat(grandTotal.value) < 0) {
+                showModal('alert', 'Missing Information', 'Billing details are incomplete or invalid.');
+                grandTotal.focus();
+                return false;
+            }
+
             return true; 
         }
 
         if (saveBtn) {
             saveBtn.addEventListener("click", (e) => {
                 e.preventDefault();
-                if (!validateForm()) return;
+                if (!validateForm()) return; // Checks all fields above
                 
                 showModal('confirm', 'Confirm Save', 'Are you sure you want to save this record?', async () => {
                     saveBtn.disabled = true; saveBtn.innerText = "Saving...";
@@ -252,7 +274,7 @@
         if (updateBtn) {
             updateBtn.addEventListener("click", (e) => {
                 e.preventDefault();
-                if (!validateForm()) return;
+                if (!validateForm()) return; // Checks all fields above
                 
                 showModal('confirm', 'Confirm Update', 'Are you sure you want to update this record?', async () => {
                     updateBtn.disabled = true; updateBtn.innerText = "Updating...";
@@ -286,19 +308,15 @@
         /* PRINT */
         if (printBtn) {
             printBtn.addEventListener("click", () => {
+                // Re-using strict validation here too
+                if (!validateForm()) return;
+
                 const name = patientNameInput.value.trim();
                 const complaint = complaintBox.value.trim();
                 const medicine = medicineBox.value.trim();
                 const grandTotalVal = grandTotal.value.trim();
-                const mobile = mobileInput.value.trim();
-
-                if (!name) { showModal('alert', 'Print Error', 'Patient Name is missing.'); return; }
-                if (!mobile) { showModal('alert', 'Print Error', 'Mobile Number is missing.'); return; }
-                if (!complaint) { showModal('alert', 'Print Error', 'Chief Complaint is missing.'); return; }
-                if (!medicine) { showModal('alert', 'Print Error', 'Medicine is missing.'); return; }
-                if (!grandTotalVal || grandTotalVal === "0.00") { showModal('alert', 'Print Error', 'Billing section is incomplete.'); return; }
-
                 const date = visitDate.value || new Date().toISOString().split('T')[0];
+
                 const printWindow = window.open('', '', 'height=600,width=800');
                 printWindow.document.write('<html><head><title>Print Bill</title><style>body{font-family:Arial,sans-serif;padding:20px;-webkit-print-color-adjust:exact}.print-header{background-color:#ffff00;color:#ff0000;text-align:center;padding:15px;margin-bottom:20px;border:1px solid #ddd}.clinic-name{font-size:22px;font-weight:bold;text-transform:uppercase;margin-bottom:5px;letter-spacing:1px}.dr-name{font-size:32px;font-weight:900;text-transform:uppercase;margin-bottom:5px}.designation{font-size:16px;font-weight:bold;margin-bottom:2px}.address-line{color:#000;font-size:12px;margin-top:10px;font-weight:normal}.receipt-title{text-align:center;margin:10px 0 20px 0;font-size:18px;font-weight:bold;text-transform:uppercase;border-bottom:2px solid #333;display:inline-block;padding-bottom:5px}.title-container{text-align:center}.info-grid{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;border:1px solid #333;padding:10px;font-weight:bold}.section-title{font-weight:bold;margin-top:10px;background:#eee;padding:5px;border-left:5px solid #ff0000}.content-box{border:1px solid #ccc;padding:10px;min-height:50px;margin-bottom:10px;white-space:pre-wrap;font-size:14px}.billing-table{width:100%;border-collapse:collapse;margin-top:15px}.billing-table th,.billing-table td{border:1px solid #000;padding:8px;text-align:left}.total-row{font-weight:bold;background-color:#f0f0f0}</style></head><body>');
                 printWindow.document.write('<div class="print-header"><div class="clinic-name">S.S. HOMOEO CARE CLINIC</div><div class="dr-name">DR. S.S. GUPTA</div><div class="designation">M.D. (Homoeo)</div><div class="designation">Psychiatrist</div><div class="address-line">Address: Your Clinic Address Here | Phone: 9999999999</div></div>');
