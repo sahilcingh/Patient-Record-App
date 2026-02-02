@@ -50,9 +50,11 @@ body {
 .fixed-left { width: auto; flex-shrink: 0; }
 .col-date { margin-left: auto; margin-right: auto; }
 
-/* FIXED RIGHT COLUMN (Ensures Age & Mobile are exactly same size) */
+/* UPDATED: Much Wider Right Column for Mobile 
+   This automatically pushes the flexible "Father's Name" block to be smaller.
+*/
 .fixed-right { 
-    width: 180px; 
+    width: 350px; /* INCREASED SIZE HERE */
     flex-shrink: 0; 
     justify-content: flex-end; 
     display: flex;
@@ -63,18 +65,19 @@ body {
 /* Inputs in the right column */
 .fixed-right select, 
 .fixed-right > input { 
-    width: 110px !important; 
+    width: 100% !important; 
 }
 
-/* Autocomplete Wrapper inside Right Column (For Mobile) */
+/* Autocomplete Wrapper inside Right Column */
 .fixed-right .autocomplete-wrapper { 
-    width: 110px !important; 
+    width: 100% !important; 
     position: relative;
 }
 .fixed-right .autocomplete-wrapper input { 
     width: 100% !important; 
 }
 
+/* Father's Name (Flexible) - Will shrink as fixed-right grows */
 .grow { flex: 1; display: flex; position: relative; } 
 .grow input { width: 100%; }
 
@@ -112,7 +115,7 @@ body {
 .history-table tbody tr:hover { background-color: #d1ecf1; }
 .close-modal { font-size: 24px; cursor: pointer; border: none; background: none; color: #aaa; }
 
-/* ================= BEAUTIFUL POPUP (ALERT/CONFIRM) ================= */
+/* ================= BEAUTIFUL POPUP ================= */
 .confirm-box { 
     max-width: 380px; text-align: center; padding: 30px 25px; 
     border-radius: 16px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2); 
