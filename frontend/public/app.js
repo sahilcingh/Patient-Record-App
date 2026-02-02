@@ -120,7 +120,7 @@
             }
         });
 
-        /* MOBILE AUTOCOMPLETE */
+        /* AUTOCOMPLETE LOGIC (Kept same as before) */
         if (mobileInput && mobileSuggestionsList) {
             mobileInput.addEventListener("input", async function() {
                 this.value = this.value.replace(/[^0-9]/g, '');
@@ -154,7 +154,6 @@
             document.addEventListener("click", function(e) { if (e.target !== mobileInput) mobileSuggestionsList.classList.add("hidden"); });
         }
 
-        /* NAME AUTOCOMPLETE */
         if (patientNameInput && suggestionsList) {
             patientNameInput.addEventListener("input", async function() {
                 const query = this.value.trim();
@@ -211,7 +210,7 @@
             if(oldRecordBtn) { oldRecordBtn.disabled = false; oldRecordBtn.style.opacity = "1"; oldRecordBtn.style.cursor = "pointer"; }
         }
 
-        /* ================= STRICT VALIDATION (THE FIX) ================= */
+        /* ================= FULL VALIDATION (Updated) ================= */
         function validateForm() { 
             // 1. Patient Name
             if (!patientNameInput.value.trim()) { 
@@ -219,7 +218,29 @@
                 patientNameInput.focus();
                 return false; 
             } 
-            // 2. Mobile Number
+            
+            // 2. Father's Name
+            if (!fatherNameInput.value.trim()) { 
+                showModal('alert', 'Missing Information', 'Please enter Father\'s Name.'); 
+                fatherNameInput.focus();
+                return false; 
+            }
+
+            // 3. Gender
+            if (!sexInput.value || sexInput.value === "Select") { 
+                showModal('alert', 'Missing Information', 'Please select a Gender.'); 
+                sexInput.focus();
+                return false; 
+            }
+
+            // 4. Age
+            if (!ageInput.value || parseInt(ageInput.value) <= 0) { 
+                showModal('alert', 'Missing Information', 'Please enter a valid Age.'); 
+                ageInput.focus();
+                return false; 
+            }
+
+            // 5. Mobile Number
             if (!mobileInput.value.trim()) { 
                 showModal('alert', 'Missing Information', 'Please enter the Mobile Number.'); 
                 mobileInput.focus();
@@ -230,21 +251,31 @@
                 mobileInput.focus();
                 return false; 
             }
-            // 3. Complaint
+
+            // 6. Address
+            if (!addressBox.value.trim()) { 
+                showModal('alert', 'Missing Information', 'Please enter the Address.'); 
+                addressBox.focus();
+                return false; 
+            }
+
+            // 7. Complaint
             if (!complaintBox.value.trim()) {
                 showModal('alert', 'Missing Information', 'Please enter the Chief Complaint.');
                 complaintBox.focus();
                 return false;
             }
-            // 4. Medicine
+
+            // 8. Medicine
             if (!medicineBox.value.trim()) {
                 showModal('alert', 'Missing Information', 'Please enter the Medicine.');
                 medicineBox.focus();
                 return false;
             }
-            // 5. Billing (Grand Total)
+
+            // 9. Billing
             if (!grandTotal.value.trim() || parseFloat(grandTotal.value) < 0) {
-                showModal('alert', 'Missing Information', 'Billing details are incomplete or invalid.');
+                showModal('alert', 'Missing Information', 'Billing details are incomplete.');
                 grandTotal.focus();
                 return false;
             }
@@ -255,7 +286,7 @@
         if (saveBtn) {
             saveBtn.addEventListener("click", (e) => {
                 e.preventDefault();
-                if (!validateForm()) return; // Checks all fields above
+                if (!validateForm()) return; // Runs full validation
                 
                 showModal('confirm', 'Confirm Save', 'Are you sure you want to save this record?', async () => {
                     saveBtn.disabled = true; saveBtn.innerText = "Saving...";
@@ -274,7 +305,7 @@
         if (updateBtn) {
             updateBtn.addEventListener("click", (e) => {
                 e.preventDefault();
-                if (!validateForm()) return; // Checks all fields above
+                if (!validateForm()) return;
                 
                 showModal('confirm', 'Confirm Update', 'Are you sure you want to update this record?', async () => {
                     updateBtn.disabled = true; updateBtn.innerText = "Updating...";
@@ -308,8 +339,7 @@
         /* PRINT */
         if (printBtn) {
             printBtn.addEventListener("click", () => {
-                // Re-using strict validation here too
-                if (!validateForm()) return;
+                if (!validateForm()) return; // Re-uses strict validation
 
                 const name = patientNameInput.value.trim();
                 const complaint = complaintBox.value.trim();

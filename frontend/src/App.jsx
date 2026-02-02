@@ -58,10 +58,10 @@ function App() {
             <div className="form-row">
               <div className="input-group grow">
                 <label className="aligned-label">Father's Name</label>
-                <input type="text" id="fatherNameInput" name="fatherName" />
+                <input type="text" id="fatherNameInput" name="fatherName" required />
               </div>
               
-              {/* MOBILE FIELD (MANDATORY & ALIGNED) */}
+              {/* MOBILE FIELD */}
               <div className="input-group fixed-right">
                 <label>Mobile</label>
                 <div className="autocomplete-wrapper">
@@ -162,7 +162,7 @@ function App() {
         </div>
       </div>
 
-      {/* === GLOBAL SMART MODAL (REPLACES ALERT & CONFIRM) === */}
+      {/* SMART ALERT MODAL */}
       <div id="customModal" className="modal-overlay" style={{zIndex: 3000, display: 'none'}}>
         <div className="modal-content confirm-box">
           <div className="confirm-icon" id="modalIcon">⚠️</div>
