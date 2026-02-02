@@ -30,8 +30,6 @@ function App() {
                 <label>Date</label>
                 <input type="date" id="visitDate" />
               </div>
-              
-              {/* GENDER (Uses Standard Small Width) */}
               <div className="input-group fixed-right">
                 <label>Gender</label>
                 <select id="sex" required>
@@ -50,9 +48,20 @@ function App() {
                     <ul id="suggestionsList" className="suggestions-list hidden"></ul>
                 </div>
               </div>
-              <button type="button" id="oldRecordBtn" className="nav-button">OLD Record</button>
               
-              {/* AGE (Uses Standard Small Width) */}
+              {/* BUTTONS CONTAINER */}
+              <div style={{display: "flex", gap: "10px"}}>
+                <button type="button" id="oldRecordBtn" className="nav-button">OLD Record</button>
+                <button 
+                    type="button" 
+                    id="showAllBtn" 
+                    className="nav-button" 
+                    style={{ background: "linear-gradient(to bottom, #17a2b8, #138496)", border: "1px solid #117a8b" }}
+                >
+                    Show All
+                </button>
+              </div>
+
               <div className="input-group fixed-right">
                 <label>Age</label>
                 <input 
@@ -73,7 +82,6 @@ function App() {
                 <input type="text" id="fatherNameInput" name="fatherName" required />
               </div>
               
-              {/* MOBILE (Uses New WIDE Width) */}
               <div className="input-group fixed-mobile">
                 <label>Mobile</label>
                 <div className="autocomplete-wrapper">
@@ -142,7 +150,6 @@ function App() {
               <button type="button" id="printBtn" style={{background: "#6c757d", color: "white", border: "1px solid #5a6268"}}>Print Bill</button>
               <button type="button" id="cancelBtn">Cancel</button>
               
-              {/* SAVE AS NEW BUTTON */}
               <button 
                 type="button" 
                 id="saveAsNewBtn" 
@@ -163,23 +170,18 @@ function App() {
         </form>
       </div>
 
-      {/* History Modal */}
+      {/* History / Show All Modal */}
       <div id="historyModal" className="modal-overlay">
         <div className="modal-content">
           <div className="modal-header">
-            <h3>Visit History</h3>
+            <h3 id="modalTitleText">Records</h3>
             <button type="button" className="close-modal" id="closeModalBtn">&times;</button>
           </div>
           <div className="modal-body">
             <div className="table-container">
                 <table className="history-table">
-                <thead>
-                    <tr>
-                    <th>Date</th>
-                    <th>Patient Name</th>
-                    <th>Father's Name</th>
-                    <th>Grand Total</th>
-                    </tr>
+                <thead id="historyTableHead">
+                    {/* Headers injected by JS */}
                 </thead>
                 <tbody id="historyTableBody"></tbody>
                 </table>

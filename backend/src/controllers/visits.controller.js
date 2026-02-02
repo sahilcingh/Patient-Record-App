@@ -10,6 +10,7 @@ export const createVisit = async (req, res) => {
         chiefComplaint, medicine, total, cartage, conveyance, grandTotal 
     } = req.body;
 
+    // Generate next Sno
     const result = await pool.request().query("SELECT MAX(B_Sno) as maxSno FROM Pat_Master");
     const nextSno = (result.recordset[0].maxSno || 0) + 1;
 
@@ -145,7 +146,7 @@ export const getMobileSuggestions = async (req, res) => {
   }
 };
 
-// 7. GET BY SNO (Helper)
+// 7. GET BY SNO
 export const getVisitBySno = async (req, res) => {
     try {
       const { sno } = req.params;
@@ -156,7 +157,7 @@ export const getVisitBySno = async (req, res) => {
     } catch (error) { res.status(500).json({ message: "Error" }); }
 };
 
-// 8. DELETE VISIT (Crucial Fix)
+// 8. DELETE VISIT
 export const deleteVisit = async (req, res) => {
     try {
       const { sno } = req.params;
@@ -164,4 +165,27 @@ export const deleteVisit = async (req, res) => {
       await pool.request().input("sno", sql.Int, sno).query("DELETE FROM Pat_Master WHERE B_Sno = @sno");
       res.json({ message: "Visit deleted successfully" });
     } catch (error) { res.status(500).json({ message: "Error" }); }
+};
+
+// 9. GET ALL PATIENTS (For "Show All" Feature)
+export const getAllPatients = async (req, res) => {
+  try {
+    const pool = await sql.connect(config);
+    // Groups by Name and Mobile to find unique patients
+    // Also counts how many visits they have
+    const result = await pool.request().query(`
+      SELECT 
+        B_PName, 
+        B_Mobile, 
+        MAX(B_FName) as B_FName, 
+        COUNT(*) as VisitCount 
+      FROM Pat_Master 
+      GROUP BY B_PName, B_Mobile 
+      ORDER BY B_PName ASC
+    `);
+    res.json(result.recordset);
+  } catch (error) {
+    console.error("Error fetching all patients:", error);
+    res.status(500).json({ message: "Error fetching patients" });
+  }
 };

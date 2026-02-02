@@ -35,10 +35,13 @@
         const cancelBtn = form.querySelector('#cancelBtn'); 
         const saveAsNewBtn = form.querySelector('#saveAsNewBtn'); 
         const oldRecordBtn = getEl("oldRecordBtn");
+        const showAllBtn = getEl("showAllBtn"); // NEW BUTTON
         const printBtn = getEl("printBtn"); 
 
         const historyModal = getEl("historyModal");
         const tableBody = getEl("historyTableBody");
+        const tableHead = getEl("historyTableHead");
+        const modalTitleText = getEl("modalTitleText");
         const closeModalBtn = getEl("closeModalBtn");
 
         const customModal = getEl("customModal");
@@ -139,7 +142,7 @@
             }
         });
 
-        /* ================= AGE RESTRICTION ================= */
+        /* ================= INPUT RESTRICTIONS ================= */
         if (ageInput) {
             ageInput.addEventListener("input", function() {
                 let val = this.value.replace(/[^0-9]/g, '');
@@ -149,7 +152,6 @@
             });
         }
 
-        /* ================= MOBILE LOGIC ================= */
         if (mobileInput) {
             mobileInput.addEventListener("input", async function() {
                 this.value = this.value.replace(/[^0-9]/g, '');
@@ -223,18 +225,13 @@
             document.addEventListener("click", function(e) { if (e.target !== patientNameInput) suggestionsList.classList.add("hidden"); });
         }
 
-        /* ================= AUTO-FILL (FIXED) ================= */
+        /* ================= AUTO-FILL & TOGGLE ================= */
         function autoFillPatientDetails(record) {
             patientNameInput.value = record.B_PName || "";
             fatherNameInput.value = record.B_FName || "";
             if(sexInput) sexInput.value = record.B_Sex || "";
             if(ageInput) ageInput.value = record.B_Age || "";
-            
-            // FIX: Always reset mobile. If null/undefined in DB, set to ""
-            if(mobileInput) {
-                mobileInput.value = record.B_Mobile || ""; 
-            }
-            
+            if(mobileInput) mobileInput.value = record.B_Mobile || ""; 
             if(addressBox) { addressBox.value = record.B_To || ""; setTimeout(() => adjustTextareaHeight(addressBox), 50); }
 
             if(complaintBox) { complaintBox.value = ""; adjustTextareaHeight(complaintBox); }
@@ -378,7 +375,80 @@
             });
         }
 
-        /* ================= OLD RECORD VIEWER ================= */
+        /* ================= 10. SHOW ALL + OLD RECORD NAVIGATION ================= */
+        // Function to render patient list in modal
+        function renderPatientList(records) {
+            modalTitleText.textContent = "All Unique Patients";
+            tableHead.innerHTML = `<tr><th>Patient Name</th><th>Father's Name</th><th>Mobile</th><th>Total Visits</th></tr>`;
+            tableBody.innerHTML = "";
+            
+            if (records.length === 0) {
+                tableBody.innerHTML = "<tr><td colspan='4'>No patients found.</td></tr>";
+                return;
+            }
+
+            records.forEach(rec => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td style="font-weight:bold; color:#0056b3;">${rec.B_PName}</td>
+                    <td>${rec.B_FName || '-'}</td>
+                    <td>${rec.B_Mobile || '-'}</td>
+                    <td>${rec.VisitCount}</td>
+                `;
+                // ON CLICK: Drill down to visits for this patient
+                row.onclick = () => loadVisitsForPatient(rec.B_PName, rec.B_Mobile);
+                tableBody.appendChild(row);
+            });
+            historyModal.style.display = "flex";
+        }
+
+        // Function to fetch and render visits for a specific patient
+        async function loadVisitsForPatient(name, mobile) {
+            let queryParam = "";
+            if (mobile && mobile.length === 10) { queryParam = `mobile=${encodeURIComponent(mobile)}`; } 
+            else if (name) { queryParam = `name=${encodeURIComponent(name)}`; }
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/visits/search?${queryParam}`);
+                const data = await res.json();
+                
+                modalTitleText.textContent = `Visits for: ${name}`;
+                tableHead.innerHTML = `<tr><th>Date</th><th>Patient Name</th><th>Father's Name</th><th>Grand Total</th></tr>`;
+                tableBody.innerHTML = "";
+
+                if (data.records.length === 0) {
+                    tableBody.innerHTML = "<tr><td colspan='4'>No visits found.</td></tr>";
+                    return;
+                }
+
+                data.records.forEach(rec => {
+                    const date = new Date(rec.B_Date).toLocaleDateString('en-GB'); 
+                    const row = document.createElement("tr");
+                    row.innerHTML = `<td>${date}</td><td>${rec.B_PName}</td><td>${rec.B_FName || '-'}</td><td>${rec.B_TotalAmt || 0}</td>`;
+                    
+                    // ON CLICK: Load record into form
+                    row.onclick = () => { 
+                        fillForm(rec); 
+                        toggleEditMode(true); 
+                        historyModal.style.display = "none"; 
+                    };
+                    tableBody.appendChild(row);
+                });
+            } catch (err) { showModal('alert', 'Error', 'Could not load visits.'); }
+        }
+
+        // SHOW ALL BUTTON CLICK
+        if (showAllBtn) {
+            showAllBtn.addEventListener("click", async () => {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/visits/all-patients`);
+                    const records = await res.json();
+                    renderPatientList(records);
+                } catch (err) { showModal('alert', 'Error', 'Error fetching patients list.'); }
+            });
+        }
+
+        // OLD RECORD BUTTON CLICK (Reused Logic)
         if (oldRecordBtn) {
             oldRecordBtn.addEventListener("click", async () => {
                 const name = patientNameInput.value.trim();
@@ -388,34 +458,13 @@
                     showModal('alert', 'Missing Information', 'Please enter a valid Name or Mobile Number.');
                     return;
                 }
-
-                let queryParam = "";
-                if (mobile.length === 10) { queryParam = `mobile=${encodeURIComponent(mobile)}`; } 
-                else if (name.length > 0) { queryParam = `name=${encodeURIComponent(name)}`; }
-
-                try {
-                    const res = await fetch(`${API_BASE_URL}/api/visits/search?${queryParam}`);
-                    const data = await res.json();
-                    
-                    if (res.ok && data.records.length > 0) {
-                        tableBody.innerHTML = ""; 
-                        data.records.forEach(rec => {
-                            const date = new Date(rec.B_Date).toLocaleDateString('en-GB'); 
-                            const row = document.createElement("tr");
-                            row.innerHTML = `<td>${date}</td><td>${rec.B_PName}</td><td>${rec.B_FName || '-'}</td><td>${rec.B_TotalAmt || 0}</td>`;
-                            row.onclick = () => { 
-                                fillForm(rec); 
-                                toggleEditMode(true); 
-                                historyModal.style.display = "none"; 
-                            };
-                            tableBody.appendChild(row);
-                        });
-                        historyModal.style.display = "flex"; 
-                    } else { showModal('alert', 'Info', 'No records found.'); }
-                } catch (err) { showModal('alert', 'Error', 'Error loading history.'); }
+                // Directly load visits (skip patient list since we are searching for specific person)
+                loadVisitsForPatient(name, mobile);
+                historyModal.style.display = "flex";
             });
         }
 
+        /* ================= HELPER FUNCTIONS ================= */
         function getPayload() {
             return {
                 date: visitDate.value,
