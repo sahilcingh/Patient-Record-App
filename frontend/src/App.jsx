@@ -30,6 +30,8 @@ function App() {
                 <label>Date</label>
                 <input type="date" id="visitDate" />
               </div>
+              
+              {/* GENDER (Uses Standard Small Width) */}
               <div className="input-group fixed-right">
                 <label>Gender</label>
                 <select id="sex" required>
@@ -49,6 +51,8 @@ function App() {
                 </div>
               </div>
               <button type="button" id="oldRecordBtn" className="nav-button">OLD Record</button>
+              
+              {/* AGE (Uses Standard Small Width) */}
               <div className="input-group fixed-right">
                 <label>Age</label>
                 <input 
@@ -69,7 +73,8 @@ function App() {
                 <input type="text" id="fatherNameInput" name="fatherName" required />
               </div>
               
-              <div className="input-group fixed-right">
+              {/* MOBILE (Uses New WIDE Width) */}
+              <div className="input-group fixed-mobile">
                 <label>Mobile</label>
                 <div className="autocomplete-wrapper">
                     <input 
@@ -137,7 +142,7 @@ function App() {
               <button type="button" id="printBtn" style={{background: "#6c757d", color: "white", border: "1px solid #5a6268"}}>Print Bill</button>
               <button type="button" id="cancelBtn">Cancel</button>
               
-              {/* NEW BUTTON: SAVE AS NEW RECORD */}
+              {/* SAVE AS NEW BUTTON */}
               <button 
                 type="button" 
                 id="saveAsNewBtn" 

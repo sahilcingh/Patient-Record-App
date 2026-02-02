@@ -50,11 +50,17 @@ body {
 .fixed-left { width: auto; flex-shrink: 0; }
 .col-date { margin-left: auto; margin-right: auto; }
 
-/* UPDATED: Much Wider Right Column for Mobile 
-   This automatically pushes the flexible "Father's Name" block to be smaller.
-*/
+/* 1. STANDARD RIGHT COLUMN (For Age & Gender) - KEPT SMALL */
 .fixed-right { 
-    width: 350px; /* INCREASED SIZE HERE */
+    width: 140px; /* Small width for Age/Gender */
+    flex-shrink: 0; 
+    justify-content: flex-end; 
+}
+.fixed-right select, .fixed-right input { width: 80px; }
+
+/* 2. SPECIAL WIDE COLUMN (Only for Mobile) */
+.fixed-mobile { 
+    width: 350px; /* WIDE width for Mobile Search */
     flex-shrink: 0; 
     justify-content: flex-end; 
     display: flex;
@@ -62,22 +68,16 @@ body {
     gap: 10px;
 }
 
-/* Inputs in the right column */
-.fixed-right select, 
-.fixed-right > input { 
-    width: 100% !important; 
-}
-
-/* Autocomplete Wrapper inside Right Column */
-.fixed-right .autocomplete-wrapper { 
+/* Ensure inputs/wrappers inside Mobile block fill the wide space */
+.fixed-mobile .autocomplete-wrapper { 
     width: 100% !important; 
     position: relative;
 }
-.fixed-right .autocomplete-wrapper input { 
+.fixed-mobile .autocomplete-wrapper input { 
     width: 100% !important; 
 }
 
-/* Father's Name (Flexible) - Will shrink as fixed-right grows */
+/* FATHER'S NAME (Flexible) */
 .grow { flex: 1; display: flex; position: relative; } 
 .grow input { width: 100%; }
 
