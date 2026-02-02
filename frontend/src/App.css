@@ -1,76 +1,43 @@
 /* GLOBAL RESET */
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
-/* DESKTOP DEFAULT */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #eef2f7;
-  margin: 0;
-  padding: 0;
-  height: 100vh;
-  width: 100vw;
+  margin: 0; padding: 0;
+  height: 100vh; width: 100vw;
   overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: flex; justify-content: center; align-items: center;
 }
 
-.app {
-  width: 100%;
-  max-width: 1100px;
-  height: 100%;
-  padding: 1vh;
-}
+.app { width: 100%; max-width: 1100px; height: 100%; padding: 1vh; }
 
 .card {
-  background: #ffffff;
-  padding: 1.5vh 2vw;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  height: 98vh; 
-  display: flex;
-  flex-direction: column;
+  background: #ffffff; padding: 1.5vh 2vw;
+  border-radius: 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  height: 98vh; display: flex; flex-direction: column;
 }
 
 /* HEADER */
 .header {
-  flex: 0 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center;
   background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
-  padding: 1vh 20px;
-  border-radius: 8px;
-  margin-bottom: 1.5vh;
-  color: white;
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+  padding: 1vh 20px; border-radius: 8px; margin-bottom: 1.5vh;
+  color: white; box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
 }
-
 .header h1 { margin: 0; font-size: 1.5rem; font-weight: 600; }
 .date { font-weight: 600; color: #e3f2fd; font-size: 0.9rem; }
 
-/* FORM LAYOUT - SCROLLABLE */
+/* FORM LAYOUT */
 #patientForm {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  justify-content: space-between;
-  overflow-y: auto; 
-  padding-right: 5px; 
+  display: flex; flex-direction: column; flex: 1;
+  justify-content: space-between; overflow-y: auto; padding-right: 5px; 
 }
 
 .section {
-  padding: 1.5vh;
-  background-color: #ffffff;
-  border-radius: 10px;
-  border: 1px solid #cce5ff;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  padding: 1.5vh; background-color: #ffffff; border-radius: 10px;
+  border: 1px solid #cce5ff; display: flex; flex-direction: column; justify-content: center;
 }
-
 .patient-data-box { flex: 0 0 auto; gap: 1vh; }
 
 .form-row { display: flex; align-items: center; gap: 15px; width: 100%; }
@@ -85,30 +52,28 @@ body {
 .grow { flex: 1; display: flex; position: relative; } 
 .grow input { width: 100%; }
 
-/* === AUTO-RESIZING BOXES (FIXED DEFAULT HEIGHT) === */
+/* AUTO-RESIZING BOXES */
 .address-box { 
-    width: 100%;
-    min-height: 60px; /* Starts taller now */
-    resize: none; 
-    overflow-y: hidden !important; 
-    display: block;
-    height: auto;
+    width: 100%; min-height: 60px; resize: none; 
+    overflow-y: hidden !important; display: block; height: auto;
 }
-
 .large-box { 
-    width: 100%; 
-    min-height: 100px; /* Starts Big (like a box) */
-    resize: none; 
-    overflow-y: hidden !important; 
-    display: block;
-    height: auto;
+    width: 100%; min-height: 100px; resize: none; 
+    overflow-y: hidden !important; display: block; height: auto;
 }
 
-/* ... Standard Styles ... */
+/* AUTOCOMPLETE */
 .autocomplete-wrapper { position: relative; width: 100%; }
-.suggestions-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ced4da; border-radius: 0 0 5px 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-height: 150px; overflow-y: auto; z-index: 1000; list-style: none; padding: 0; margin: 0; }
+.suggestions-list { 
+    position: absolute; top: 100%; left: 0; right: 0; background: white; 
+    border: 1px solid #ced4da; border-radius: 0 0 5px 5px; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-height: 150px; 
+    overflow-y: auto; z-index: 1000; list-style: none; padding: 0; margin: 0; 
+}
 .suggestions-list li { padding: 8px 10px; cursor: pointer; border-bottom: 1px solid #eee; font-size: 13px; color: #333; }
 .suggestions-list li:hover { background-color: #e9ecef; color: #007bff; }
+
+/* MODALS */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
 .modal-content { background: white; padding: 20px; border-radius: 8px; width: 700px; max-width: 95%; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
@@ -119,16 +84,26 @@ body {
 .history-table td { padding: 10px 15px; text-align: left; border-bottom: 1px solid #eee; color: #333; }
 .history-table tbody tr { cursor: pointer; transition: background-color 0.2s ease; }
 .history-table tbody tr:hover { background-color: #d1ecf1; }
-.select-btn { background-color: white; border: 1px solid #ced4da; color: #555; padding: 5px 15px; border-radius: 4px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-.select-btn:hover { background-color: #f8f9fa; border-color: #adb5bd; }
 .close-modal { font-size: 24px; cursor: pointer; border: none; background: none; color: #aaa; }
 
+/* === NEW CONFIRMATION MODAL STYLES === */
+.confirm-box { max-width: 400px; text-align: center; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); animation: fadeIn 0.3s ease-out; }
+.confirm-icon { font-size: 40px; margin-bottom: 15px; }
+.confirm-box h2 { color: #333; font-size: 1.5rem; margin-bottom: 10px; border: none; }
+.confirm-box p { color: #666; margin-bottom: 20px; }
+.confirm-details { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 25px; text-align: left; border: 1px solid #e9ecef; }
+.confirm-details p { margin: 5px 0; font-size: 0.95rem; color: #444; }
+.confirm-actions { display: flex; gap: 15px; justify-content: center; }
+.confirm-actions button { width: 120px; padding: 10px; font-size: 1rem; border-radius: 25px; transition: transform 0.1s; }
+.confirm-actions button:active { transform: scale(0.95); }
+.cancel-btn { background: white; border: 1px solid #ccc; color: #555; }
+.primary-btn { background: linear-gradient(to right, #28a745, #218838); color: white; border: none; box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3); }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* LAYOUT */
 .section.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; min-height: 0; }
-/* Removed 'height: 100%' from children to allow growth */
 .two-col > div { display: flex; flex-direction: column; } 
-
 h3 { margin-top: 0; color: #0056b3; font-size: 1rem; margin-bottom: 0.5vh; border-bottom: 1px solid #e6f2ff; }
-
 .billing-section { flex: 0 0 auto; }
 .grid.billing { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; align-items: end; width: 100%; }
 .billing .field { display: flex; flex-direction: column; gap: 0.5vh; }
@@ -155,15 +130,8 @@ button.danger { background: linear-gradient(to bottom, #dc3545, #c82333); color:
   .input-group, .fixed-left, .fixed-right, .col-date, .grow { width: 100% !important; margin: 0; }
   .input-group { flex-direction: column; align-items: flex-start; gap: 5px; }
   .aligned-label { flex: none; min-width: auto; }
-  
   input, select { width: 100%; height: 45px; }
-  
-  /* FORCE TEXTAREA TO GROW ON MOBILE TOO */
-  textarea {
-      min-height: 100px; /* Big by default on mobile too */
-      height: auto;
-  }
-  
+  textarea { min-height: 100px; height: auto; }
   .right-align { text-align: left; }
   .nav-button { width: 100%; justify-content: center; margin-top: 5px; }
   .grid.billing { grid-template-columns: 1fr 1fr; }

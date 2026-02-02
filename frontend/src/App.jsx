@@ -55,16 +55,20 @@ function App() {
               </div>
             </div>
 
-            {/* ROW 3: Father's Name + Mobile Number */}
             <div className="form-row">
               <div className="input-group grow">
                 <label className="aligned-label">Father's Name</label>
                 <input type="text" id="fatherNameInput" name="fatherName" />
               </div>
-              {/* <div className="input-group fixed-right">
-                <label>Mobile No.</label>
-                <input type="text" id="mobile" placeholder="98XXXXXXXX" maxLength="10" className="right-align" />
-              </div> */}
+              
+              {/* NEW MOBILE FIELD */}
+              <div className="input-group fixed-right" style={{width: "220px"}}>
+                <label>Mobile</label>
+                <div className="autocomplete-wrapper">
+                    <input type="text" id="mobileInput" placeholder="Search Mobile" autoComplete="off" className="right-align" style={{width: "120px"}} />
+                    <ul id="mobileSuggestionsList" className="suggestions-list hidden"></ul>
+                </div>
+              </div>
             </div>
 
             <div className="form-row address-row">
@@ -116,13 +120,10 @@ function App() {
                <button type="button" id="deleteBtn" className="danger hidden">Delete</button>
             </div>
             <div>
-              {/* <button type="button" id="whatsappBtn" style={{background: "#25D366", color: "white", border: "1px solid #1da851"}}>WhatsApp</button> */}
               <button type="button" id="printBtn" style={{background: "#6c757d", color: "white", border: "1px solid #5a6268"}}>Print Bill</button>
-              
               <button type="button" id="cancelBtn">Cancel</button>
-              <button type="submit" id="saveBtn" className="primary">Save</button>
+              <button type="button" id="saveBtn" className="primary">Save</button>
               <button type="button" id="updateBtn" className="primary hidden">Update</button>
-              {/* Back Button Removed */}
             </div>
           </footer>
         </form>
@@ -152,6 +153,26 @@ function App() {
           </div>
         </div>
       </div>
+
+      {/* NEW: BEAUTIFUL CONFIRMATION MODAL */}
+      <div id="confirmModal" className="modal-overlay" style={{zIndex: 2000}}>
+        <div className="modal-content confirm-box">
+          <div className="confirm-icon">💾</div>
+          <h2>Confirm Save</h2>
+          <p>Are you sure you want to save this record?</p>
+          
+          <div className="confirm-details">
+            <p><strong>Name:</strong> <span id="confirmName"></span></p>
+            <p><strong>Total Amount:</strong> ₹<span id="confirmAmount"></span></p>
+          </div>
+
+          <div className="confirm-actions">
+            <button type="button" id="confirmCancelBtn" className="cancel-btn">Cancel</button>
+            <button type="button" id="confirmYesBtn" className="primary-btn">Yes, Save It</button>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 }
