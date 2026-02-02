@@ -24,7 +24,6 @@
         const grandTotal = getEl("grandTotal");
         const visitDate = getEl("visitDate");
         
-        // Billing fields array for easy application of logic
         const billingFields = [total, cartage, conveyance].filter(Boolean);
 
         const patientNameInput = getEl("patientNameInput");
@@ -39,7 +38,7 @@
         const oldRecordBtn = getEl("oldRecordBtn");
         const printBtn = getEl("printBtn"); 
 
-        const historyModal = getEl("historyModal");
+        const modal = getEl("historyModal");
         const tableBody = getEl("historyTableBody");
         const closeModalBtn = getEl("closeModalBtn");
 
@@ -97,32 +96,18 @@
         modalCancelBtn.addEventListener("click", () => { customModal.style.display = "none"; currentModalCallback = null; });
         modalOkBtn.addEventListener("click", () => { customModal.style.display = "none"; if (currentModalCallback) currentModalCallback(); currentModalCallback = null; });
 
-        /* ================= 2. BILLING FIELD LOGIC (Clear on Click) ================= */
+        /* ================= 2. BILLING LOGIC (Clear on Click) ================= */
         function setupBillingField(input) {
-            // 1. On Focus (Click): Clear if value is 0 or 0.00
             input.addEventListener("focus", function() {
-                if (this.value === "0" || this.value === "0.00") {
-                    this.value = "";
-                }
+                if (this.value === "0" || this.value === "0.00") { this.value = ""; }
             });
-
-            // 2. On Blur (Click away): Format to decimal, or reset to 0.00 if empty
             input.addEventListener("blur", function() {
-                if (this.value.trim() === "" || isNaN(parseFloat(this.value))) {
-                    this.value = "0.00";
-                } else {
-                    this.value = parseFloat(this.value).toFixed(2);
-                }
+                if (this.value.trim() === "" || isNaN(parseFloat(this.value))) { this.value = "0.00"; } 
+                else { this.value = parseFloat(this.value).toFixed(2); }
                 calculateGrandTotal();
             });
-
-            // 3. On Input: Update Grand Total immediately
-            input.addEventListener("input", function() {
-                calculateGrandTotal();
-            });
+            input.addEventListener("input", function() { calculateGrandTotal(); });
         }
-
-        // Apply this logic to Total, Cartage, and Conveyance
         billingFields.forEach(field => setupBillingField(field));
 
         function calculateGrandTotal() {
@@ -132,13 +117,12 @@
             if (grandTotal) grandTotal.value = (t + c + v).toFixed(2);
         }
 
-        /* ================= 3. AUTO-EXPAND LOGIC ================= */
+        /* ================= 3. AUTO-EXPAND TEXTAREAS ================= */
         function adjustTextareaHeight(el) {
             if (!el) return;
             el.style.height = "auto";
             el.style.height = (el.scrollHeight + 5) + "px";
         }
-        
         [addressBox, complaintBox, medicineBox].forEach(box => {
             if(box) {
                 box.addEventListener("input", () => adjustTextareaHeight(box));
@@ -147,20 +131,35 @@
             }
         });
 
-        /* ================= 4. MOBILE INPUT LOGIC ================= */
+        /* ================= 4. AGE INPUT RESTRICTION (NEW FIX) ================= */
+        if (ageInput) {
+            ageInput.addEventListener("input", function() {
+                // 1. Remove non-numbers
+                this.value = this.value.replace(/[^0-9]/g, '');
+
+                // 2. Limit length to 3 digits (e.g., 999)
+                if (this.value.length > 3) {
+                    this.value = this.value.slice(0, 3);
+                }
+
+                // 3. Strict Limit: Cannot be > 110
+                if (parseInt(this.value) > 110) {
+                    this.value = "110"; // Auto-correct to max
+                    // Optional: You can show a small toast here if you want
+                }
+            });
+        }
+
+        /* ================= 5. MOBILE INPUT LOGIC ================= */
         if (mobileInput) {
             mobileInput.addEventListener("input", async function() {
-                // Enforce numbers only
                 this.value = this.value.replace(/[^0-9]/g, '');
                 
-                // Enforce max length 10 (Strict Input)
-                if (this.value.length > 10) {
-                    this.value = this.value.slice(0, 10);
-                }
+                // Enforce max length 10
+                if (this.value.length > 10) { this.value = this.value.slice(0, 10); }
 
                 const query = this.value.trim();
                 
-                // Suggestions Logic
                 if (query.length < 2) { 
                     mobileSuggestionsList.classList.add("hidden"); 
                     return; 
@@ -191,13 +190,10 @@
                     } else { mobileSuggestionsList.classList.add("hidden"); }
                 } catch (err) { console.error(err); }
             });
-
-            document.addEventListener("click", function(e) { 
-                if (e.target !== mobileInput) mobileSuggestionsList.classList.add("hidden"); 
-            });
+            document.addEventListener("click", function(e) { if (e.target !== mobileInput) mobileSuggestionsList.classList.add("hidden"); });
         }
 
-        /* ================= 5. NAME AUTOCOMPLETE ================= */
+        /* ================= 6. NAME AUTOCOMPLETE ================= */
         if (patientNameInput && suggestionsList) {
             patientNameInput.addEventListener("input", async function() {
                 const query = this.value.trim();
@@ -229,35 +225,24 @@
                             suggestionsList.appendChild(li);
                         });
                         suggestionsList.classList.remove("hidden");
-                    } else { 
-                        suggestionsList.classList.add("hidden"); 
-                        if(oldRecordBtn) { oldRecordBtn.disabled = true; oldRecordBtn.style.opacity = "0.5"; oldRecordBtn.style.cursor = "not-allowed"; }
-                    }
+                    } else { suggestionsList.classList.add("hidden"); }
                 } catch (err) { console.error(err); }
             });
-            document.addEventListener("click", function(e) { 
-                if (e.target !== patientNameInput) suggestionsList.classList.add("hidden"); 
-            });
+            document.addEventListener("click", function(e) { if (e.target !== patientNameInput) suggestionsList.classList.add("hidden"); });
         }
 
-        /* ================= 6. AUTO-FILL HELPER ================= */
+        /* ================= 7. AUTO-FILL HELPER ================= */
         function autoFillPatientDetails(record) {
             patientNameInput.value = record.B_PName || "";
             fatherNameInput.value = record.B_FName || "";
             if(sexInput) sexInput.value = record.B_Sex || "";
             if(ageInput) ageInput.value = record.B_Age || "";
             if(mobileInput && record.B_Mobile) mobileInput.value = record.B_Mobile; 
-            
-            if(addressBox) {
-                addressBox.value = record.B_To || "";
-                setTimeout(() => adjustTextareaHeight(addressBox), 50);
-            }
+            if(addressBox) { addressBox.value = record.B_To || ""; setTimeout(() => adjustTextareaHeight(addressBox), 50); }
 
-            // Clear old data
+            // Clear old clinical/billing data
             if(complaintBox) { complaintBox.value = ""; adjustTextareaHeight(complaintBox); }
             if(medicineBox) { medicineBox.value = ""; adjustTextareaHeight(medicineBox); }
-
-            // Reset Billing
             if(total) total.value = "0.00";
             if(cartage) cartage.value = "0.00";
             if(conveyance) conveyance.value = "0.00";
@@ -266,85 +251,33 @@
             if(oldRecordBtn) { oldRecordBtn.disabled = false; oldRecordBtn.style.opacity = "1"; oldRecordBtn.style.cursor = "pointer"; }
         }
 
-        /* ================= 7. VALIDATION (Updated) ================= */
+        /* ================= 8. VALIDATION (ALL FIELDS) ================= */
         function validateForm() { 
-            // 1. Patient Name
-            if (!patientNameInput.value.trim()) { 
-                showModal('alert', 'Missing Information', 'Please enter the Patient Name.'); 
-                patientNameInput.focus();
-                return false; 
-            } 
-            // 2. Father's Name
-            if (!fatherNameInput.value.trim()) { 
-                showModal('alert', 'Missing Information', 'Please enter Father\'s Name.'); 
-                fatherNameInput.focus();
-                return false; 
-            }
-            // 3. Gender
-            if (!sexInput.value || sexInput.value === "Select") { 
-                showModal('alert', 'Missing Information', 'Please select a Gender.'); 
-                sexInput.focus();
-                return false; 
-            }
-            // 4. Age (Logic Updated)
-            const ageVal = parseInt(ageInput.value);
-            if (!ageInput.value || ageVal <= 0) { 
-                showModal('alert', 'Missing Information', 'Please enter a valid Age.'); 
-                ageInput.focus();
-                return false; 
-            }
-            if (ageVal > 110) { // NEW: Max Age Check
-                showModal('alert', 'Invalid Input', 'Age cannot be more than 110.');
-                ageInput.focus();
-                return false;
-            }
+            if (!patientNameInput.value.trim()) { showModal('alert', 'Missing Name', 'Please enter the Patient Name.'); patientNameInput.focus(); return false; } 
+            if (!fatherNameInput.value.trim()) { showModal('alert', 'Missing Father Name', 'Please enter Father\'s Name.'); fatherNameInput.focus(); return false; }
+            if (!sexInput.value || sexInput.value === "Select") { showModal('alert', 'Missing Gender', 'Please select a Gender.'); sexInput.focus(); return false; }
+            
+            // Age Validations
+            if (!ageInput.value || parseInt(ageInput.value) <= 0) { showModal('alert', 'Invalid Age', 'Please enter a valid Age.'); ageInput.focus(); return false; }
+            if (parseInt(ageInput.value) > 110) { showModal('alert', 'Invalid Age', 'Age cannot be more than 110.'); ageInput.focus(); return false; }
 
-            // 5. Mobile Number (Logic Updated)
-            if (!mobileInput.value.trim()) { 
-                showModal('alert', 'Missing Information', 'Please enter the Mobile Number.'); 
-                mobileInput.focus();
-                return false; 
-            }
-            if (mobileInput.value.trim().length !== 10) { // STRICT: Must be exactly 10
-                showModal('alert', 'Invalid Input', 'Mobile Number must be exactly 10 digits.'); 
-                mobileInput.focus();
-                return false; 
-            }
+            // Mobile Validations
+            if (!mobileInput.value.trim()) { showModal('alert', 'Missing Mobile', 'Please enter the Mobile Number.'); mobileInput.focus(); return false; }
+            if (mobileInput.value.trim().length !== 10) { showModal('alert', 'Invalid Mobile', 'Mobile Number must be exactly 10 digits.'); mobileInput.focus(); return false; }
 
-            // 6. Address
-            if (!addressBox.value.trim()) { 
-                showModal('alert', 'Missing Information', 'Please enter the Address.'); 
-                addressBox.focus();
-                return false; 
-            }
-            // 7. Complaint
-            if (!complaintBox.value.trim()) {
-                showModal('alert', 'Missing Information', 'Please enter the Chief Complaint.');
-                complaintBox.focus();
-                return false;
-            }
-            // 8. Medicine
-            if (!medicineBox.value.trim()) {
-                showModal('alert', 'Missing Information', 'Please enter the Medicine.');
-                medicineBox.focus();
-                return false;
-            }
-            // 9. Billing
-            if (!grandTotal.value.trim() || parseFloat(grandTotal.value) < 0) {
-                showModal('alert', 'Missing Information', 'Billing details are incomplete.');
-                grandTotal.focus();
-                return false;
-            }
+            if (!addressBox.value.trim()) { showModal('alert', 'Missing Address', 'Please enter the Address.'); addressBox.focus(); return false; }
+            if (!complaintBox.value.trim()) { showModal('alert', 'Missing Complaint', 'Please enter the Chief Complaint.'); complaintBox.focus(); return false; }
+            if (!medicineBox.value.trim()) { showModal('alert', 'Missing Medicine', 'Please enter the Medicine.'); medicineBox.focus(); return false; }
+            if (!grandTotal.value.trim() || parseFloat(grandTotal.value) < 0) { showModal('alert', 'Missing Billing', 'Billing details are incomplete.'); grandTotal.focus(); return false; }
 
             return true; 
         }
 
-        /* ================= 8. CRUD ACTIONS ================= */
+        /* ================= 9. CRUD & PRINT ================= */
         if (saveBtn) {
             saveBtn.addEventListener("click", (e) => {
                 e.preventDefault();
                 if (!validateForm()) return;
-                
                 showModal('confirm', 'Confirm Save', 'Are you sure you want to save this record?', async () => {
                     saveBtn.disabled = true; saveBtn.innerText = "Saving...";
                     try {
@@ -363,7 +296,6 @@
             updateBtn.addEventListener("click", (e) => {
                 e.preventDefault();
                 if (!validateForm()) return;
-                
                 showModal('confirm', 'Confirm Update', 'Are you sure you want to update this record?', async () => {
                     updateBtn.disabled = true; updateBtn.innerText = "Updating...";
                     try {
@@ -381,7 +313,7 @@
         if (deleteBtn) {
             deleteBtn.addEventListener("click", (e) => {
                 e.preventDefault();
-                showModal('delete', 'Confirm Delete', `Delete record #${snoInput.value}? This cannot be undone.`, async () => {
+                showModal('delete', 'Confirm Delete', `Delete record #${snoInput.value}?`, async () => {
                     deleteBtn.disabled = true; deleteBtn.innerText = "Deleting...";
                     try {
                         const res = await fetch(`${API_BASE_URL}/api/visits/${snoInput.value}`, { method: "DELETE" });
@@ -396,28 +328,23 @@
         if (printBtn) {
             printBtn.addEventListener("click", () => {
                 if (!validateForm()) return;
-
                 const name = patientNameInput.value.trim();
-                const complaint = complaintBox.value.trim();
-                const medicine = medicineBox.value.trim();
-                const grandTotalVal = grandTotal.value.trim();
                 const date = visitDate.value || new Date().toISOString().split('T')[0];
-
                 const printWindow = window.open('', '', 'height=600,width=800');
                 printWindow.document.write('<html><head><title>Print Bill</title><style>body{font-family:Arial,sans-serif;padding:20px;-webkit-print-color-adjust:exact}.print-header{background-color:#ffff00;color:#ff0000;text-align:center;padding:15px;margin-bottom:20px;border:1px solid #ddd}.clinic-name{font-size:22px;font-weight:bold;text-transform:uppercase;margin-bottom:5px;letter-spacing:1px}.dr-name{font-size:32px;font-weight:900;text-transform:uppercase;margin-bottom:5px}.designation{font-size:16px;font-weight:bold;margin-bottom:2px}.address-line{color:#000;font-size:12px;margin-top:10px;font-weight:normal}.receipt-title{text-align:center;margin:10px 0 20px 0;font-size:18px;font-weight:bold;text-transform:uppercase;border-bottom:2px solid #333;display:inline-block;padding-bottom:5px}.title-container{text-align:center}.info-grid{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;border:1px solid #333;padding:10px;font-weight:bold}.section-title{font-weight:bold;margin-top:10px;background:#eee;padding:5px;border-left:5px solid #ff0000}.content-box{border:1px solid #ccc;padding:10px;min-height:50px;margin-bottom:10px;white-space:pre-wrap;font-size:14px}.billing-table{width:100%;border-collapse:collapse;margin-top:15px}.billing-table th,.billing-table td{border:1px solid #000;padding:8px;text-align:left}.total-row{font-weight:bold;background-color:#f0f0f0}</style></head><body>');
                 printWindow.document.write('<div class="print-header"><div class="clinic-name">S.S. HOMOEO CARE CLINIC</div><div class="dr-name">DR. S.S. GUPTA</div><div class="designation">M.D. (Homoeo)</div><div class="designation">Psychiatrist</div><div class="address-line">Address: Your Clinic Address Here | Phone: 9999999999</div></div>');
                 printWindow.document.write('<div class="title-container"><div class="receipt-title">Patient Receipt</div></div>');
                 printWindow.document.write(`<div class="info-grid"><div>NAME: ${name.toUpperCase()}</div><div>DATE: ${date}</div></div>`);
-                printWindow.document.write(`<div class="section-title">Chief Complaint</div><div class="content-box">${complaint}</div>`);
-                printWindow.document.write(`<div class="section-title">Medicine</div><div class="content-box">${medicine}</div>`);
-                printWindow.document.write(`<div class="section-title">Billing Details</div><table class="billing-table"><tr><td>Total</td><td>${total.value||'0.00'}</td></tr><tr><td>Cartage</td><td>${cartage.value||'0.00'}</td></tr><tr><td>Conveyance</td><td>${conveyance.value||'0.00'}</td></tr><tr class="total-row"><td>Grand Total</td><td>${grandTotalVal}</td></tr></table>`);
+                printWindow.document.write(`<div class="section-title">Chief Complaint</div><div class="content-box">${complaintBox.value}</div>`);
+                printWindow.document.write(`<div class="section-title">Medicine</div><div class="content-box">${medicineBox.value}</div>`);
+                printWindow.document.write(`<div class="section-title">Billing Details</div><table class="billing-table"><tr><td>Total</td><td>${total.value||'0.00'}</td></tr><tr><td>Cartage</td><td>${cartage.value||'0.00'}</td></tr><tr><td>Conveyance</td><td>${conveyance.value||'0.00'}</td></tr><tr class="total-row"><td>Grand Total</td><td>${grandTotal.value}</td></tr></table>`);
                 printWindow.document.write('</body></html>');
                 printWindow.document.close();
                 setTimeout(() => { printWindow.print(); }, 500);
             });
         }
 
-        /* ================= 9. HELPERS ================= */
+        /* ================= 10. HELPERS & INIT ================= */
         if (oldRecordBtn) {
             oldRecordBtn.addEventListener("click", async () => {
                 const nameInput = document.getElementById("patientNameInput");
