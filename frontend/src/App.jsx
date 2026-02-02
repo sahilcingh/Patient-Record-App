@@ -76,7 +76,6 @@ function App() {
                       type="text" 
                       inputMode="numeric"
                       id="mobileInput" 
-                      placeholder="Optional" 
                       autoComplete="off" 
                       className="right-align" 
                       maxLength="10" 

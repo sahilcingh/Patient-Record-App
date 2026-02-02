@@ -50,9 +50,11 @@ body {
 .fixed-left { width: auto; flex-shrink: 0; }
 .col-date { margin-left: auto; margin-right: auto; }
 
-/* FIXED RIGHT COLUMN (Ensures Age & Mobile are exactly same size) */
+/* UPDATED: WIDER Right Column for Mobile 
+   Old width: 180px -> New width: 260px
+*/
 .fixed-right { 
-    width: 180px; 
+    width: 260px; /* Increased to show more mobile digits/results */
     flex-shrink: 0; 
     justify-content: flex-end; 
     display: flex;
@@ -60,21 +62,24 @@ body {
     gap: 10px;
 }
 
-/* Inputs in the right column */
+/* Inputs in the right column (Age & Mobile) */
 .fixed-right select, 
 .fixed-right > input { 
-    width: 110px !important; 
+    width: 100% !important; /* Fill the new wider space */
 }
 
 /* Autocomplete Wrapper inside Right Column (For Mobile) */
 .fixed-right .autocomplete-wrapper { 
-    width: 110px !important; 
+    width: 100% !important; /* Fill the new wider space */
     position: relative;
 }
 .fixed-right .autocomplete-wrapper input { 
     width: 100% !important; 
 }
 
+/* FATHER'S NAME (or any growing column)
+   It will automatically shrink because the .fixed-right took more space.
+*/
 .grow { flex: 1; display: flex; position: relative; } 
 .grow input { width: 100%; }
 
