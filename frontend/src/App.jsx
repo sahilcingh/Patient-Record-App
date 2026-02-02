@@ -55,18 +55,25 @@ function App() {
               </div>
             </div>
 
-            {/* ROW 3: ALIGNED MOBILE BLOCK */}
             <div className="form-row">
               <div className="input-group grow">
                 <label className="aligned-label">Father's Name</label>
                 <input type="text" id="fatherNameInput" name="fatherName" />
               </div>
               
-              {/* FIXED: Removed inline width to match Age block */}
+              {/* MOBILE FIELD (Mandatory) */}
               <div className="input-group fixed-right">
                 <label>Mobile</label>
                 <div className="autocomplete-wrapper">
-                    <input type="text" id="mobileInput" placeholder="Search" autoComplete="off" className="right-align" />
+                    <input 
+                      type="text" 
+                      id="mobileInput" 
+                      placeholder="Search" 
+                      autoComplete="off" 
+                      className="right-align" 
+                      maxLength="10" 
+                      required 
+                    />
                     <ul id="mobileSuggestionsList" className="suggestions-list hidden"></ul>
                 </div>
               </div>

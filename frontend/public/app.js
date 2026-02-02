@@ -77,8 +77,12 @@
         /* MOBILE AUTOCOMPLETE */
         if (mobileInput && mobileSuggestionsList) {
             mobileInput.addEventListener("input", async function() {
+                // Allow only numbers
+                this.value = this.value.replace(/[^0-9]/g, '');
+                
                 const query = this.value.trim();
                 if (query.length < 2) { mobileSuggestionsList.classList.add("hidden"); return; }
+                
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/visits/mobile-suggestions?query=${encodeURIComponent(query)}`);
                     const results = await res.json();
@@ -305,7 +309,25 @@
             grandTotal.value = (record.B_TotalAmt || 0).toFixed(2);
         }
 
-        function validateForm() { if (!patientNameInput.value.trim()) { alert("Name required"); return false; } return true; }
+        // VALIDATION: Name AND Mobile Required
+        function validateForm() { 
+            if (!patientNameInput.value.trim()) { 
+                alert("⚠️ Patient Name is required."); 
+                patientNameInput.focus();
+                return false; 
+            } 
+            if (!mobileInput.value.trim()) { 
+                alert("⚠️ Mobile Number is required."); 
+                mobileInput.focus();
+                return false; 
+            }
+            if (mobileInput.value.trim().length < 10) { 
+                alert("⚠️ Invalid Mobile Number (must be 10 digits)."); 
+                mobileInput.focus();
+                return false; 
+            }
+            return true; 
+        }
         
         function resetForm() {
             form.reset();
