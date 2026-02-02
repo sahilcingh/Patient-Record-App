@@ -44,20 +44,28 @@ body {
 .input-group { display: flex; align-items: center; gap: 10px; }
 .align-top { align-items: flex-start; }
 .aligned-label { flex: 0 0 140px; font-weight: 600; color: #495057; white-space: nowrap; font-size: 0.9rem; text-align: left; }
-.input-group label { font-weight: 600; color: #495057; font-size: 0.9rem; }
+.input-group label { font-weight: 600; color: #495057; font-size: 0.9rem; white-space: nowrap; }
 
 /* LAYOUT COLUMNS */
 .fixed-left { width: auto; flex-shrink: 0; }
 .col-date { margin-left: auto; margin-right: auto; }
 
-/* UPDATED: Fixed Right Column (Aligns Age & Mobile) */
+/* === FIXED RIGHT COLUMN (Age & Mobile) === */
 .fixed-right { 
-    width: 180px; /* Increased from 160px */
+    width: 180px; 
     flex-shrink: 0; 
     justify-content: flex-end; 
 }
 .fixed-right select, .fixed-right input { 
-    width: 110px; /* Increased from 100px */
+    width: 110px; 
+}
+
+/* === ALIGNMENT FIX FOR MOBILE WRAPPER === */
+.fixed-right .autocomplete-wrapper {
+    width: 110px !important; /* Force wrapper to match input width */
+}
+.fixed-right .autocomplete-wrapper input {
+    width: 100% !important; /* Input fills the wrapper */
 }
 
 .grow { flex: 1; display: flex; position: relative; } 
