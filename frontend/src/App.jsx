@@ -55,17 +55,18 @@ function App() {
               </div>
             </div>
 
+            {/* ROW 3: ALIGNED MOBILE BLOCK */}
             <div className="form-row">
               <div className="input-group grow">
                 <label className="aligned-label">Father's Name</label>
                 <input type="text" id="fatherNameInput" name="fatherName" />
               </div>
               
-              {/* NEW MOBILE FIELD */}
-              <div className="input-group fixed-right" style={{width: "220px"}}>
+              {/* FIXED: Removed inline width to match Age block */}
+              <div className="input-group fixed-right">
                 <label>Mobile</label>
                 <div className="autocomplete-wrapper">
-                    <input type="text" id="mobileInput" placeholder="Search Mobile" autoComplete="off" className="right-align" style={{width: "120px"}} />
+                    <input type="text" id="mobileInput" placeholder="Search" autoComplete="off" className="right-align" />
                     <ul id="mobileSuggestionsList" className="suggestions-list hidden"></ul>
                 </div>
               </div>
@@ -154,18 +155,16 @@ function App() {
         </div>
       </div>
 
-      {/* NEW: BEAUTIFUL CONFIRMATION MODAL */}
+      {/* CONFIRMATION MODAL */}
       <div id="confirmModal" className="modal-overlay" style={{zIndex: 2000}}>
         <div className="modal-content confirm-box">
           <div className="confirm-icon">💾</div>
           <h2>Confirm Save</h2>
           <p>Are you sure you want to save this record?</p>
-          
           <div className="confirm-details">
             <p><strong>Name:</strong> <span id="confirmName"></span></p>
             <p><strong>Total Amount:</strong> ₹<span id="confirmAmount"></span></p>
           </div>
-
           <div className="confirm-actions">
             <button type="button" id="confirmCancelBtn" className="cancel-btn">Cancel</button>
             <button type="button" id="confirmYesBtn" className="primary-btn">Yes, Save It</button>
