@@ -162,19 +162,16 @@ function App() {
         </div>
       </div>
 
-      {/* CONFIRMATION MODAL */}
-      <div id="confirmModal" className="modal-overlay" style={{zIndex: 2000}}>
+      {/* === GLOBAL SMART MODAL (Handles Alerts & Confirms) === */}
+      <div id="customModal" className="modal-overlay" style={{zIndex: 3000, display: 'none'}}>
         <div className="modal-content confirm-box">
-          <div className="confirm-icon">💾</div>
-          <h2>Confirm Save</h2>
-          <p>Are you sure you want to save this record?</p>
-          <div className="confirm-details">
-            <p><strong>Name:</strong> <span id="confirmName"></span></p>
-            <p><strong>Total Amount:</strong> ₹<span id="confirmAmount"></span></p>
-          </div>
+          <div className="confirm-icon" id="modalIcon">⚠️</div>
+          <h2 id="modalTitle">Alert</h2>
+          <p id="modalMessage">Something went wrong.</p>
+          
           <div className="confirm-actions">
-            <button type="button" id="confirmCancelBtn" className="cancel-btn">Cancel</button>
-            <button type="button" id="confirmYesBtn" className="primary-btn">Yes, Save It</button>
+            <button type="button" id="modalCancelBtn" className="cancel-btn">Cancel</button>
+            <button type="button" id="modalOkBtn" className="primary-btn">OK</button>
           </div>
         </div>
       </div>

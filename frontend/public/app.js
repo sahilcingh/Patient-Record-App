@@ -41,12 +41,13 @@
         const tableBody = getEl("historyTableBody");
         const closeModalBtn = getEl("closeModalBtn");
 
-        // Confirm Modal Elements
-        const confirmModal = getEl("confirmModal");
-        const confirmYesBtn = getEl("confirmYesBtn");
-        const confirmCancelBtn = getEl("confirmCancelBtn");
-        const confirmName = getEl("confirmName");
-        const confirmAmount = getEl("confirmAmount");
+        // Custom Smart Modal Elements
+        const customModal = getEl("customModal");
+        const modalIcon = getEl("modalIcon");
+        const modalTitle = getEl("modalTitle");
+        const modalMessage = getEl("modalMessage");
+        const modalOkBtn = getEl("modalOkBtn");
+        const modalCancelBtn = getEl("modalCancelBtn");
 
         // Textareas
         const addressBox = form.querySelector(".address-box");
@@ -54,6 +55,7 @@
         const medicineBox = form.querySelectorAll(".large-box")[1];
 
         let isEditMode = false;
+        let currentModalCallback = null; // Store function to run on OK
 
         if(oldRecordBtn) {
             oldRecordBtn.disabled = true;
@@ -61,6 +63,51 @@
             oldRecordBtn.style.cursor = "not-allowed";
         }
 
+        /* ================= SMART POPUP SYSTEM ================= */
+        function showModal(type, title, message, onOk = null) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            currentModalCallback = onOk;
+
+            if (type === 'alert') {
+                modalIcon.textContent = "⚠️";
+                modalCancelBtn.style.display = "none"; // Hide cancel for alerts
+                modalOkBtn.textContent = "OK";
+                modalOkBtn.className = "primary-btn";
+            } else if (type === 'confirm') {
+                modalIcon.textContent = "💾";
+                modalCancelBtn.style.display = "block";
+                modalOkBtn.textContent = "Yes, Do It";
+                modalOkBtn.className = "primary-btn";
+            } else if (type === 'delete') {
+                modalIcon.textContent = "🗑️";
+                modalCancelBtn.style.display = "block";
+                modalOkBtn.textContent = "Delete";
+                modalOkBtn.className = "primary-btn"; // You could add a danger class here
+                modalOkBtn.style.background = "linear-gradient(135deg, #dc3545, #c82333)";
+            } else if (type === 'success') {
+                modalIcon.textContent = "✅";
+                modalCancelBtn.style.display = "none";
+                modalOkBtn.textContent = "Great";
+                modalOkBtn.className = "primary-btn";
+            }
+
+            customModal.style.display = "flex";
+        }
+
+        // Modal Button Listeners
+        modalCancelBtn.addEventListener("click", () => {
+            customModal.style.display = "none";
+            currentModalCallback = null;
+        });
+
+        modalOkBtn.addEventListener("click", () => {
+            customModal.style.display = "none";
+            if (currentModalCallback) currentModalCallback();
+            currentModalCallback = null;
+        });
+
+        /* ================= AUTO-EXPAND LOGIC ================= */
         function adjustTextareaHeight(el) {
             if (!el) return;
             el.style.height = "auto";
@@ -77,12 +124,9 @@
         /* MOBILE AUTOCOMPLETE */
         if (mobileInput && mobileSuggestionsList) {
             mobileInput.addEventListener("input", async function() {
-                // Allow only numbers
                 this.value = this.value.replace(/[^0-9]/g, '');
-                
                 const query = this.value.trim();
                 if (query.length < 2) { mobileSuggestionsList.classList.add("hidden"); return; }
-                
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/visits/mobile-suggestions?query=${encodeURIComponent(query)}`);
                     const results = await res.json();
@@ -168,29 +212,73 @@
             if(oldRecordBtn) { oldRecordBtn.disabled = false; oldRecordBtn.style.opacity = "1"; oldRecordBtn.style.cursor = "pointer"; }
         }
 
-        /* SAVE WITH POPUP */
+        /* ================= VALIDATION & ACTIONS ================= */
+        function validateForm() { 
+            if (!patientNameInput.value.trim()) { 
+                showModal('alert', 'Missing Name', 'Please enter the Patient Name.'); 
+                return false; 
+            } 
+            if (!mobileInput.value.trim()) { 
+                showModal('alert', 'Missing Mobile', 'Please enter the Mobile Number.'); 
+                return false; 
+            }
+            if (mobileInput.value.trim().length < 10) { 
+                showModal('alert', 'Invalid Mobile', 'Mobile Number must be 10 digits.'); 
+                return false; 
+            }
+            return true; 
+        }
+
         if (saveBtn) {
             saveBtn.addEventListener("click", (e) => {
                 e.preventDefault();
                 if (!validateForm()) return;
-                confirmName.textContent = patientNameInput.value;
-                confirmAmount.textContent = grandTotal.value;
-                confirmModal.style.display = "flex";
+                
+                showModal('confirm', 'Confirm Save', 'Are you sure you want to save this record?', async () => {
+                    saveBtn.disabled = true; saveBtn.innerText = "Saving...";
+                    try {
+                        const res = await fetch(`${API_BASE_URL}/api/visits`, {
+                            method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(getPayload())
+                        });
+                        if (res.ok) { showModal('success', 'Saved', 'Record Saved Successfully!'); resetForm(); } 
+                        else { showModal('alert', 'Error', 'Failed to save record.'); }
+                    } catch (err) { showModal('alert', 'Error', 'Server Error.'); } 
+                    finally { saveBtn.disabled = false; saveBtn.innerText = "Save"; }
+                });
             });
         }
 
-        if (confirmCancelBtn) { confirmCancelBtn.addEventListener("click", () => { confirmModal.style.display = "none"; }); }
+        if (updateBtn) {
+            updateBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                if (!validateForm()) return;
+                
+                showModal('confirm', 'Confirm Update', 'Are you sure you want to update this record?', async () => {
+                    updateBtn.disabled = true; updateBtn.innerText = "Updating...";
+                    try {
+                        const res = await fetch(`${API_BASE_URL}/api/visits/${snoInput.value}`, {
+                            method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(getPayload())
+                        });
+                        if (res.ok) { showModal('success', 'Updated', 'Record Updated Successfully!'); resetForm(); } 
+                        else { showModal('alert', 'Error', 'Update failed.'); }
+                    } catch (err) { showModal('alert', 'Error', 'Server Error.'); } 
+                    finally { updateBtn.disabled = false; updateBtn.innerText = "Update"; }
+                });
+            });
+        }
 
-        if (confirmYesBtn) {
-            confirmYesBtn.addEventListener("click", async () => {
-                confirmModal.style.display = "none"; 
-                saveBtn.disabled = true; saveBtn.innerText = "Saving...";
-                try {
-                    const res = await fetch(`${API_BASE_URL}/api/visits`, {
-                        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(getPayload())
-                    });
-                    if (res.ok) { alert("Saved Successfully!"); resetForm(); } else { alert("Save failed."); }
-                } catch (err) { alert("Error saving record."); } finally { saveBtn.disabled = false; saveBtn.innerText = "Save"; }
+        if (deleteBtn) {
+            deleteBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                showModal('delete', 'Confirm Delete', `Delete record #${snoInput.value}? This cannot be undone.`, async () => {
+                    deleteBtn.disabled = true; deleteBtn.innerText = "Deleting...";
+                    try {
+                        const res = await fetch(`${API_BASE_URL}/api/visits/${snoInput.value}`, { method: "DELETE" });
+                        if (res.ok) { showModal('success', 'Deleted', 'Record Deleted Successfully.'); resetForm(); } 
+                        else { showModal('alert', 'Error', 'Delete failed.'); }
+                    } catch (err) { showModal('alert', 'Error', 'Server Error.'); } 
+                    finally { deleteBtn.disabled = false; deleteBtn.innerText = "Delete"; }
+                });
             });
         }
 
@@ -201,11 +289,13 @@
                 const complaint = complaintBox.value.trim();
                 const medicine = medicineBox.value.trim();
                 const grandTotalVal = grandTotal.value.trim();
+                const mobile = mobileInput.value.trim();
 
-                if (!name) { alert("⚠️ Name Missing"); return; }
-                if (!complaint) { alert("⚠️ Complaint Missing"); return; }
-                if (!medicine) { alert("⚠️ Medicine Missing"); return; }
-                if (!grandTotalVal) { alert("⚠️ Billing Missing"); return; }
+                if (!name) { showModal('alert', 'Print Error', 'Patient Name is missing.'); return; }
+                if (!mobile) { showModal('alert', 'Print Error', 'Mobile Number is missing.'); return; }
+                if (!complaint) { showModal('alert', 'Print Error', 'Chief Complaint is missing.'); return; }
+                if (!medicine) { showModal('alert', 'Print Error', 'Medicine is missing.'); return; }
+                if (!grandTotalVal || grandTotalVal === "0.00") { showModal('alert', 'Print Error', 'Billing section is incomplete.'); return; }
 
                 const date = visitDate.value || new Date().toISOString().split('T')[0];
                 const printWindow = window.open('', '', 'height=600,width=800');
@@ -222,34 +312,7 @@
             });
         }
 
-        /* CRUD - UPDATE/DELETE */
-        if (updateBtn) {
-            updateBtn.addEventListener("click", async (e) => {
-                e.preventDefault();
-                if (!validateForm()) return;
-                if (!confirm("Confirm Update?")) return;
-                updateBtn.disabled = true; updateBtn.innerText = "Updating...";
-                try {
-                    const res = await fetch(`${API_BASE_URL}/api/visits/${snoInput.value}`, {
-                        method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(getPayload())
-                    });
-                    if (res.ok) { alert("Updated!"); resetForm(); } else { alert("Failed."); }
-                } catch (err) { alert("Error."); } finally { updateBtn.disabled = false; updateBtn.innerText = "Update"; }
-            });
-        }
-
-        if (deleteBtn) {
-            deleteBtn.addEventListener("click", async (e) => {
-                e.preventDefault();
-                if (!confirm(`Delete record #${snoInput.value}?`)) return;
-                deleteBtn.disabled = true; deleteBtn.innerText = "Deleting...";
-                try {
-                    const res = await fetch(`${API_BASE_URL}/api/visits/${snoInput.value}`, { method: "DELETE" });
-                    if (res.ok) { alert("Deleted!"); resetForm(); } else { alert("Failed."); }
-                } catch (err) { alert("Error."); } finally { deleteBtn.disabled = false; deleteBtn.innerText = "Delete"; }
-            });
-        }
-
+        /* HELPER FUNCTIONS */
         if (oldRecordBtn) {
             oldRecordBtn.addEventListener("click", async () => {
                 const nameInput = document.getElementById("patientNameInput");
@@ -268,8 +331,8 @@
                             tableBody.appendChild(row);
                         });
                         modal.style.display = "flex"; 
-                    } else { alert("No records found."); }
-                } catch (err) { alert("Error loading history."); }
+                    } else { showModal('alert', 'Info', 'No records found.'); }
+                } catch (err) { showModal('alert', 'Error', 'Error loading history.'); }
             });
         }
 
@@ -307,26 +370,6 @@
             cartage.value = (record.B_Cart || 0).toFixed(2);
             conveyance.value = (record.B_Conv || 0).toFixed(2);
             grandTotal.value = (record.B_TotalAmt || 0).toFixed(2);
-        }
-
-        // VALIDATION: Name AND Mobile Required
-        function validateForm() { 
-            if (!patientNameInput.value.trim()) { 
-                alert("⚠️ Patient Name is required."); 
-                patientNameInput.focus();
-                return false; 
-            } 
-            if (!mobileInput.value.trim()) { 
-                alert("⚠️ Mobile Number is required."); 
-                mobileInput.focus();
-                return false; 
-            }
-            if (mobileInput.value.trim().length < 10) { 
-                alert("⚠️ Invalid Mobile Number (must be 10 digits)."); 
-                mobileInput.focus();
-                return false; 
-            }
-            return true; 
         }
         
         function resetForm() {
