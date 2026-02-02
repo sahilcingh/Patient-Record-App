@@ -378,7 +378,7 @@
         /* ================= 10. SHOW ALL + OLD RECORD NAVIGATION ================= */
         // Function to render patient list in modal
         function renderPatientList(records) {
-            modalTitleText.textContent = "All Unique Patients";
+            modalTitleText.textContent = "All Patients";
             tableHead.innerHTML = `<tr><th>Patient Name</th><th>Father's Name</th><th>Mobile</th><th>Total Visits</th></tr>`;
             tableBody.innerHTML = "";
             
