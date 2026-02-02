@@ -64,6 +64,7 @@
         }
 
         /* ================= SMART POPUP SYSTEM ================= */
+        // Replaces alert() and confirm() with a beautiful modal
         function showModal(type, title, message, onOk = null) {
             modalTitle.textContent = title;
             modalMessage.textContent = message;
@@ -77,13 +78,13 @@
             } else if (type === 'confirm') {
                 modalIcon.textContent = "💾";
                 modalCancelBtn.style.display = "block";
-                modalOkBtn.textContent = "Yes, Do It";
+                modalOkBtn.textContent = "Yes, Save";
                 modalOkBtn.className = "primary-btn";
             } else if (type === 'delete') {
                 modalIcon.textContent = "🗑️";
                 modalCancelBtn.style.display = "block";
                 modalOkBtn.textContent = "Delete";
-                modalOkBtn.className = "primary-btn"; // You could add a danger class here
+                modalOkBtn.className = "primary-btn"; 
                 modalOkBtn.style.background = "linear-gradient(135deg, #dc3545, #c82333)";
             } else if (type === 'success') {
                 modalIcon.textContent = "✅";

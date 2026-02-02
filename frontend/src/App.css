@@ -1,4 +1,4 @@
-/* GLOBAL RESET */
+/* ================= GLOBAL RESET ================= */
 * { box-sizing: border-box; }
 
 body {
@@ -18,7 +18,7 @@ body {
   height: 98vh; display: flex; flex-direction: column;
 }
 
-/* HEADER */
+/* ================= HEADER ================= */
 .header {
   flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center;
   background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
@@ -28,7 +28,7 @@ body {
 .header h1 { margin: 0; font-size: 1.5rem; font-weight: 600; }
 .date { font-weight: 600; color: #e3f2fd; font-size: 0.9rem; }
 
-/* FORM LAYOUT */
+/* ================= FORM LAYOUT ================= */
 #patientForm {
   display: flex; flex-direction: column; flex: 1;
   justify-content: space-between; overflow-y: auto; padding-right: 5px; 
@@ -46,22 +46,39 @@ body {
 .aligned-label { flex: 0 0 140px; font-weight: 600; color: #495057; white-space: nowrap; font-size: 0.9rem; text-align: left; }
 .input-group label { font-weight: 600; color: #495057; font-size: 0.9rem; white-space: nowrap; }
 
-/* LAYOUT COLUMNS */
+/* ================= COLUMNS & ALIGNMENT ================= */
 .fixed-left { width: auto; flex-shrink: 0; }
 .col-date { margin-left: auto; margin-right: auto; }
 
-/* FIXED RIGHT COLUMN */
-.fixed-right { width: 180px; flex-shrink: 0; justify-content: flex-end; }
-.fixed-right select, .fixed-right input { width: 110px; }
+/* FIXED RIGHT COLUMN (Ensures Age & Mobile are exactly same size) */
+.fixed-right { 
+    width: 180px; 
+    flex-shrink: 0; 
+    justify-content: flex-end; 
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
-/* ALIGNMENT FIX */
-.fixed-right .autocomplete-wrapper { width: 110px !important; }
-.fixed-right .autocomplete-wrapper input { width: 100% !important; }
+/* Inputs in the right column */
+.fixed-right select, 
+.fixed-right > input { 
+    width: 110px !important; 
+}
+
+/* Autocomplete Wrapper inside Right Column (For Mobile) */
+.fixed-right .autocomplete-wrapper { 
+    width: 110px !important; 
+    position: relative;
+}
+.fixed-right .autocomplete-wrapper input { 
+    width: 100% !important; 
+}
 
 .grow { flex: 1; display: flex; position: relative; } 
 .grow input { width: 100%; }
 
-/* AUTO-RESIZING BOXES */
+/* ================= TEXT AREAS ================= */
 .address-box { 
     width: 100%; min-height: 60px; resize: none; 
     overflow-y: hidden !important; display: block; height: auto;
@@ -71,7 +88,7 @@ body {
     overflow-y: hidden !important; display: block; height: auto;
 }
 
-/* AUTOCOMPLETE */
+/* ================= AUTOCOMPLETE LIST ================= */
 .autocomplete-wrapper { position: relative; width: 100%; }
 .suggestions-list { 
     position: absolute; top: 100%; left: 0; right: 0; background: white; 
@@ -82,7 +99,7 @@ body {
 .suggestions-list li { padding: 8px 10px; cursor: pointer; border-bottom: 1px solid #eee; font-size: 13px; color: #333; }
 .suggestions-list li:hover { background-color: #e9ecef; color: #007bff; }
 
-/* MODALS */
+/* ================= STANDARD MODALS ================= */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
 .modal-content { background: white; padding: 20px; border-radius: 8px; width: 700px; max-width: 95%; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
@@ -95,8 +112,12 @@ body {
 .history-table tbody tr:hover { background-color: #d1ecf1; }
 .close-modal { font-size: 24px; cursor: pointer; border: none; background: none; color: #aaa; }
 
-/* === SMART MODAL STYLES === */
-.confirm-box { max-width: 380px; text-align: center; padding: 30px 25px; border-radius: 16px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+/* ================= BEAUTIFUL POPUP (ALERT/CONFIRM) ================= */
+.confirm-box { 
+    max-width: 380px; text-align: center; padding: 30px 25px; 
+    border-radius: 16px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2); 
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+}
 .confirm-icon { font-size: 48px; margin-bottom: 15px; display: block; }
 .confirm-box h2 { color: #222; font-size: 1.6rem; margin: 0 0 10px 0; font-weight: 700; border: none; }
 .confirm-box p { color: #555; font-size: 1rem; margin: 0 0 25px 0; line-height: 1.5; }
@@ -111,10 +132,9 @@ body {
 .primary-btn { background: linear-gradient(135deg, #007bff, #0056b3); color: white; border: none; font-weight: 600; box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3); }
 .primary-btn:hover { box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4); transform: translateY(-1px); }
 
-/* Animation */
 @keyframes popIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
 
-/* LAYOUT */
+/* ================= GRID & FOOTER ================= */
 .section.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; min-height: 0; }
 .two-col > div { display: flex; flex-direction: column; } 
 h3 { margin-top: 0; color: #0056b3; font-size: 1rem; margin-bottom: 0.5vh; border-bottom: 1px solid #e6f2ff; }
@@ -133,7 +153,7 @@ button.danger { background: linear-gradient(to bottom, #dc3545, #c82333); color:
 .nav-button { padding: 0 15px; height: 35px; background: linear-gradient(to bottom, #28a745, #218838); border: 1px solid #1e7e34; color: white; border-radius: 4px; cursor: pointer; font-weight: 600; white-space: nowrap; display: flex; align-items: center; }
 .hidden { display: none; }
 
-/* MOBILE RESPONSIVENESS */
+/* ================= MOBILE RESPONSIVENESS ================= */
 @media (max-width: 768px) {
   html, body { height: auto !important; overflow-y: auto !important; display: block; padding: 10px; }
   .app { height: auto !important; padding: 0; padding-bottom: 60px; }
