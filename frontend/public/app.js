@@ -12,7 +12,7 @@
         if (form.dataset.initialized === "true") return;
         form.dataset.initialized = "true";
 
-        // --- ELEMENTS ---
+        // Elements
         const snoInput = getEl("sno");
         const ageInput = getEl("age"); 
         const sexInput = getEl("sex");
@@ -56,9 +56,13 @@
 
         let currentModalCallback = null; 
 
-        // Enable button if fields are filled manually
+        // Enable Old Record button logic
         function checkOldRecordButton() {
-            if (patientNameInput.value.trim().length > 0 || mobileInput.value.trim().length === 10) {
+            // Enable if Name is present OR (Mobile is present AND valid 10 digits)
+            const hasName = patientNameInput.value.trim().length > 0;
+            const hasMobile = mobileInput.value.trim().length === 10;
+
+            if (hasName || hasMobile) {
                 oldRecordBtn.disabled = false;
                 oldRecordBtn.style.opacity = "1";
                 oldRecordBtn.style.cursor = "pointer";
@@ -69,12 +73,9 @@
             }
         }
 
-        // Attach check to inputs
         patientNameInput.addEventListener("input", checkOldRecordButton);
         mobileInput.addEventListener("input", checkOldRecordButton);
-
-        // Initial State
-        checkOldRecordButton();
+        checkOldRecordButton(); // Initial check
 
         /* ================= 1. SMART POPUP SYSTEM ================= */
         function showModal(type, title, message, onOk = null) {
@@ -144,14 +145,23 @@
             }
         });
 
-        /* ================= 4. MOBILE LOGIC & AUTOCOMPLETE ================= */
+        /* ================= 4. AGE RESTRICTION ================= */
+        if (ageInput) {
+            ageInput.addEventListener("input", function() {
+                let val = this.value.replace(/[^0-9]/g, '');
+                if (val.length > 3) val = val.slice(0, 3);
+                if (parseInt(val) > 110) val = "110";
+                this.value = val;
+            });
+        }
+
+        /* ================= 5. MOBILE LOGIC & AUTOCOMPLETE ================= */
         if (mobileInput) {
             mobileInput.addEventListener("input", async function() {
-                // Numbers only
                 this.value = this.value.replace(/[^0-9]/g, '');
                 if (this.value.length > 10) this.value = this.value.slice(0, 10);
                 
-                checkOldRecordButton(); // Update button state
+                checkOldRecordButton(); // Check if button should enable
 
                 const query = this.value.trim();
                 if (query.length < 2) { mobileSuggestionsList.classList.add("hidden"); return; }
@@ -185,10 +195,10 @@
             document.addEventListener("click", function(e) { if (e.target !== mobileInput) mobileSuggestionsList.classList.add("hidden"); });
         }
 
-        /* ================= 5. NAME AUTOCOMPLETE ================= */
+        /* ================= 6. NAME AUTOCOMPLETE ================= */
         if (patientNameInput && suggestionsList) {
             patientNameInput.addEventListener("input", async function() {
-                checkOldRecordButton(); // Update button state
+                checkOldRecordButton();
                 const query = this.value.trim();
                 if (query.length < 1) { suggestionsList.classList.add("hidden"); return; }
                 try {
@@ -220,7 +230,7 @@
             document.addEventListener("click", function(e) { if (e.target !== patientNameInput) suggestionsList.classList.add("hidden"); });
         }
 
-        /* ================= 6. AUTO-FILL ================= */
+        /* ================= 7. AUTO-FILL HELPER ================= */
         function autoFillPatientDetails(record) {
             patientNameInput.value = record.B_PName || "";
             fatherNameInput.value = record.B_FName || "";
@@ -229,7 +239,6 @@
             if(mobileInput && record.B_Mobile) mobileInput.value = record.B_Mobile; 
             if(addressBox) { addressBox.value = record.B_To || ""; setTimeout(() => adjustTextareaHeight(addressBox), 50); }
 
-            // Clear clinical data for new entry
             if(complaintBox) { complaintBox.value = ""; adjustTextareaHeight(complaintBox); }
             if(medicineBox) { medicineBox.value = ""; adjustTextareaHeight(medicineBox); }
             if(total) total.value = "0.00";
@@ -240,25 +249,20 @@
             checkOldRecordButton();
         }
 
-        /* ================= 7. AGE RESTRICTION ================= */
-        if (ageInput) {
-            ageInput.addEventListener("input", function() {
-                let val = this.value.replace(/[^0-9]/g, '');
-                if (val.length > 3) val = val.slice(0, 3);
-                if (parseInt(val) > 110) val = "110";
-                this.value = val;
-            });
-        }
-
-        /* ================= 8. VALIDATION ================= */
+        /* ================= 8. VALIDATION (OPTIONAL MOBILE) ================= */
         function validateForm() { 
             if (!patientNameInput.value.trim()) { showModal('alert', 'Missing Name', 'Please enter the Patient Name.'); patientNameInput.focus(); return false; } 
             if (!fatherNameInput.value.trim()) { showModal('alert', 'Missing Father Name', 'Please enter Father\'s Name.'); fatherNameInput.focus(); return false; }
             if (!sexInput.value || sexInput.value === "Select") { showModal('alert', 'Missing Gender', 'Please select a Gender.'); sexInput.focus(); return false; }
             if (!ageInput.value || parseInt(ageInput.value) <= 0) { showModal('alert', 'Invalid Age', 'Please enter a valid Age.'); ageInput.focus(); return false; }
             
-            if (!mobileInput.value.trim()) { showModal('alert', 'Missing Mobile', 'Please enter the Mobile Number.'); mobileInput.focus(); return false; }
-            if (mobileInput.value.trim().length !== 10) { showModal('alert', 'Invalid Mobile', 'Mobile Number must be exactly 10 digits.'); mobileInput.focus(); return false; }
+            // MOBILE VALIDATION: Optional, but if entered, must be 10 digits
+            const mobileVal = mobileInput.value.trim();
+            if (mobileVal.length > 0 && mobileVal.length !== 10) { 
+                showModal('alert', 'Invalid Mobile', 'Mobile Number must be exactly 10 digits (or leave it empty).'); 
+                mobileInput.focus(); 
+                return false; 
+            }
 
             if (!addressBox.value.trim()) { showModal('alert', 'Missing Address', 'Please enter the Address.'); addressBox.focus(); return false; }
             if (!complaintBox.value.trim()) { showModal('alert', 'Missing Complaint', 'Please enter the Chief Complaint.'); complaintBox.focus(); return false; }
@@ -339,7 +343,7 @@
             });
         }
 
-        /* ================= 10. HELPER FUNCTIONS (OLD RECORD UPDATED) ================= */
+        /* ================= 10. OLD RECORD VIEWER ================= */
         if (oldRecordBtn) {
             oldRecordBtn.addEventListener("click", async () => {
                 const name = patientNameInput.value.trim();
@@ -369,8 +373,6 @@
                             const date = new Date(rec.B_Date).toLocaleDateString('en-GB'); 
                             const row = document.createElement("tr");
                             row.innerHTML = `<td>${date}</td><td>${rec.B_PName}</td><td>${rec.B_FName || '-'}</td><td>${rec.B_TotalAmt || 0}</td>`;
-                            
-                            // Load Record
                             row.onclick = () => { 
                                 fillForm(rec); 
                                 toggleEditMode(true); 

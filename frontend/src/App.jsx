@@ -51,7 +51,6 @@ function App() {
               <button type="button" id="oldRecordBtn" className="nav-button">OLD Record</button>
               <div className="input-group fixed-right">
                 <label>Age</label>
-                {/* CHANGED to text/numeric to strictly enforce length and limit */}
                 <input 
                   type="text" 
                   inputMode="numeric" 
@@ -70,6 +69,7 @@ function App() {
                 <input type="text" id="fatherNameInput" name="fatherName" required />
               </div>
               
+              {/* MOBILE FIELD (OPTIONAL NOW) */}
               <div className="input-group fixed-right">
                 <label>Mobile</label>
                 <div className="autocomplete-wrapper">
@@ -77,11 +77,11 @@ function App() {
                       type="text" 
                       inputMode="numeric"
                       id="mobileInput" 
-                      placeholder="Search" 
+                      placeholder="Optional" 
                       autoComplete="off" 
                       className="right-align" 
                       maxLength="10" 
-                      required 
+                      /* removed required */
                     />
                     <ul id="mobileSuggestionsList" className="suggestions-list hidden"></ul>
                 </div>
