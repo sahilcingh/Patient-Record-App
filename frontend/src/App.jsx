@@ -69,7 +69,6 @@ function App() {
                 <input type="text" id="fatherNameInput" name="fatherName" required />
               </div>
               
-              {/* MOBILE FIELD (OPTIONAL NOW) */}
               <div className="input-group fixed-right">
                 <label>Mobile</label>
                 <div className="autocomplete-wrapper">
@@ -81,7 +80,6 @@ function App() {
                       autoComplete="off" 
                       className="right-align" 
                       maxLength="10" 
-                      /* removed required */
                     />
                     <ul id="mobileSuggestionsList" className="suggestions-list hidden"></ul>
                 </div>
@@ -139,6 +137,21 @@ function App() {
             <div>
               <button type="button" id="printBtn" style={{background: "#6c757d", color: "white", border: "1px solid #5a6268"}}>Print Bill</button>
               <button type="button" id="cancelBtn">Cancel</button>
+              
+              {/* NEW BUTTON: SAVE AS NEW RECORD */}
+              <button 
+                type="button" 
+                id="saveAsNewBtn" 
+                className="hidden" 
+                style={{
+                    background: "linear-gradient(to bottom, #17a2b8, #138496)", 
+                    color: "white", 
+                    border: "1px solid #117a8b"
+                }}
+              >
+                Save as New Record
+              </button>
+
               <button type="button" id="saveBtn" className="primary">Save</button>
               <button type="button" id="updateBtn" className="primary hidden">Update</button>
             </div>

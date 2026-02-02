@@ -17,7 +17,6 @@
         const ageInput = getEl("age"); 
         const sexInput = getEl("sex");
         const mobileInput = getEl("mobileInput");
-        
         const total = getEl("total");
         const cartage = getEl("cartage");
         const conveyance = getEl("conveyance");
@@ -34,6 +33,7 @@
         const updateBtn = form.querySelector('#updateBtn'); 
         const deleteBtn = form.querySelector('#deleteBtn'); 
         const cancelBtn = form.querySelector('#cancelBtn'); 
+        const saveAsNewBtn = form.querySelector('#saveAsNewBtn'); // NEW
         const oldRecordBtn = getEl("oldRecordBtn");
         const printBtn = getEl("printBtn"); 
 
@@ -41,7 +41,6 @@
         const tableBody = getEl("historyTableBody");
         const closeModalBtn = getEl("closeModalBtn");
 
-        // Custom Smart Modal Elements
         const customModal = getEl("customModal");
         const modalIcon = getEl("modalIcon");
         const modalTitle = getEl("modalTitle");
@@ -49,19 +48,16 @@
         const modalOkBtn = getEl("modalOkBtn");
         const modalCancelBtn = getEl("modalCancelBtn");
 
-        // Textareas
         const addressBox = form.querySelector(".address-box");
         const complaintBox = form.querySelectorAll(".large-box")[0];
         const medicineBox = form.querySelectorAll(".large-box")[1];
 
         let currentModalCallback = null; 
 
-        // Enable Old Record button logic
+        // Check Old Record Button
         function checkOldRecordButton() {
-            // Enable if Name is present OR (Mobile is present AND valid 10 digits)
             const hasName = patientNameInput.value.trim().length > 0;
             const hasMobile = mobileInput.value.trim().length === 10;
-
             if (hasName || hasMobile) {
                 oldRecordBtn.disabled = false;
                 oldRecordBtn.style.opacity = "1";
@@ -72,17 +68,15 @@
                 oldRecordBtn.style.cursor = "not-allowed";
             }
         }
-
         patientNameInput.addEventListener("input", checkOldRecordButton);
         mobileInput.addEventListener("input", checkOldRecordButton);
-        checkOldRecordButton(); // Initial check
+        checkOldRecordButton(); 
 
-        /* ================= 1. SMART POPUP SYSTEM ================= */
+        /* ================= SMART POPUP SYSTEM ================= */
         function showModal(type, title, message, onOk = null) {
             modalTitle.textContent = title;
             modalMessage.textContent = message;
             currentModalCallback = onOk;
-
             modalOkBtn.className = "primary-btn";
             modalOkBtn.style.background = ""; 
 
@@ -110,7 +104,7 @@
         modalCancelBtn.addEventListener("click", () => { customModal.style.display = "none"; currentModalCallback = null; });
         modalOkBtn.addEventListener("click", () => { customModal.style.display = "none"; if (currentModalCallback) currentModalCallback(); currentModalCallback = null; });
 
-        /* ================= 2. BILLING LOGIC ================= */
+        /* ================= BILLING LOGIC ================= */
         function setupBillingField(input) {
             input.addEventListener("focus", function() {
                 if (this.value === "0" || this.value === "0.00") { this.value = ""; }
@@ -131,7 +125,7 @@
             if (grandTotal) grandTotal.value = (t + c + v).toFixed(2);
         }
 
-        /* ================= 3. AUTO-EXPAND LOGIC ================= */
+        /* ================= AUTO-EXPAND ================= */
         function adjustTextareaHeight(el) {
             if (!el) return;
             el.style.height = "auto";
@@ -145,7 +139,7 @@
             }
         });
 
-        /* ================= 4. AGE RESTRICTION ================= */
+        /* ================= INPUT RESTRICTIONS ================= */
         if (ageInput) {
             ageInput.addEventListener("input", function() {
                 let val = this.value.replace(/[^0-9]/g, '');
@@ -155,13 +149,11 @@
             });
         }
 
-        /* ================= 5. MOBILE LOGIC & AUTOCOMPLETE ================= */
         if (mobileInput) {
             mobileInput.addEventListener("input", async function() {
                 this.value = this.value.replace(/[^0-9]/g, '');
                 if (this.value.length > 10) this.value = this.value.slice(0, 10);
-                
-                checkOldRecordButton(); // Check if button should enable
+                checkOldRecordButton(); 
 
                 const query = this.value.trim();
                 if (query.length < 2) { mobileSuggestionsList.classList.add("hidden"); return; }
@@ -195,7 +187,7 @@
             document.addEventListener("click", function(e) { if (e.target !== mobileInput) mobileSuggestionsList.classList.add("hidden"); });
         }
 
-        /* ================= 6. NAME AUTOCOMPLETE ================= */
+        /* ================= NAME AUTOCOMPLETE ================= */
         if (patientNameInput && suggestionsList) {
             patientNameInput.addEventListener("input", async function() {
                 checkOldRecordButton();
@@ -230,7 +222,7 @@
             document.addEventListener("click", function(e) { if (e.target !== patientNameInput) suggestionsList.classList.add("hidden"); });
         }
 
-        /* ================= 7. AUTO-FILL HELPER ================= */
+        /* ================= HELPER FUNCTIONS ================= */
         function autoFillPatientDetails(record) {
             patientNameInput.value = record.B_PName || "";
             fatherNameInput.value = record.B_FName || "";
@@ -249,19 +241,36 @@
             checkOldRecordButton();
         }
 
-        /* ================= 8. VALIDATION (OPTIONAL MOBILE) ================= */
+        function toggleEditMode(enable) {
+            isEditMode = enable;
+            if (enable) {
+                // OLD RECORD MODE
+                saveBtn.classList.add("hidden");
+                updateBtn.classList.remove("hidden");
+                deleteBtn.classList.remove("hidden");
+                saveAsNewBtn.classList.remove("hidden"); // SHOW BUTTON
+                snoInput.style.backgroundColor = "#e0e0e0"; 
+            } else {
+                // NEW RECORD MODE
+                saveBtn.classList.remove("hidden");
+                updateBtn.classList.add("hidden");
+                deleteBtn.classList.add("hidden");
+                saveAsNewBtn.classList.add("hidden"); // HIDE BUTTON
+                snoInput.style.backgroundColor = "white";
+            }
+        }
+
         function validateForm() { 
             if (!patientNameInput.value.trim()) { showModal('alert', 'Missing Name', 'Please enter the Patient Name.'); patientNameInput.focus(); return false; } 
             if (!fatherNameInput.value.trim()) { showModal('alert', 'Missing Father Name', 'Please enter Father\'s Name.'); fatherNameInput.focus(); return false; }
             if (!sexInput.value || sexInput.value === "Select") { showModal('alert', 'Missing Gender', 'Please select a Gender.'); sexInput.focus(); return false; }
             if (!ageInput.value || parseInt(ageInput.value) <= 0) { showModal('alert', 'Invalid Age', 'Please enter a valid Age.'); ageInput.focus(); return false; }
             
-            // MOBILE VALIDATION: Optional, but if entered, must be 10 digits
+            // Optional Mobile
             const mobileVal = mobileInput.value.trim();
             if (mobileVal.length > 0 && mobileVal.length !== 10) { 
-                showModal('alert', 'Invalid Mobile', 'Mobile Number must be exactly 10 digits (or leave it empty).'); 
-                mobileInput.focus(); 
-                return false; 
+                showModal('alert', 'Invalid Mobile', 'Mobile Number must be exactly 10 digits (or leave empty).'); 
+                mobileInput.focus(); return false; 
             }
 
             if (!addressBox.value.trim()) { showModal('alert', 'Missing Address', 'Please enter the Address.'); addressBox.focus(); return false; }
@@ -324,6 +333,43 @@
             });
         }
 
+        /* ================= 10. SAVE AS NEW RECORD (THE NEW FEATURE) ================= */
+        if (saveAsNewBtn) {
+            saveAsNewBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                if (!validateForm()) return;
+
+                showModal('confirm', 'Save as New Record', 'Create a NEW visit with today\'s date using these details?', async () => {
+                    saveAsNewBtn.disabled = true; saveAsNewBtn.innerText = "Saving...";
+                    
+                    // 1. Get current payload
+                    const payload = getPayload();
+                    
+                    // 2. FORCE Date to Today
+                    const now = new Date();
+                    payload.date = now.toISOString().split('T')[0];
+
+                    try {
+                        // 3. Send POST (Create New) instead of PUT
+                        const res = await fetch(`${API_BASE_URL}/api/visits`, {
+                            method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
+                        });
+                        
+                        if (res.ok) { 
+                            showModal('success', 'Created', 'New Visit Created Successfully!'); 
+                            resetForm(); 
+                        } else { 
+                            showModal('alert', 'Error', 'Failed to create record.'); 
+                        }
+                    } catch (err) { 
+                        showModal('alert', 'Error', 'Server Error.'); 
+                    } finally { 
+                        saveAsNewBtn.disabled = false; saveAsNewBtn.innerText = "Save as New Record"; 
+                    }
+                });
+            });
+        }
+
         if (printBtn) {
             printBtn.addEventListener("click", () => {
                 if (!validateForm()) return;
@@ -343,25 +389,20 @@
             });
         }
 
-        /* ================= 10. OLD RECORD VIEWER ================= */
+        /* ================= 11. OLD RECORD VIEWER ================= */
         if (oldRecordBtn) {
             oldRecordBtn.addEventListener("click", async () => {
                 const name = patientNameInput.value.trim();
                 const mobile = mobileInput.value.trim();
 
-                // Validation: Need at least one valid input to search
                 if (!name && mobile.length !== 10) {
-                    showModal('alert', 'Missing Information', 'Please enter a valid Patient Name or a 10-digit Mobile Number to search.');
+                    showModal('alert', 'Missing Information', 'Please enter a valid Name or Mobile Number.');
                     return;
                 }
 
-                // Construct Query: Prioritize Mobile if valid (it's unique), else Name
                 let queryParam = "";
-                if (mobile.length === 10) {
-                    queryParam = `mobile=${encodeURIComponent(mobile)}`;
-                } else if (name.length > 0) {
-                    queryParam = `name=${encodeURIComponent(name)}`;
-                }
+                if (mobile.length === 10) { queryParam = `mobile=${encodeURIComponent(mobile)}`; } 
+                else if (name.length > 0) { queryParam = `name=${encodeURIComponent(name)}`; }
 
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/visits/search?${queryParam}`);
@@ -381,12 +422,8 @@
                             tableBody.appendChild(row);
                         });
                         historyModal.style.display = "flex"; 
-                    } else { 
-                        showModal('alert', 'Info', 'No records found.'); 
-                    }
-                } catch (err) { 
-                    showModal('alert', 'Error', 'Error loading history.'); 
-                }
+                    } else { showModal('alert', 'Info', 'No records found.'); }
+                } catch (err) { showModal('alert', 'Error', 'Error loading history.'); }
             });
         }
 
@@ -443,15 +480,19 @@
         function toggleEditMode(enable) {
             isEditMode = enable;
             if (enable) {
-                if(saveBtn) saveBtn.classList.add("hidden");
-                if(updateBtn) updateBtn.classList.remove("hidden");
-                if(deleteBtn) deleteBtn.classList.remove("hidden");
-                if(snoInput) snoInput.style.backgroundColor = "#e0e0e0"; 
+                // OLD RECORD MODE
+                saveBtn.classList.add("hidden");
+                updateBtn.classList.remove("hidden");
+                deleteBtn.classList.remove("hidden");
+                saveAsNewBtn.classList.remove("hidden"); // Show Button
+                snoInput.style.backgroundColor = "#e0e0e0"; 
             } else {
-                if(saveBtn) saveBtn.classList.remove("hidden");
-                if(updateBtn) updateBtn.classList.add("hidden");
-                if(deleteBtn) deleteBtn.classList.add("hidden");
-                if(snoInput) snoInput.style.backgroundColor = "white";
+                // NEW RECORD MODE
+                saveBtn.classList.remove("hidden");
+                updateBtn.classList.add("hidden");
+                deleteBtn.classList.add("hidden");
+                saveAsNewBtn.classList.add("hidden"); // Hide Button
+                snoInput.style.backgroundColor = "white";
             }
         }
 
