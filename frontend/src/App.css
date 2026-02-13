@@ -43,6 +43,15 @@ body {
 .form-row { display: flex; align-items: center; gap: 15px; width: 100%; }
 .input-group { display: flex; align-items: center; gap: 10px; }
 .align-top { align-items: flex-start; }
+.section.three-col { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr 1fr; /* 3 Equal Columns */
+    gap: 15px; 
+    flex: 1; 
+    min-height: 0; 
+}
+
+.three-col > div { display: flex; flex-direction: column; }
 .aligned-label { flex: 0 0 140px; font-weight: 600; color: #495057; white-space: nowrap; font-size: 0.9rem; text-align: left; }
 .input-group label { font-weight: 600; color: #495057; font-size: 0.9rem; white-space: nowrap; }
 
@@ -87,8 +96,13 @@ body {
     overflow-y: hidden !important; display: block; height: auto;
 }
 .large-box { 
-    width: 100%; min-height: 100px; resize: none; 
-    overflow-y: hidden !important; display: block; height: auto;
+    width: 100%; 
+    min-height: 100px; 
+    resize: none; 
+    overflow-y: hidden !important; 
+    display: block; 
+    height: auto;
+    flex-grow: 1; 
 }
 
 /* ================= AUTOCOMPLETE LIST ================= */
@@ -176,4 +190,5 @@ button.danger { background: linear-gradient(to bottom, #dc3545, #c82333); color:
   .footer { flex-direction: column; gap: 15px; height: auto; margin-top: 20px; }
   .footer > div { display: flex; flex-direction: column; gap: 10px; width: 100%; }
   button { margin-left: 0; width: 100%; padding: 12px; }
+  .section.three-col { grid-template-columns: 1fr; }
 }

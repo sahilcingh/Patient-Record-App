@@ -7,7 +7,7 @@ export const createVisit = async (req, res) => {
     const pool = await sql.connect(config);
     const { 
         date, patientName, sex, fatherName, mobile, age, address, 
-        chiefComplaint, medicine, total, cartage, conveyance, grandTotal 
+        chiefComplaint, tests, medicine, total, cartage, conveyance, grandTotal 
     } = req.body;
 
     // Generate next Sno
@@ -24,6 +24,7 @@ export const createVisit = async (req, res) => {
       .input("B_Age", sql.VarChar, age)
       .input("B_To", sql.VarChar, address)
       .input("B_Perticu1", sql.VarChar, chiefComplaint)
+      .input("B_Tests", sql.VarChar, tests || "")
       .input("B_Perticu2", sql.VarChar, medicine)
       .input("B_PerticuAmt1", sql.Decimal(10, 2), total)
       .input("B_Cart", sql.Decimal(10, 2), cartage)
@@ -32,10 +33,10 @@ export const createVisit = async (req, res) => {
       .query(`
         INSERT INTO Pat_Master (
           B_Sno, B_Date, B_PName, B_Sex, B_FName, B_Mobile, B_Age, B_To, 
-          B_Perticu1, B_Perticu2, B_PerticuAmt1, B_Cart, B_Conv, B_TotalAmt
+          B_Perticu1, B_Tests, B_Perticu2, B_PerticuAmt1, B_Cart, B_Conv, B_TotalAmt
         ) VALUES (
           @B_Sno, @B_Date, @B_PName, @B_Sex, @B_FName, @B_Mobile, @B_Age, @B_To, 
-          @B_Perticu1, @B_Perticu2, @B_PerticuAmt1, @B_Cart, @B_Conv, @B_TotalAmt
+          @B_Perticu1, @B_Tests, @B_Perticu2, @B_PerticuAmt1, @B_Cart, @B_Conv, @B_TotalAmt
         )
       `);
 
@@ -52,7 +53,7 @@ export const updateVisit = async (req, res) => {
       const { sno } = req.params;
       const { 
           date, patientName, sex, fatherName, mobile, age, address, 
-          chiefComplaint, medicine, total, cartage, conveyance, grandTotal 
+          chiefComplaint,tests, medicine, total, cartage, conveyance, grandTotal 
       } = req.body;
   
       const pool = await sql.connect(config);
@@ -66,6 +67,7 @@ export const updateVisit = async (req, res) => {
         .input("B_Age", sql.VarChar, age)
         .input("B_To", sql.VarChar, address)
         .input("B_Perticu1", sql.VarChar, chiefComplaint)
+        .input("B_Tests", sql.VarChar, tests || "")
         .input("B_Perticu2", sql.VarChar, medicine)
         .input("B_PerticuAmt1", sql.Decimal(10, 2), total)
         .input("B_Cart", sql.Decimal(10, 2), cartage)
@@ -74,7 +76,7 @@ export const updateVisit = async (req, res) => {
         .query(`
           UPDATE Pat_Master SET 
             B_Date=@B_Date, B_PName=@B_PName, B_Sex=@B_Sex, B_FName=@B_FName, B_Mobile=@B_Mobile,
-            B_Age=@B_Age, B_To=@B_To, B_Perticu1=@B_Perticu1, B_Perticu2=@B_Perticu2, 
+            B_Age=@B_Age, B_To=@B_To, B_Perticu1=@B_Perticu1, B_Tests=@B_Tests, B_Perticu2=@B_Perticu2, 
             B_PerticuAmt1=@B_PerticuAmt1, B_Cart=@B_Cart, B_Conv=@B_Conv, B_TotalAmt=@B_TotalAmt
           WHERE B_Sno = @B_Sno
         `);
@@ -188,4 +190,4 @@ export const getAllPatients = async (req, res) => {
     console.error("Error fetching all patients:", error);
     res.status(500).json({ message: "Error fetching patients" });
   }
-};
+};  

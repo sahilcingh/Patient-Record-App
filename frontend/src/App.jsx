@@ -103,6 +103,10 @@ function App() {
               <textarea className="large-box" required />
             </div>
             <div>
+              <h3>Tests / Inv.</h3>
+              <textarea className="large-box" id="testsBox" /> 
+            </div>
+            <div>
               <h3>Medicine</h3>
               <textarea className="large-box" required />
             </div>
