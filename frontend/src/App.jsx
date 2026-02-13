@@ -92,7 +92,7 @@ function App() {
             </div>
           </div>
 
-          {/* === NEW: INVESTIGATION BUTTON (CENTERED) === */}
+          {/* === INVESTIGATION BUTTON (CENTERED) === */}
           <div className="investigation-section">
             <button type="button" id="openTestsBtn" className="investigation-btn">
                 Investigation
@@ -180,7 +180,7 @@ function App() {
         </div>
       </div>
 
-      {/* 2. INVESTIGATION MODAL (Renamed) */}
+      {/* 2. INVESTIGATION MODAL (Updated) */}
       <div id="testsModal" className="modal-overlay">
         <div className="modal-content">
           <div className="modal-header">
@@ -191,9 +191,8 @@ function App() {
             <textarea id="testsBox" className="large-box" style={{height: "150px"}} placeholder="Enter details..."></textarea>
             
             <div className="tests-modal-actions">
-                <button type="button" id="testDeleteBtn" className="delete-btn">Delete</button>
-                <button type="button" id="testCancelBtn" className="cancel-btn">Cancel</button>
-                <button type="button" id="testUpdateBtn" className="update-btn">Update</button>
+                {/* Only Close button needed */}
+                <button type="button" id="testCloseBtn" className="cancel-btn">Close</button>
             </div>
           </div>
         </div>

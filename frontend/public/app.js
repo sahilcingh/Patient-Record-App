@@ -542,7 +542,7 @@
         if (form.dataset.initialized === "true") return;
         form.dataset.initialized = "true";
 
-        // Main Elements
+        // Elements
         const snoInput = getEl("sno");
         const ageInput = getEl("age"); 
         const sexInput = getEl("sex");
@@ -559,7 +559,6 @@
         const suggestionsList = getEl("suggestionsList");
         const mobileSuggestionsList = getEl("mobileSuggestionsList");
 
-        // Footer Buttons
         const saveBtn = form.querySelector('#saveBtn');
         const updateBtn = form.querySelector('#updateBtn'); 
         const deleteBtn = form.querySelector('#deleteBtn'); 
@@ -568,9 +567,8 @@
         const oldRecordBtn = getEl("oldRecordBtn");
         const showAllBtn = getEl("showAllBtn"); 
         const printBtn = getEl("printBtn"); 
-        const openTestsBtn = getEl("openTestsBtn"); // NEW FOOTER BUTTON
+        const openTestsBtn = getEl("openTestsBtn"); 
 
-        // Modals
         const historyModal = getEl("historyModal");
         const tableBody = getEl("historyTableBody");
         const tableHead = getEl("historyTableHead");
@@ -587,19 +585,16 @@
         // TESTS MODAL ELEMENTS
         const testsModal = getEl("testsModal");
         const closeTestsModalBtn = getEl("closeTestsModalBtn");
-        const testsBox = getEl("testsBox"); // Textarea inside modal
-        const testUpdateBtn = getEl("testUpdateBtn");
-        const testDeleteBtn = getEl("testDeleteBtn");
-        const testCancelBtn = getEl("testCancelBtn");
+        const testsBox = getEl("testsBox"); 
+        const testCloseBtn = getEl("testCloseBtn");
 
         // Form Textareas
         const addressBox = form.querySelector(".address-box");
         const largeBoxes = form.querySelectorAll(".large-box");
         const complaintBox = largeBoxes[0];
-        const medicineBox = largeBoxes[1]; // Note: testsBox is now in modal, not here
+        const medicineBox = largeBoxes[1]; // testsBox is in modal
 
-        let currentModalCallback = null;
-        let storedTestsValue = ""; // Variable to hold tests data locally
+        let currentModalCallback = null; 
 
         // Check Old Record Button
         function checkOldRecordButton() {
@@ -620,39 +615,26 @@
         checkOldRecordButton(); 
 
         /* ================= TESTS MODAL LOGIC ================= */
-        // Open Modal: Populate box with stored value
+        // Open Modal
         if(openTestsBtn) {
             openTestsBtn.addEventListener("click", (e) => {
                 e.preventDefault();
-                testsBox.value = storedTestsValue;
                 testsModal.style.display = "flex";
+                // Focus on the text area when opened
+                setTimeout(() => testsBox.focus(), 50);
             });
         }
 
-        // Update: Save changes to variable and close
-        if(testUpdateBtn) {
-            testUpdateBtn.addEventListener("click", () => {
-                storedTestsValue = testsBox.value;
-                testsModal.style.display = "none";
-            });
-        }
-
-        // Delete: Clear text inside box (don't close yet, let user see it's gone)
-        if(testDeleteBtn) {
-            testDeleteBtn.addEventListener("click", () => {
-                testsBox.value = "";
-            });
-        }
-
-        // Cancel: Close without saving changes
-        if(testCancelBtn) {
-            testCancelBtn.addEventListener("click", () => {
-                testsModal.style.display = "none";
-            });
-        }
-
+        // Close Modal (X Button)
         if(closeTestsModalBtn) {
             closeTestsModalBtn.addEventListener("click", () => {
+                testsModal.style.display = "none";
+            });
+        }
+
+        // Close Modal (Close Button)
+        if(testCloseBtn) {
+            testCloseBtn.addEventListener("click", () => {
                 testsModal.style.display = "none";
             });
         }
@@ -805,11 +787,12 @@
             if(addressBox) { addressBox.value = record.B_To || ""; setTimeout(() => adjustTextareaHeight(addressBox), 50); }
 
             if(complaintBox) { complaintBox.value = ""; adjustTextareaHeight(complaintBox); }
+            
+            // TESTS: Reset
+            testsBox.value = ""; 
+            
             if(medicineBox) { medicineBox.value = ""; adjustTextareaHeight(medicineBox); }
             
-            storedTestsValue = ""; // Reset tests local var
-            testsBox.value = ""; 
-
             if(total) total.value = "0.00";
             if(cartage) cartage.value = "0.00";
             if(conveyance) conveyance.value = "0.00";
@@ -862,7 +845,7 @@
                 age: (getEl("age") || form.querySelector("#age")).value,
                 address: (getEl("address") || form.querySelector(".address-box")).value,
                 chiefComplaint: complaintBox.value,
-                tests: storedTestsValue, // SEND STORED VALUE FROM POPUP
+                tests: testsBox.value, // DIRECTLY USE TESTS BOX VALUE
                 medicine: medicineBox.value,
                 total: total.value,
                 cartage: cartage.value,
@@ -883,11 +866,10 @@
             if(complaintBox) complaintBox.value = record.B_Perticu1 || "";
             if(medicineBox) medicineBox.value = record.B_Perticu2 || "";
             
-            // TESTS: Load into hidden variable and text box
-            storedTestsValue = record.B_Tests || "";
-            testsBox.value = storedTestsValue;
+            // TESTS: Populate the hidden text box directly
+            testsBox.value = record.B_Tests || "";
 
-            setTimeout(() => { adjustTextareaHeight(addressBox); adjustTextareaHeight(complaintBox); adjustTextareaHeight(medicineBox); }, 50);
+            setTimeout(() => { adjustTextareaHeight(addressBox); adjustTextareaHeight(complaintBox); adjustTextareaHeight(testsBox); adjustTextareaHeight(medicineBox); }, 50);
             
             snoInput.value = record.B_Sno || "";
             if (visitDate && record.B_Date) visitDate.value = new Date(record.B_Date).toISOString().split('T')[0];
@@ -898,6 +880,7 @@
             checkOldRecordButton();
         }
 
+        /* [KEEP ALL CRUD BUTTON HANDLERS UNCHANGED] */
         if (saveBtn) {
             saveBtn.addEventListener("click", (e) => {
                 e.preventDefault();
@@ -978,8 +961,8 @@
                 
                 printWindow.document.write(`<div class="section-title">Chief Complaint</div><div class="content-box">${complaintBox.value}</div>`);
                 
-                if(storedTestsValue.trim() !== "") {
-                    printWindow.document.write(`<div class="section-title">Investigation</div><div class="content-box">${storedTestsValue}</div>`);
+                if(testsBox.value.trim() !== "") {
+                    printWindow.document.write(`<div class="section-title">Investigation</div><div class="content-box">${testsBox.value}</div>`);
                 }
 
                 printWindow.document.write(`<div class="section-title">Medicine</div><div class="content-box">${medicineBox.value}</div>`);
@@ -1050,7 +1033,7 @@
             form.reset();
             billingFields.forEach(f => f.value = "0.00");
             grandTotal.value = "0.00";
-            storedTestsValue = ""; // RESET TESTS
+            testsBox.value = ""; // RESET TESTS
             [addressBox, complaintBox, medicineBox].forEach(b => { if(b) b.style.height = "auto"; });
             toggleEditMode(false);
             loadNextSno();
