@@ -49,20 +49,11 @@ function App() {
                 </div>
               </div>
               
-              {/* OLD RECORD BUTTON (Kept here) */}
               <button type="button" id="oldRecordBtn" className="nav-button">OLD Record</button>
 
               <div className="input-group fixed-right">
                 <label>Age</label>
-                <input 
-                  type="text" 
-                  inputMode="numeric" 
-                  id="age" 
-                  required 
-                  className="right-align" 
-                  maxLength="3"
-                  placeholder="0"
-                />
+                <input type="text" inputMode="numeric" id="age" required className="right-align" maxLength="3" placeholder="0" />
               </div>
             </div>
 
@@ -75,14 +66,7 @@ function App() {
               <div className="input-group fixed-mobile">
                 <label>Mobile</label>
                 <div className="autocomplete-wrapper">
-                    <input 
-                      type="text" 
-                      inputMode="numeric"
-                      id="mobileInput" 
-                      autoComplete="off" 
-                      className="right-align" 
-                      maxLength="10" 
-                    />
+                    <input type="text" inputMode="numeric" id="mobileInput" autoComplete="off" className="right-align" maxLength="10" />
                     <ul id="mobileSuggestionsList" className="suggestions-list hidden"></ul>
                 </div>
               </div>
@@ -96,15 +80,11 @@ function App() {
             </div>
           </section>
 
-          {/* COMPLAINT / MEDICINE */}
+          {/* COMPLAINT / MEDICINE (Back to 2 Columns) */}
           <div className="section two-col">
             <div>
               <h3>Chief Complaint</h3>
               <textarea className="large-box" required />
-            </div>
-            <div>
-              <h3>Tests / Inv.</h3>
-              <textarea className="large-box" id="testsBox" /> 
             </div>
             <div>
               <h3>Medicine</h3>
@@ -137,9 +117,8 @@ function App() {
 
           {/* FOOTER */}
           <footer className="footer">
-            {/* LEFT SIDE: Show All & Delete */}
+            {/* LEFT SIDE */}
             <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
-               {/* MOVED SHOW ALL BUTTON HERE */}
                <button 
                     type="button" 
                     id="showAllBtn" 
@@ -151,11 +130,23 @@ function App() {
                <button type="button" id="deleteBtn" className="danger hidden">Delete</button>
             </div>
 
-            {/* RIGHT SIDE: Actions */}
+            {/* RIGHT SIDE */}
             <div>
+              {/* NEW TESTS BUTTON */}
+              <button 
+                type="button" 
+                id="openTestsBtn" 
+                style={{
+                    background: "linear-gradient(to bottom, #fd7e14, #e36d0d)", 
+                    color: "white", 
+                    border: "1px solid #d66408"
+                }}
+              >
+                Tests/Inv.
+              </button>
+
               <button type="button" id="printBtn" style={{background: "#6c757d", color: "white", border: "1px solid #5a6268"}}>Print Bill</button>
               <button type="button" id="cancelBtn">Cancel</button>
-              
               <button 
                 type="button" 
                 id="saveAsNewBtn" 
@@ -168,7 +159,6 @@ function App() {
               >
                 Save as New Record
               </button>
-
               <button type="button" id="saveBtn" className="primary">Save</button>
               <button type="button" id="updateBtn" className="primary hidden">Update</button>
             </div>
@@ -176,7 +166,9 @@ function App() {
         </form>
       </div>
 
-      {/* History Modal */}
+      {/* --- MODALS --- */}
+
+      {/* 1. History Modal */}
       <div id="historyModal" className="modal-overlay">
         <div className="modal-content">
           <div className="modal-header">
@@ -194,13 +186,32 @@ function App() {
         </div>
       </div>
 
-      {/* SMART ALERT MODAL */}
+      {/* 2. TESTS / INV MODAL (New) */}
+      <div id="testsModal" className="modal-overlay">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h3>Tests / Investigation</h3>
+            <button type="button" className="close-modal" id="closeTestsModalBtn">&times;</button>
+          </div>
+          <div className="modal-body">
+            <p style={{marginBottom: "10px", color: "#666", fontSize: "0.9rem"}}>Enter tests or investigations below:</p>
+            <textarea id="testsBox" className="large-box" style={{height: "150px"}} placeholder="e.g. Blood Test, X-Ray..."></textarea>
+            
+            <div className="tests-modal-actions">
+                <button type="button" id="testDeleteBtn" className="delete-btn">Delete</button>
+                <button type="button" id="testCancelBtn" className="cancel-btn">Cancel</button>
+                <button type="button" id="testUpdateBtn" className="update-btn">Update</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Alert Modal */}
       <div id="customModal" className="modal-overlay" style={{zIndex: 3000, display: 'none'}}>
         <div className="modal-content confirm-box">
           <div className="confirm-icon" id="modalIcon">⚠️</div>
           <h2 id="modalTitle">Alert</h2>
           <p id="modalMessage">Something went wrong.</p>
-          
           <div className="confirm-actions">
             <button type="button" id="modalCancelBtn" className="cancel-btn">Cancel</button>
             <button type="button" id="modalOkBtn" className="primary-btn">OK</button>

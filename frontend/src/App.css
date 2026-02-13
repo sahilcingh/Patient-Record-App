@@ -43,15 +43,6 @@ body {
 .form-row { display: flex; align-items: center; gap: 15px; width: 100%; }
 .input-group { display: flex; align-items: center; gap: 10px; }
 .align-top { align-items: flex-start; }
-.section.three-col { 
-    display: grid; 
-    grid-template-columns: 1fr 1fr 1fr; /* 3 Equal Columns */
-    gap: 15px; 
-    flex: 1; 
-    min-height: 0; 
-}
-
-.three-col > div { display: flex; flex-direction: column; }
 .aligned-label { flex: 0 0 140px; font-weight: 600; color: #495057; white-space: nowrap; font-size: 0.9rem; text-align: left; }
 .input-group label { font-weight: 600; color: #495057; font-size: 0.9rem; white-space: nowrap; }
 
@@ -59,34 +50,24 @@ body {
 .fixed-left { width: auto; flex-shrink: 0; }
 .col-date { margin-left: auto; margin-right: auto; }
 
-/* 1. STANDARD RIGHT COLUMN (For Age & Gender) - KEPT SMALL */
 .fixed-right { 
-    width: 140px; /* Small width for Age/Gender */
+    width: 140px; 
     flex-shrink: 0; 
     justify-content: flex-end; 
 }
 .fixed-right select, .fixed-right input { width: 80px; }
 
-/* 2. SPECIAL WIDE COLUMN (Only for Mobile) */
 .fixed-mobile { 
-    width: 350px; /* WIDE width for Mobile Search */
+    width: 350px; 
     flex-shrink: 0; 
     justify-content: flex-end; 
     display: flex;
     align-items: center;
     gap: 10px;
 }
+.fixed-mobile .autocomplete-wrapper { width: 100% !important; position: relative; }
+.fixed-mobile .autocomplete-wrapper input { width: 100% !important; }
 
-/* Ensure inputs/wrappers inside Mobile block fill the wide space */
-.fixed-mobile .autocomplete-wrapper { 
-    width: 100% !important; 
-    position: relative;
-}
-.fixed-mobile .autocomplete-wrapper input { 
-    width: 100% !important; 
-}
-
-/* FATHER'S NAME (Flexible) */
 .grow { flex: 1; display: flex; position: relative; } 
 .grow input { width: 100%; }
 
@@ -96,13 +77,9 @@ body {
     overflow-y: hidden !important; display: block; height: auto;
 }
 .large-box { 
-    width: 100%; 
-    min-height: 100px; 
-    resize: none; 
-    overflow-y: hidden !important; 
-    display: block; 
-    height: auto;
-    flex-grow: 1; 
+    width: 100%; min-height: 100px; resize: none; 
+    overflow-y: hidden !important; display: block; height: auto;
+    flex-grow: 1;
 }
 
 /* ================= AUTOCOMPLETE LIST ================= */
@@ -116,44 +93,36 @@ body {
 .suggestions-list li { padding: 8px 10px; cursor: pointer; border-bottom: 1px solid #eee; font-size: 13px; color: #333; }
 .suggestions-list li:hover { background-color: #e9ecef; color: #007bff; }
 
-/* ================= STANDARD MODALS ================= */
+/* ================= MODALS (History, Alert, Tests) ================= */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
 .modal-content { background: white; padding: 20px; border-radius: 8px; width: 700px; max-width: 95%; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
 .modal-header h3 { color: #007bff; font-size: 1.2rem; margin: 0; }
-.table-container { border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden; }
+.close-modal { font-size: 24px; cursor: pointer; border: none; background: none; color: #aaa; }
+
+.table-container { border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden; max-height: 400px; overflow-y: auto; }
 .history-table { width: 100%; border-collapse: collapse; background: white; }
-.history-table th { background-color: #eef6fc; color: #1e88e5; font-weight: 600; padding: 12px 15px; text-align: left; border-bottom: 1px solid #dee2e6; }
+.history-table th { background-color: #eef6fc; color: #1e88e5; font-weight: 600; padding: 12px 15px; text-align: left; border-bottom: 1px solid #dee2e6; position: sticky; top: 0; }
 .history-table td { padding: 10px 15px; text-align: left; border-bottom: 1px solid #eee; color: #333; }
 .history-table tbody tr { cursor: pointer; transition: background-color 0.2s ease; }
 .history-table tbody tr:hover { background-color: #d1ecf1; }
-.close-modal { font-size: 24px; cursor: pointer; border: none; background: none; color: #aaa; }
 
-/* ================= BEAUTIFUL POPUP ================= */
-.confirm-box { 
-    max-width: 380px; text-align: center; padding: 30px 25px; 
-    border-radius: 16px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2); 
-    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-}
+/* Alert Box */
+.confirm-box { max-width: 380px; text-align: center; padding: 30px 25px; border-radius: 16px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 .confirm-icon { font-size: 48px; margin-bottom: 15px; display: block; }
-.confirm-box h2 { color: #222; font-size: 1.6rem; margin: 0 0 10px 0; font-weight: 700; border: none; }
+.confirm-box h2 { color: #222; font-size: 1.6rem; margin: 0 0 10px 0; font-weight: 700; }
 .confirm-box p { color: #555; font-size: 1rem; margin: 0 0 25px 0; line-height: 1.5; }
-
 .confirm-actions { display: flex; gap: 15px; justify-content: center; width: 100%; }
-.confirm-actions button { flex: 1; padding: 12px; font-size: 1rem; border-radius: 8px; transition: all 0.2s; cursor: pointer; max-width: 140px; }
-.confirm-actions button:active { transform: scale(0.96); }
+.confirm-actions button { flex: 1; padding: 12px; font-size: 1rem; border-radius: 8px; cursor: pointer; max-width: 140px; }
 
-.cancel-btn { background: #f1f3f5; border: 1px solid #dee2e6; color: #495057; font-weight: 600; }
-.cancel-btn:hover { background: #e9ecef; }
-
-.primary-btn { background: linear-gradient(135deg, #007bff, #0056b3); color: white; border: none; font-weight: 600; box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3); }
-.primary-btn:hover { box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4); transform: translateY(-1px); }
-
-@keyframes popIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+/* TESTS MODAL SPECIFIC */
+.tests-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px; }
+.tests-modal-actions button { min-width: 100px; }
 
 /* ================= GRID & FOOTER ================= */
 .section.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; min-height: 0; }
 .two-col > div { display: flex; flex-direction: column; } 
+
 h3 { margin-top: 0; color: #0056b3; font-size: 1rem; margin-bottom: 0.5vh; border-bottom: 1px solid #e6f2ff; }
 .billing-section { flex: 0 0 auto; }
 .grid.billing { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; align-items: end; width: 100%; }
@@ -161,16 +130,24 @@ h3 { margin-top: 0; color: #0056b3; font-size: 1rem; margin-bottom: 0.5vh; borde
 .highlight input { background-color: #d4edda; border-color: #c3e6cb; color: #155724; font-weight: 700; height: 40px; }
 h2 { margin: 0 0 1vh 0; color: #0056b3; font-size: 1.1rem; border-bottom: 1px solid #e6f2ff; }
 .footer { flex: 0 0 auto; display: flex; justify-content: space-between; margin-top: 1vh; padding-top: 1vh; border-top: 2px solid #e9ecef; }
+
 input, select, textarea { padding: 5px 10px; border: 1px solid #ced4da; background-color: #fcfcfc; border-radius: 5px; font-size: 14px; color: #495057; height: 35px; }
 input:focus, select:focus, textarea:focus { outline: none; border-color: #4facfe; box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.25); }
 .right-align { text-align: right; }
+
 button { padding: 8px 20px; margin-left: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; background-color: #f8f9fa; color: #495057; border: 1px solid #ced4da; }
 button.primary { background: linear-gradient(to bottom, #007bff, #0069d9); color: white; border: 1px solid #0062cc; }
 button.danger { background: linear-gradient(to bottom, #dc3545, #c82333); color: white; border: 1px solid #bd2130; margin-left: 0; }
 .nav-button { padding: 0 15px; height: 35px; background: linear-gradient(to bottom, #28a745, #218838); border: 1px solid #1e7e34; color: white; border-radius: 4px; cursor: pointer; font-weight: 600; white-space: nowrap; display: flex; align-items: center; }
 .hidden { display: none; }
 
-/* ================= MOBILE RESPONSIVENESS ================= */
+.cancel-btn { background: #f1f3f5; border: 1px solid #dee2e6; color: #495057; }
+.delete-btn { background: #dc3545; color: white; border: 1px solid #bd2130; }
+.update-btn { background: linear-gradient(135deg, #007bff, #0056b3); color: white; }
+
+@keyframes popIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+
+/* ================= MOBILE ================= */
 @media (max-width: 768px) {
   html, body { height: auto !important; overflow-y: auto !important; display: block; padding: 10px; }
   .app { height: auto !important; padding: 0; padding-bottom: 60px; }
@@ -178,7 +155,7 @@ button.danger { background: linear-gradient(to bottom, #dc3545, #c82333); color:
   #patientForm { overflow: visible; gap: 15px; }
   .section { padding: 15px; }
   .form-row { flex-direction: column; align-items: stretch; gap: 15px; }
-  .input-group, .fixed-left, .fixed-right, .col-date, .grow { width: 100% !important; margin: 0; }
+  .input-group, .fixed-left, .fixed-right, .fixed-mobile, .col-date, .grow { width: 100% !important; margin: 0; }
   .input-group { flex-direction: column; align-items: flex-start; gap: 5px; }
   .aligned-label { flex: none; min-width: auto; }
   input, select { width: 100%; height: 45px; }
@@ -186,9 +163,8 @@ button.danger { background: linear-gradient(to bottom, #dc3545, #c82333); color:
   .right-align { text-align: left; }
   .nav-button { width: 100%; justify-content: center; margin-top: 5px; }
   .grid.billing { grid-template-columns: 1fr 1fr; }
-  .section.two-col { grid-template-columns: 1fr; }
+  .section.two-col { grid-template-columns: 1fr; } 
   .footer { flex-direction: column; gap: 15px; height: auto; margin-top: 20px; }
   .footer > div { display: flex; flex-direction: column; gap: 10px; width: 100%; }
   button { margin-left: 0; width: 100%; padding: 12px; }
-  .section.three-col { grid-template-columns: 1fr; }
 }
