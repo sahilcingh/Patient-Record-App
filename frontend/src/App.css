@@ -5,24 +5,35 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #eef2f7;
   margin: 0; padding: 0;
-  height: 100vh; width: 100vw;
-  overflow: hidden;
-  display: flex; justify-content: center; align-items: center;
+  /* FIX: Allow scrolling so zoom doesn't break layout */
+  min-height: 100vh; 
+  width: 100%;
+  display: flex; 
+  justify-content: center; 
+  align-items: flex-start; /* Aligns card to top with spacing */
+  padding-top: 2vh;
+  padding-bottom: 2vh;
 }
 
-.app { width: 100%; max-width: 1100px; height: 100%; padding: 1vh; }
+.app { width: 100%; max-width: 1100px; padding: 10px; }
 
 .card {
-  background: #ffffff; padding: 1.5vh 2vw;
-  border-radius: 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  height: 98vh; display: flex; flex-direction: column;
+  background: #ffffff; 
+  padding: 25px;
+  border-radius: 12px; 
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  /* FIX: Card grows with content/zoom instead of fixed height */
+  min-height: 90vh; 
+  height: auto; 
+  display: flex; 
+  flex-direction: column;
 }
 
 /* ================= HEADER ================= */
 .header {
   flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center;
   background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
-  padding: 1vh 20px; border-radius: 8px; margin-bottom: 1.5vh;
+  padding: 15px 20px; border-radius: 8px; margin-bottom: 20px;
   color: white; box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
 }
 .header h1 { margin: 0; font-size: 1.5rem; font-weight: 600; }
@@ -31,16 +42,16 @@ body {
 /* ================= FORM LAYOUT ================= */
 #patientForm {
   display: flex; flex-direction: column; flex: 1;
-  justify-content: space-between; overflow-y: auto; padding-right: 5px; 
+  gap: 20px; /* Adds consistent spacing between sections */
 }
 
 .section {
-  padding: 1.5vh; background-color: #ffffff; border-radius: 10px;
+  padding: 20px; background-color: #ffffff; border-radius: 10px;
   border: 1px solid #cce5ff; display: flex; flex-direction: column; justify-content: center;
 }
-.patient-data-box { flex: 0 0 auto; gap: 1vh; }
+.patient-data-box { flex: 0 0 auto; gap: 10px; }
 
-.form-row { display: flex; align-items: center; gap: 15px; width: 100%; }
+.form-row { display: flex; align-items: center; gap: 15px; width: 100%; flex-wrap: wrap; }
 .input-group { display: flex; align-items: center; gap: 10px; }
 .align-top { align-items: flex-start; }
 .aligned-label { flex: 0 0 140px; font-weight: 600; color: #495057; white-space: nowrap; font-size: 0.9rem; text-align: left; }
@@ -50,37 +61,19 @@ body {
 .fixed-left { width: auto; flex-shrink: 0; }
 .col-date { margin-left: auto; margin-right: auto; }
 
-.fixed-right { 
-    width: 140px; 
-    flex-shrink: 0; 
-    justify-content: flex-end; 
-}
+.fixed-right { width: 140px; flex-shrink: 0; justify-content: flex-end; }
 .fixed-right select, .fixed-right input { width: 80px; }
 
-.fixed-mobile { 
-    width: 350px; 
-    flex-shrink: 0; 
-    justify-content: flex-end; 
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
+.fixed-mobile { width: 350px; flex-shrink: 0; justify-content: flex-end; display: flex; align-items: center; gap: 10px; }
 .fixed-mobile .autocomplete-wrapper { width: 100% !important; position: relative; }
 .fixed-mobile .autocomplete-wrapper input { width: 100% !important; }
 
-.grow { flex: 1; display: flex; position: relative; } 
+.grow { flex: 1; display: flex; position: relative; min-width: 200px; } 
 .grow input { width: 100%; }
 
 /* ================= TEXT AREAS ================= */
-.address-box { 
-    width: 100%; min-height: 60px; resize: none; 
-    overflow-y: hidden !important; display: block; height: auto;
-}
-.large-box { 
-    width: 100%; min-height: 100px; resize: none; 
-    overflow-y: hidden !important; display: block; height: auto;
-    flex-grow: 1;
-}
+.address-box { width: 100%; min-height: 60px; resize: vertical; display: block; height: auto; }
+.large-box { width: 100%; min-height: 100px; resize: vertical; display: block; height: auto; flex-grow: 1; }
 
 /* ================= AUTOCOMPLETE LIST ================= */
 .autocomplete-wrapper { position: relative; width: 100%; }
@@ -94,24 +87,25 @@ body {
 .suggestions-list li:hover { background-color: #e9ecef; color: #007bff; }
 
 /* ================= MODALS ================= */
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
-.modal-content { background: white; padding: 20px; border-radius: 8px; width: 700px; max-width: 95%; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-.modal-header h3 { color: #007bff; font-size: 1.2rem; margin: 0; }
-.close-modal { font-size: 24px; cursor: pointer; border: none; background: none; color: #aaa; }
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 2000; }
+.modal-content { background: white; padding: 25px; border-radius: 8px; width: 700px; max-width: 90%; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+.modal-header h3 { color: #007bff; font-size: 1.3rem; margin: 0; }
+.close-modal { font-size: 28px; cursor: pointer; border: none; background: none; color: #aaa; line-height: 1; }
+.close-modal:hover { color: #333; }
 
-.table-container { border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden; max-height: 400px; overflow-y: auto; }
+.table-container { border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden; max-height: 50vh; overflow-y: auto; }
 .history-table { width: 100%; border-collapse: collapse; background: white; }
 .history-table th { background-color: #eef6fc; color: #1e88e5; font-weight: 600; padding: 12px 15px; text-align: left; border-bottom: 1px solid #dee2e6; position: sticky; top: 0; }
 .history-table td { padding: 10px 15px; text-align: left; border-bottom: 1px solid #eee; color: #333; }
 .history-table tbody tr { cursor: pointer; transition: background-color 0.2s ease; }
 .history-table tbody tr:hover { background-color: #d1ecf1; }
 
-/* INVESTIGATION BUTTON SECTION (NEW) */
+/* INVESTIGATION BUTTON SECTION */
 .investigation-section {
     display: flex;
     justify-content: center;
-    padding: 10px 0;
+    padding: 15px 0; /* Vertical spacing prevents overlap */
     flex: 0 0 auto;
 }
 
@@ -119,19 +113,20 @@ body {
     background: linear-gradient(to bottom, #fd7e14, #e36d0d); 
     color: white; 
     border: 1px solid #d66408;
-    padding: 8px 30px;
+    padding: 10px 40px;
     font-size: 1rem;
-    border-radius: 20px; /* Rounded pill shape looks nice in middle */
-    box-shadow: 0 2px 5px rgba(253, 126, 20, 0.3);
-    transition: transform 0.1s ease;
+    border-radius: 25px; 
+    box-shadow: 0 3px 8px rgba(253, 126, 20, 0.3);
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
-.investigation-btn:active { transform: scale(0.98); }
+.investigation-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 12px rgba(253, 126, 20, 0.4); }
+.investigation-btn:active { transform: translateY(0); }
 
-/* TESTS MODAL SPECIFIC */
-.tests-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px; }
+/* TESTS MODAL FOOTER */
+.tests-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
 .tests-modal-actions button { min-width: 100px; }
 
-/* Alert Box */
+/* ALERT BOX */
 .confirm-box { max-width: 380px; text-align: center; padding: 30px 25px; border-radius: 16px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 .confirm-icon { font-size: 48px; margin-bottom: 15px; display: block; }
 .confirm-box h2 { color: #222; font-size: 1.6rem; margin: 0 0 10px 0; font-weight: 700; }
@@ -140,40 +135,38 @@ body {
 .confirm-actions button { flex: 1; padding: 12px; font-size: 1rem; border-radius: 8px; cursor: pointer; max-width: 140px; }
 
 /* ================= GRID & FOOTER ================= */
-.section.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; min-height: 0; }
+.section.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; min-height: 0; }
 .two-col > div { display: flex; flex-direction: column; } 
 
-h3 { margin-top: 0; color: #0056b3; font-size: 1rem; margin-bottom: 0.5vh; border-bottom: 1px solid #e6f2ff; }
+h3 { margin-top: 0; color: #0056b3; font-size: 1rem; margin-bottom: 10px; border-bottom: 1px solid #e6f2ff; padding-bottom: 5px; }
 .billing-section { flex: 0 0 auto; }
 .grid.billing { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; align-items: end; width: 100%; }
-.billing .field { display: flex; flex-direction: column; gap: 0.5vh; }
+.billing .field { display: flex; flex-direction: column; gap: 5px; }
 .highlight input { background-color: #d4edda; border-color: #c3e6cb; color: #155724; font-weight: 700; height: 40px; }
-h2 { margin: 0 0 1vh 0; color: #0056b3; font-size: 1.1rem; border-bottom: 1px solid #e6f2ff; }
-.footer { flex: 0 0 auto; display: flex; justify-content: space-between; margin-top: 1vh; padding-top: 1vh; border-top: 2px solid #e9ecef; }
+h2 { margin: 0 0 15px 0; color: #0056b3; font-size: 1.2rem; border-bottom: 1px solid #e6f2ff; padding-bottom: 5px; }
+.footer { flex: 0 0 auto; display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 2px solid #e9ecef; flex-wrap: wrap; gap: 10px; }
 
-input, select, textarea { padding: 5px 10px; border: 1px solid #ced4da; background-color: #fcfcfc; border-radius: 5px; font-size: 14px; color: #495057; height: 35px; }
+input, select, textarea { padding: 8px 10px; border: 1px solid #ced4da; background-color: #fcfcfc; border-radius: 5px; font-size: 14px; color: #495057; height: 40px; }
 input:focus, select:focus, textarea:focus { outline: none; border-color: #4facfe; box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.25); }
 .right-align { text-align: right; }
 
-button { padding: 8px 20px; margin-left: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; background-color: #f8f9fa; color: #495057; border: 1px solid #ced4da; }
+button { padding: 10px 24px; margin-left: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; background-color: #f8f9fa; color: #495057; border: 1px solid #ced4da; transition: all 0.2s; }
+button:hover { background-color: #e2e6ea; }
 button.primary { background: linear-gradient(to bottom, #007bff, #0069d9); color: white; border: 1px solid #0062cc; }
+button.primary:hover { background: linear-gradient(to bottom, #0069d9, #005cbf); }
 button.danger { background: linear-gradient(to bottom, #dc3545, #c82333); color: white; border: 1px solid #bd2130; margin-left: 0; }
-.nav-button { padding: 0 15px; height: 35px; background: linear-gradient(to bottom, #28a745, #218838); border: 1px solid #1e7e34; color: white; border-radius: 4px; cursor: pointer; font-weight: 600; white-space: nowrap; display: flex; align-items: center; }
+.nav-button { padding: 0 15px; height: 40px; background: linear-gradient(to bottom, #28a745, #218838); border: 1px solid #1e7e34; color: white; border-radius: 4px; cursor: pointer; font-weight: 600; white-space: nowrap; display: flex; align-items: center; }
 .hidden { display: none; }
 
 .cancel-btn { background: #f1f3f5; border: 1px solid #dee2e6; color: #495057; }
-.delete-btn { background: #dc3545; color: white; border: 1px solid #bd2130; }
-.update-btn { background: linear-gradient(135deg, #007bff, #0056b3); color: white; }
 
 @keyframes popIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
 
-/* ================= MOBILE ================= */
+/* ================= MOBILE RESPONSIVENESS ================= */
 @media (max-width: 768px) {
-  html, body { height: auto !important; overflow-y: auto !important; display: block; padding: 10px; }
-  .app { height: auto !important; padding: 0; padding-bottom: 60px; }
-  .card { height: auto !important; overflow: visible; padding: 15px; }
-  #patientForm { overflow: visible; gap: 15px; }
-  .section { padding: 15px; }
+  body { display: block; padding: 10px; height: auto; }
+  .app { height: auto; padding: 0; padding-bottom: 60px; }
+  .card { height: auto; overflow: visible; padding: 15px; }
   .form-row { flex-direction: column; align-items: stretch; gap: 15px; }
   .input-group, .fixed-left, .fixed-right, .fixed-mobile, .col-date, .grow { width: 100% !important; margin: 0; }
   .input-group { flex-direction: column; align-items: flex-start; gap: 5px; }

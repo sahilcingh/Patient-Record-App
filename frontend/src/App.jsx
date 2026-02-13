@@ -48,9 +48,7 @@ function App() {
                     <ul id="suggestionsList" className="suggestions-list hidden"></ul>
                 </div>
               </div>
-              
               <button type="button" id="oldRecordBtn" className="nav-button">OLD Record</button>
-
               <div className="input-group fixed-right">
                 <label>Age</label>
                 <input type="text" inputMode="numeric" id="age" required className="right-align" maxLength="3" placeholder="0" />
@@ -62,7 +60,6 @@ function App() {
                 <label className="aligned-label">Father's Name</label>
                 <input type="text" id="fatherNameInput" name="fatherName" required />
               </div>
-              
               <div className="input-group fixed-mobile">
                 <label>Mobile</label>
                 <div className="autocomplete-wrapper">
@@ -92,7 +89,7 @@ function App() {
             </div>
           </div>
 
-          {/* === INVESTIGATION BUTTON (CENTERED) === */}
+          {/* === INVESTIGATION BUTTON === */}
           <div className="investigation-section">
             <button type="button" id="openTestsBtn" className="investigation-btn">
                 Investigation
@@ -124,35 +121,14 @@ function App() {
 
           {/* FOOTER */}
           <footer className="footer">
-            {/* LEFT SIDE */}
             <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
-               <button 
-                    type="button" 
-                    id="showAllBtn" 
-                    className="nav-button" 
-                    style={{ background: "linear-gradient(to bottom, #17a2b8, #138496)", border: "1px solid #117a8b", margin: 0 }}
-                >
-                    Show All
-                </button>
+               <button type="button" id="showAllBtn" className="nav-button" style={{ background: "linear-gradient(to bottom, #17a2b8, #138496)", border: "1px solid #117a8b", margin: 0 }}>Show All</button>
                <button type="button" id="deleteBtn" className="danger hidden">Delete</button>
             </div>
-
-            {/* RIGHT SIDE */}
             <div>
               <button type="button" id="printBtn" style={{background: "#6c757d", color: "white", border: "1px solid #5a6268"}}>Print Bill</button>
               <button type="button" id="cancelBtn">Cancel</button>
-              <button 
-                type="button" 
-                id="saveAsNewBtn" 
-                className="hidden" 
-                style={{
-                    background: "linear-gradient(to bottom, #17a2b8, #138496)", 
-                    color: "white", 
-                    border: "1px solid #117a8b"
-                }}
-              >
-                Save as New Record
-              </button>
+              <button type="button" id="saveAsNewBtn" className="hidden" style={{background: "linear-gradient(to bottom, #17a2b8, #138496)", color: "white", border: "1px solid #117a8b"}}>Save as New Record</button>
               <button type="button" id="saveBtn" className="primary">Save</button>
               <button type="button" id="updateBtn" className="primary hidden">Update</button>
             </div>
@@ -160,9 +136,7 @@ function App() {
         </form>
       </div>
 
-      {/* --- MODALS --- */}
-
-      {/* 1. History Modal */}
+      {/* MODALS */}
       <div id="historyModal" className="modal-overlay">
         <div className="modal-content">
           <div className="modal-header">
@@ -180,7 +154,7 @@ function App() {
         </div>
       </div>
 
-      {/* 2. INVESTIGATION MODAL (Updated) */}
+      {/* INVESTIGATION POPUP */}
       <div id="testsModal" className="modal-overlay">
         <div className="modal-content">
           <div className="modal-header">
@@ -188,17 +162,15 @@ function App() {
             <button type="button" className="close-modal" id="closeTestsModalBtn">&times;</button>
           </div>
           <div className="modal-body">
-            <textarea id="testsBox" className="large-box" style={{height: "150px"}} placeholder="Enter details..."></textarea>
-            
+            <textarea id="testsBox" className="large-box" style={{height: "200px"}} placeholder="Enter tests/investigation details..."></textarea>
             <div className="tests-modal-actions">
-                {/* Only Close button needed */}
                 <button type="button" id="testCloseBtn" className="cancel-btn">Close</button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* 3. Alert Modal */}
+      {/* ALERT POPUP */}
       <div id="customModal" className="modal-overlay" style={{zIndex: 3000, display: 'none'}}>
         <div className="modal-content confirm-box">
           <div className="confirm-icon" id="modalIcon">⚠️</div>
@@ -210,7 +182,6 @@ function App() {
           </div>
         </div>
       </div>
-
     </div>
   );
 }

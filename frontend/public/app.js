@@ -582,21 +582,19 @@
         const modalOkBtn = getEl("modalOkBtn");
         const modalCancelBtn = getEl("modalCancelBtn");
 
-        // TESTS MODAL ELEMENTS
+        // TESTS MODAL
         const testsModal = getEl("testsModal");
         const closeTestsModalBtn = getEl("closeTestsModalBtn");
         const testsBox = getEl("testsBox"); 
         const testCloseBtn = getEl("testCloseBtn");
 
-        // Form Textareas
         const addressBox = form.querySelector(".address-box");
         const largeBoxes = form.querySelectorAll(".large-box");
         const complaintBox = largeBoxes[0];
-        const medicineBox = largeBoxes[1]; // testsBox is in modal
+        const medicineBox = largeBoxes[1]; 
 
         let currentModalCallback = null; 
 
-        // Check Old Record Button
         function checkOldRecordButton() {
             const hasName = patientNameInput.value.trim().length > 0;
             const hasMobile = mobileInput.value.trim().length === 10;
@@ -615,28 +613,21 @@
         checkOldRecordButton(); 
 
         /* ================= TESTS MODAL LOGIC ================= */
-        // Open Modal
+        // Open
         if(openTestsBtn) {
             openTestsBtn.addEventListener("click", (e) => {
                 e.preventDefault();
                 testsModal.style.display = "flex";
-                // Focus on the text area when opened
                 setTimeout(() => testsBox.focus(), 50);
             });
         }
-
-        // Close Modal (X Button)
+        // Close (X)
         if(closeTestsModalBtn) {
-            closeTestsModalBtn.addEventListener("click", () => {
-                testsModal.style.display = "none";
-            });
+            closeTestsModalBtn.addEventListener("click", () => testsModal.style.display = "none");
         }
-
-        // Close Modal (Close Button)
+        // Close (Button)
         if(testCloseBtn) {
-            testCloseBtn.addEventListener("click", () => {
-                testsModal.style.display = "none";
-            });
+            testCloseBtn.addEventListener("click", () => testsModal.style.display = "none");
         }
 
         /* ================= SMART POPUP SYSTEM ================= */
@@ -671,7 +662,6 @@
         modalCancelBtn.addEventListener("click", () => { customModal.style.display = "none"; currentModalCallback = null; });
         modalOkBtn.addEventListener("click", () => { customModal.style.display = "none"; if (currentModalCallback) currentModalCallback(); currentModalCallback = null; });
 
-        /* ================= BILLING LOGIC ================= */
         function setupBillingField(input) {
             input.addEventListener("focus", function() { if (this.value === "0" || this.value === "0.00") this.value = ""; });
             input.addEventListener("blur", function() { if (this.value.trim() === "" || isNaN(parseFloat(this.value))) this.value = "0.00"; else this.value = parseFloat(this.value).toFixed(2); calculateGrandTotal(); });
@@ -788,8 +778,8 @@
 
             if(complaintBox) { complaintBox.value = ""; adjustTextareaHeight(complaintBox); }
             
-            // TESTS: Reset
-            testsBox.value = ""; 
+            // Clear tests box
+            if(testsBox) { testsBox.value = ""; } 
             
             if(medicineBox) { medicineBox.value = ""; adjustTextareaHeight(medicineBox); }
             
@@ -845,7 +835,7 @@
                 age: (getEl("age") || form.querySelector("#age")).value,
                 address: (getEl("address") || form.querySelector(".address-box")).value,
                 chiefComplaint: complaintBox.value,
-                tests: testsBox.value, // DIRECTLY USE TESTS BOX VALUE
+                tests: testsBox.value, // GRAB VALUE DIRECTLY FROM HIDDEN MODAL BOX
                 medicine: medicineBox.value,
                 total: total.value,
                 cartage: cartage.value,
@@ -862,14 +852,13 @@
             if(mobileInput) mobileInput.value = record.B_Mobile || ""; 
             if(addressBox) addressBox.value = record.B_To || "";
             
-            // Fill Clinical Data
             if(complaintBox) complaintBox.value = record.B_Perticu1 || "";
             if(medicineBox) medicineBox.value = record.B_Perticu2 || "";
             
-            // TESTS: Populate the hidden text box directly
+            // POPULATE THE TESTS BOX (Even if hidden in modal)
             testsBox.value = record.B_Tests || "";
 
-            setTimeout(() => { adjustTextareaHeight(addressBox); adjustTextareaHeight(complaintBox); adjustTextareaHeight(testsBox); adjustTextareaHeight(medicineBox); }, 50);
+            setTimeout(() => { adjustTextareaHeight(addressBox); adjustTextareaHeight(complaintBox); adjustTextareaHeight(medicineBox); }, 50);
             
             snoInput.value = record.B_Sno || "";
             if (visitDate && record.B_Date) visitDate.value = new Date(record.B_Date).toISOString().split('T')[0];
@@ -880,7 +869,6 @@
             checkOldRecordButton();
         }
 
-        /* [KEEP ALL CRUD BUTTON HANDLERS UNCHANGED] */
         if (saveBtn) {
             saveBtn.addEventListener("click", (e) => {
                 e.preventDefault();
@@ -1033,7 +1021,7 @@
             form.reset();
             billingFields.forEach(f => f.value = "0.00");
             grandTotal.value = "0.00";
-            testsBox.value = ""; // RESET TESTS
+            testsBox.value = ""; 
             [addressBox, complaintBox, medicineBox].forEach(b => { if(b) b.style.height = "auto"; });
             toggleEditMode(false);
             loadNextSno();
