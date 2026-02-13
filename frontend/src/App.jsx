@@ -80,7 +80,7 @@ function App() {
             </div>
           </section>
 
-          {/* COMPLAINT / MEDICINE (Back to 2 Columns) */}
+          {/* COMPLAINT / MEDICINE */}
           <div className="section two-col">
             <div>
               <h3>Chief Complaint</h3>
@@ -90,6 +90,13 @@ function App() {
               <h3>Medicine</h3>
               <textarea className="large-box" required />
             </div>
+          </div>
+
+          {/* === NEW: INVESTIGATION BUTTON (CENTERED) === */}
+          <div className="investigation-section">
+            <button type="button" id="openTestsBtn" className="investigation-btn">
+                Investigation
+            </button>
           </div>
 
           {/* BILLING */}
@@ -132,19 +139,6 @@ function App() {
 
             {/* RIGHT SIDE */}
             <div>
-              {/* NEW TESTS BUTTON */}
-              <button 
-                type="button" 
-                id="openTestsBtn" 
-                style={{
-                    background: "linear-gradient(to bottom, #fd7e14, #e36d0d)", 
-                    color: "white", 
-                    border: "1px solid #d66408"
-                }}
-              >
-                Tests/Inv.
-              </button>
-
               <button type="button" id="printBtn" style={{background: "#6c757d", color: "white", border: "1px solid #5a6268"}}>Print Bill</button>
               <button type="button" id="cancelBtn">Cancel</button>
               <button 
@@ -186,16 +180,15 @@ function App() {
         </div>
       </div>
 
-      {/* 2. TESTS / INV MODAL (New) */}
+      {/* 2. INVESTIGATION MODAL (Renamed) */}
       <div id="testsModal" className="modal-overlay">
         <div className="modal-content">
           <div className="modal-header">
-            <h3>Tests / Investigation</h3>
+            <h3>Investigation</h3>
             <button type="button" className="close-modal" id="closeTestsModalBtn">&times;</button>
           </div>
           <div className="modal-body">
-            <p style={{marginBottom: "10px", color: "#666", fontSize: "0.9rem"}}>Enter tests or investigations below:</p>
-            <textarea id="testsBox" className="large-box" style={{height: "150px"}} placeholder="e.g. Blood Test, X-Ray..."></textarea>
+            <textarea id="testsBox" className="large-box" style={{height: "150px"}} placeholder="Enter details..."></textarea>
             
             <div className="tests-modal-actions">
                 <button type="button" id="testDeleteBtn" className="delete-btn">Delete</button>

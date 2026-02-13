@@ -979,7 +979,7 @@
                 printWindow.document.write(`<div class="section-title">Chief Complaint</div><div class="content-box">${complaintBox.value}</div>`);
                 
                 if(storedTestsValue.trim() !== "") {
-                    printWindow.document.write(`<div class="section-title">Tests / Investigation</div><div class="content-box">${storedTestsValue}</div>`);
+                    printWindow.document.write(`<div class="section-title">Investigation</div><div class="content-box">${storedTestsValue}</div>`);
                 }
 
                 printWindow.document.write(`<div class="section-title">Medicine</div><div class="content-box">${medicineBox.value}</div>`);
