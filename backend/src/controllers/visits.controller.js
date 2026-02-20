@@ -1,219 +1,27 @@
-// import sql from "mssql";
-// import { config } from "../config/db.js";
-
-// // 1. CREATE VISIT
-// export const createVisit = async (req, res) => {
-//   try {
-//     const pool = await sql.connect(config);
-//     const { 
-//         date, patientName, sex, fatherName, mobile, age, address, 
-//         chiefComplaint, tests, medicine, total, cartage, conveyance, grandTotal 
-//     } = req.body;
-
-//     // Generate next Sno
-//     const result = await pool.request().query("SELECT MAX(B_Sno) as maxSno FROM Pat_Master");
-//     const nextSno = (result.recordset[0].maxSno || 0) + 1;
-
-//     await pool.request()
-//       .input("B_Sno", sql.Int, nextSno)
-//       .input("B_Date", sql.DateTime, date)
-//       .input("B_PName", sql.VarChar, patientName)
-//       .input("B_Sex", sql.VarChar, sex)
-//       .input("B_FName", sql.VarChar, fatherName)
-//       .input("B_Mobile", sql.VarChar, mobile || "") 
-//       .input("B_Age", sql.VarChar, age)
-//       .input("B_To", sql.VarChar, address)
-//       .input("B_Perticu1", sql.VarChar, chiefComplaint)
-//       .input("B_Tests", sql.VarChar, tests || "")
-//       .input("B_Perticu2", sql.VarChar, medicine)
-//       .input("B_PerticuAmt1", sql.Decimal(10, 2), total)
-//       .input("B_Cart", sql.Decimal(10, 2), cartage)
-//       .input("B_Conv", sql.Decimal(10, 2), conveyance)
-//       .input("B_TotalAmt", sql.Decimal(10, 2), grandTotal)
-//       .query(`
-//         INSERT INTO Pat_Master (
-//           B_Sno, B_Date, B_PName, B_Sex, B_FName, B_Mobile, B_Age, B_To, 
-//           B_Perticu1, B_Tests, B_Perticu2, B_PerticuAmt1, B_Cart, B_Conv, B_TotalAmt
-//         ) VALUES (
-//           @B_Sno, @B_Date, @B_PName, @B_Sex, @B_FName, @B_Mobile, @B_Age, @B_To, 
-//           @B_Perticu1, @B_Tests, @B_Perticu2, @B_PerticuAmt1, @B_Cart, @B_Conv, @B_TotalAmt
-//         )
-//       `);
-
-//     res.status(201).json({ message: "Visit created successfully", sno: nextSno });
-//   } catch (error) {
-//     console.error("Error creating visit:", error);
-//     res.status(500).json({ message: "Error creating visit" });
-//   }
-// };
-
-// // 2. UPDATE VISIT
-// export const updateVisit = async (req, res) => {
-//     try {
-//       const { sno } = req.params;
-//       const { 
-//           date, patientName, sex, fatherName, mobile, age, address, 
-//           chiefComplaint,tests, medicine, total, cartage, conveyance, grandTotal 
-//       } = req.body;
-  
-//       const pool = await sql.connect(config);
-//       await pool.request()
-//         .input("B_Sno", sql.Int, sno)
-//         .input("B_Date", sql.DateTime, date)
-//         .input("B_PName", sql.VarChar, patientName)
-//         .input("B_Sex", sql.VarChar, sex)
-//         .input("B_FName", sql.VarChar, fatherName)
-//         .input("B_Mobile", sql.VarChar, mobile || "") 
-//         .input("B_Age", sql.VarChar, age)
-//         .input("B_To", sql.VarChar, address)
-//         .input("B_Perticu1", sql.VarChar, chiefComplaint)
-//         .input("B_Tests", sql.VarChar, tests || "")
-//         .input("B_Perticu2", sql.VarChar, medicine)
-//         .input("B_PerticuAmt1", sql.Decimal(10, 2), total)
-//         .input("B_Cart", sql.Decimal(10, 2), cartage)
-//         .input("B_Conv", sql.Decimal(10, 2), conveyance)
-//         .input("B_TotalAmt", sql.Decimal(10, 2), grandTotal)
-//         .query(`
-//           UPDATE Pat_Master SET 
-//             B_Date=@B_Date, B_PName=@B_PName, B_Sex=@B_Sex, B_FName=@B_FName, B_Mobile=@B_Mobile,
-//             B_Age=@B_Age, B_To=@B_To, B_Perticu1=@B_Perticu1, B_Tests=@B_Tests, B_Perticu2=@B_Perticu2, 
-//             B_PerticuAmt1=@B_PerticuAmt1, B_Cart=@B_Cart, B_Conv=@B_Conv, B_TotalAmt=@B_TotalAmt
-//           WHERE B_Sno = @B_Sno
-//         `);
-  
-//       res.json({ message: "Visit updated successfully" });
-//     } catch (error) {
-//       console.error("Update Error:", error);
-//       res.status(500).json({ message: "Error updating visit" });
-//     }
-// };
-
-// // 3. SEARCH (Name & Mobile)
-// export const searchVisits = async (req, res) => {
-//     try {
-//       const { name, mobile } = req.query; 
-//       const pool = await sql.connect(config);
-//       let query = "SELECT * FROM Pat_Master WHERE 1=1";
-//       const reqSql = pool.request();
-
-//       if(name) {
-//           query += " AND B_PName LIKE @name";
-//           reqSql.input("name", sql.VarChar, `%${name}%`);
-//       }
-//       if(mobile) {
-//           query += " AND B_Mobile = @mobile";
-//           reqSql.input("mobile", sql.VarChar, mobile);
-//       }
-//       query += " ORDER BY B_Date DESC";
-
-//       const result = await reqSql.query(query);
-//       res.json({ records: result.recordset });
-//     } catch (error) { res.status(500).json({ message: "Search failed" }); }
-// };
-
-// // 4. GET NEXT SNO
-// export const getNextSno = async (req, res) => {
-//   try {
-//     const pool = await sql.connect(config);
-//     const result = await pool.request().query("SELECT MAX(B_Sno) as maxSno FROM Pat_Master");
-//     const nextSno = (result.recordset[0].maxSno || 0) + 1;
-//     res.json({ nextSno });
-//   } catch (error) { res.status(500).json({ message: "Error" }); }
-// };
-
-// // 5. NAME SUGGESTIONS
-// export const getNameSuggestions = async (req, res) => {
-//   try {
-//     const { query } = req.query;
-//     if (!query) return res.json([]);
-//     const pool = await sql.connect(config);
-//     const result = await pool.request().input("search", sql.VarChar, `${query}%`).query(`SELECT DISTINCT TOP 10 B_PName FROM Pat_Master WHERE B_PName LIKE @search ORDER BY B_PName`);
-//     res.json(result.recordset);
-//   } catch (error) { res.status(500).json({ message: "Error" }); }
-// };
-
-// // 6. MOBILE SUGGESTIONS
-// export const getMobileSuggestions = async (req, res) => {
-//   try {
-//     const { query } = req.query;
-//     if (!query) return res.json([]);
-//     const pool = await sql.connect(config);
-//     const result = await pool.request()
-//       .input("search", sql.VarChar, `${query}%`)
-//       .query(`SELECT DISTINCT TOP 10 B_Mobile, B_PName FROM Pat_Master WHERE B_Mobile LIKE @search AND B_Mobile IS NOT NULL AND B_Mobile <> ''`);
-//     res.json(result.recordset);
-//   } catch (error) {
-//     console.error("Mobile Suggestion Error:", error);
-//     res.status(500).json({ message: "Error fetching suggestions" });
-//   }
-// };
-
-// // 7. GET BY SNO
-// export const getVisitBySno = async (req, res) => {
-//     try {
-//       const { sno } = req.params;
-//       const pool = await sql.connect(config);
-//       const result = await pool.request().input("sno", sql.Int, sno).query("SELECT * FROM Pat_Master WHERE B_Sno = @sno");
-//       if (result.recordset.length === 0) return res.status(404).json({ message: "Visit not found" });
-//       res.json(result.recordset[0]);
-//     } catch (error) { res.status(500).json({ message: "Error" }); }
-// };
-
-// // 8. DELETE VISIT
-// export const deleteVisit = async (req, res) => {
-//     try {
-//       const { sno } = req.params;
-//       const pool = await sql.connect(config);
-//       await pool.request().input("sno", sql.Int, sno).query("DELETE FROM Pat_Master WHERE B_Sno = @sno");
-//       res.json({ message: "Visit deleted successfully" });
-//     } catch (error) { res.status(500).json({ message: "Error" }); }
-// };
-
-// // 9. GET ALL PATIENTS (For "Show All" Feature)
-// export const getAllPatients = async (req, res) => {
-//   try {
-//     const pool = await sql.connect(config);
-//     // Groups by Name and Mobile to find unique patients
-//     // Also counts how many visits they have
-//     const result = await pool.request().query(`
-//       SELECT 
-//         B_PName, 
-//         B_Mobile, 
-//         MAX(B_FName) as B_FName, 
-//         COUNT(*) as VisitCount 
-//       FROM Pat_Master 
-//       GROUP BY B_PName, B_Mobile 
-//       ORDER BY B_PName ASC
-//     `);
-//     res.json(result.recordset);
-//   } catch (error) {
-//     console.error("Error fetching all patients:", error);
-//     res.status(500).json({ message: "Error fetching patients" });
-//   }
-// };  
-
-
 import sql from "mssql";
 import { config } from "../config/db.js";
+
+// Helper to safely format the table name: [DatabaseName].dbo.Pat_Master
+const getTable = (req) => {
+    const dbName = req.doctor.dbName.replace(/[^a-zA-Z0-9_]/g, ''); // Prevent SQL injection
+    return `[${dbName}].[dbo].[Pat_Master]`;
+};
 
 // 1. CREATE VISIT
 export const createVisit = async (req, res) => {
   try {
     const pool = await sql.connect(config);
+    const targetTable = getTable(req);
     const { 
         date, patientName, sex, fatherName, mobile, age, address, 
         chiefComplaint, tests, medicine, total, cartage, conveyance, grandTotal 
     } = req.body;
     
-    // Extract DoctorID from the verified token
-    const doctorId = req.doctor.doctorId; 
-
-    const result = await pool.request().query("SELECT MAX(B_Sno) as maxSno FROM Pat_Master");
+    const result = await pool.request().query(`SELECT MAX(B_Sno) as maxSno FROM ${targetTable}`);
     const nextSno = (result.recordset[0].maxSno || 0) + 1;
 
     await pool.request()
       .input("B_Sno", sql.Int, nextSno)
-      .input("DoctorID", sql.Int, doctorId) // SAVING DOCTOR ID
       .input("B_Date", sql.DateTime, date)
       .input("B_PName", sql.VarChar, patientName)
       .input("B_Sex", sql.VarChar, sex)
@@ -229,36 +37,32 @@ export const createVisit = async (req, res) => {
       .input("B_Conv", sql.Decimal(10, 2), conveyance)
       .input("B_TotalAmt", sql.Decimal(10, 2), grandTotal)
       .query(`
-        INSERT INTO Pat_Master (
-          B_Sno, DoctorID, B_Date, B_PName, B_Sex, B_FName, B_Mobile, B_Age, B_To, 
+        INSERT INTO ${targetTable} (
+          B_Sno, B_Date, B_PName, B_Sex, B_FName, B_Mobile, B_Age, B_To, 
           B_Perticu1, B_Tests, B_Perticu2, B_PerticuAmt1, B_Cart, B_Conv, B_TotalAmt
         ) VALUES (
-          @B_Sno, @DoctorID, @B_Date, @B_PName, @B_Sex, @B_FName, @B_Mobile, @B_Age, @B_To, 
+          @B_Sno, @B_Date, @B_PName, @B_Sex, @B_FName, @B_Mobile, @B_Age, @B_To, 
           @B_Perticu1, @B_Tests, @B_Perticu2, @B_PerticuAmt1, @B_Cart, @B_Conv, @B_TotalAmt
         )
       `);
 
     res.status(201).json({ message: "Visit created successfully", sno: nextSno });
-  } catch (error) {
-    console.error("Error creating visit:", error);
-    res.status(500).json({ message: "Error creating visit" });
-  }
+  } catch (error) { res.status(500).json({ message: "Error creating visit" }); }
 };
 
 // 2. UPDATE VISIT
 export const updateVisit = async (req, res) => {
     try {
       const { sno } = req.params;
+      const targetTable = getTable(req);
       const { 
           date, patientName, sex, fatherName, mobile, age, address, 
           chiefComplaint, tests, medicine, total, cartage, conveyance, grandTotal 
       } = req.body;
-      const doctorId = req.doctor.doctorId;
   
       const pool = await sql.connect(config);
       await pool.request()
         .input("B_Sno", sql.Int, sno)
-        .input("DoctorID", sql.Int, doctorId)
         .input("B_Date", sql.DateTime, date)
         .input("B_PName", sql.VarChar, patientName)
         .input("B_Sex", sql.VarChar, sex)
@@ -274,29 +78,26 @@ export const updateVisit = async (req, res) => {
         .input("B_Conv", sql.Decimal(10, 2), conveyance)
         .input("B_TotalAmt", sql.Decimal(10, 2), grandTotal)
         .query(`
-          UPDATE Pat_Master SET 
+          UPDATE ${targetTable} SET 
             B_Date=@B_Date, B_PName=@B_PName, B_Sex=@B_Sex, B_FName=@B_FName, B_Mobile=@B_Mobile,
             B_Age=@B_Age, B_To=@B_To, B_Perticu1=@B_Perticu1, B_Tests=@B_Tests, B_Perticu2=@B_Perticu2, 
             B_PerticuAmt1=@B_PerticuAmt1, B_Cart=@B_Cart, B_Conv=@B_Conv, B_TotalAmt=@B_TotalAmt
-          WHERE B_Sno = @B_Sno AND DoctorID = @DoctorID
-        `); // ONLY UPDATE IF IT BELONGS TO THIS DOCTOR
+          WHERE B_Sno = @B_Sno
+        `); 
   
       res.json({ message: "Visit updated successfully" });
-    } catch (error) {
-      console.error("Update Error:", error);
-      res.status(500).json({ message: "Error updating visit" });
-    }
+    } catch (error) { res.status(500).json({ message: "Error updating visit" }); }
 };
 
 // 3. SEARCH (Name & Mobile)
 export const searchVisits = async (req, res) => {
     try {
       const { name, mobile } = req.query; 
+      const targetTable = getTable(req);
       const pool = await sql.connect(config);
-      let query = "SELECT * FROM Pat_Master WHERE DoctorID = @DoctorID";
+      let query = `SELECT * FROM ${targetTable} WHERE 1=1`;
       
       const reqSql = pool.request();
-      reqSql.input("DoctorID", sql.Int, req.doctor.doctorId);
 
       if(name) {
           query += " AND B_PName LIKE @name";
@@ -316,8 +117,9 @@ export const searchVisits = async (req, res) => {
 // 4. GET NEXT SNO
 export const getNextSno = async (req, res) => {
   try {
+    const targetTable = getTable(req);
     const pool = await sql.connect(config);
-    const result = await pool.request().query("SELECT MAX(B_Sno) as maxSno FROM Pat_Master");
+    const result = await pool.request().query(`SELECT MAX(B_Sno) as maxSno FROM ${targetTable}`);
     const nextSno = (result.recordset[0].maxSno || 0) + 1;
     res.json({ nextSno });
   } catch (error) { res.status(500).json({ message: "Error" }); }
@@ -328,11 +130,11 @@ export const getNameSuggestions = async (req, res) => {
   try {
     const { query } = req.query;
     if (!query) return res.json([]);
+    const targetTable = getTable(req);
     const pool = await sql.connect(config);
     const result = await pool.request()
         .input("search", sql.VarChar, `${query}%`)
-        .input("DoctorID", sql.Int, req.doctor.doctorId)
-        .query(`SELECT DISTINCT TOP 10 B_PName FROM Pat_Master WHERE B_PName LIKE @search AND DoctorID = @DoctorID ORDER BY B_PName`);
+        .query(`SELECT DISTINCT TOP 10 B_PName FROM ${targetTable} WHERE B_PName LIKE @search ORDER BY B_PName`);
     res.json(result.recordset);
   } catch (error) { res.status(500).json({ message: "Error" }); }
 };
@@ -342,29 +144,26 @@ export const getMobileSuggestions = async (req, res) => {
   try {
     const { query } = req.query;
     if (!query) return res.json([]);
+    const targetTable = getTable(req);
     const pool = await sql.connect(config);
     const result = await pool.request()
       .input("search", sql.VarChar, `${query}%`)
-      .input("DoctorID", sql.Int, req.doctor.doctorId)
-      .query(`SELECT DISTINCT TOP 10 B_Mobile, B_PName FROM Pat_Master WHERE B_Mobile LIKE @search AND B_Mobile IS NOT NULL AND B_Mobile <> '' AND DoctorID = @DoctorID`);
+      .query(`SELECT DISTINCT TOP 10 B_Mobile, B_PName FROM ${targetTable} WHERE B_Mobile LIKE @search AND B_Mobile IS NOT NULL AND B_Mobile <> ''`);
     res.json(result.recordset);
-  } catch (error) {
-    console.error("Mobile Suggestion Error:", error);
-    res.status(500).json({ message: "Error fetching suggestions" });
-  }
+  } catch (error) { res.status(500).json({ message: "Error fetching suggestions" }); }
 };
 
 // 7. GET BY SNO
 export const getVisitBySno = async (req, res) => {
     try {
       const { sno } = req.params;
+      const targetTable = getTable(req);
       const pool = await sql.connect(config);
       const result = await pool.request()
         .input("sno", sql.Int, sno)
-        .input("DoctorID", sql.Int, req.doctor.doctorId)
-        .query("SELECT * FROM Pat_Master WHERE B_Sno = @sno AND DoctorID = @DoctorID");
+        .query(`SELECT * FROM ${targetTable} WHERE B_Sno = @sno`);
       
-      if (result.recordset.length === 0) return res.status(404).json({ message: "Visit not found or unauthorized" });
+      if (result.recordset.length === 0) return res.status(404).json({ message: "Visit not found" });
       res.json(result.recordset[0]);
     } catch (error) { res.status(500).json({ message: "Error" }); }
 };
@@ -373,11 +172,11 @@ export const getVisitBySno = async (req, res) => {
 export const deleteVisit = async (req, res) => {
     try {
       const { sno } = req.params;
+      const targetTable = getTable(req);
       const pool = await sql.connect(config);
       await pool.request()
         .input("sno", sql.Int, sno)
-        .input("DoctorID", sql.Int, req.doctor.doctorId)
-        .query("DELETE FROM Pat_Master WHERE B_Sno = @sno AND DoctorID = @DoctorID");
+        .query(`DELETE FROM ${targetTable} WHERE B_Sno = @sno`);
       res.json({ message: "Visit deleted successfully" });
     } catch (error) { res.status(500).json({ message: "Error" }); }
 };
@@ -385,23 +184,19 @@ export const deleteVisit = async (req, res) => {
 // 9. GET ALL PATIENTS
 export const getAllPatients = async (req, res) => {
   try {
+    const targetTable = getTable(req);
     const pool = await sql.connect(config);
     const result = await pool.request()
-      .input("DoctorID", sql.Int, req.doctor.doctorId)
       .query(`
       SELECT 
         B_PName, 
         B_Mobile, 
         MAX(B_FName) as B_FName, 
         COUNT(*) as VisitCount 
-      FROM Pat_Master 
-      WHERE DoctorID = @DoctorID
+      FROM ${targetTable} 
       GROUP BY B_PName, B_Mobile 
       ORDER BY B_PName ASC
     `);
     res.json(result.recordset);
-  } catch (error) {
-    console.error("Error fetching all patients:", error);
-    res.status(500).json({ message: "Error fetching patients" });
-  }
+  } catch (error) { res.status(500).json({ message: "Error fetching patients" }); }
 };
