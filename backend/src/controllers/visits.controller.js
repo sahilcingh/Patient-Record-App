@@ -1,10 +1,15 @@
 import sql from "mssql";
 import { config } from "../config/db.js";
 
-// Helper to safely format the table name: [DatabaseName].dbo.Pat_Master
+// Helper to safely format the table name: [dbo].[TableName]
 const getTable = (req) => {
-    const dbName = req.doctor.dbName.replace(/[^a-zA-Z0-9_]/g, ''); // Prevent SQL injection
-    return `[${dbName}].[dbo].[Pat_Master]`;
+    // Safety check: if an old token doesn't have dbName, default to Pat_Master
+    if (!req.doctor || !req.doctor.dbName) {
+        return `[dbo].[Pat_Master]`;
+    }
+    // We treat the "DBName" column as the TABLE name for the doctor
+    const tableName = req.doctor.dbName.replace(/[^a-zA-Z0-9_]/g, ''); 
+    return `[dbo].[${tableName}]`;
 };
 
 // 1. CREATE VISIT
@@ -47,7 +52,10 @@ export const createVisit = async (req, res) => {
       `);
 
     res.status(201).json({ message: "Visit created successfully", sno: nextSno });
-  } catch (error) { res.status(500).json({ message: "Error creating visit" }); }
+  } catch (error) { 
+      console.error("SQL Error (Create):", error); 
+      res.status(500).json({ message: "Error creating visit" }); 
+  }
 };
 
 // 2. UPDATE VISIT
@@ -86,7 +94,10 @@ export const updateVisit = async (req, res) => {
         `); 
   
       res.json({ message: "Visit updated successfully" });
-    } catch (error) { res.status(500).json({ message: "Error updating visit" }); }
+    } catch (error) { 
+        console.error("SQL Error (Update):", error); 
+        res.status(500).json({ message: "Error updating visit" }); 
+    }
 };
 
 // 3. SEARCH (Name & Mobile)
@@ -111,7 +122,10 @@ export const searchVisits = async (req, res) => {
 
       const result = await reqSql.query(query);
       res.json({ records: result.recordset });
-    } catch (error) { res.status(500).json({ message: "Search failed" }); }
+    } catch (error) { 
+        console.error("SQL Error (Search):", error); 
+        res.status(500).json({ message: "Search failed" }); 
+    }
 };
 
 // 4. GET NEXT SNO
@@ -122,7 +136,10 @@ export const getNextSno = async (req, res) => {
     const result = await pool.request().query(`SELECT MAX(B_Sno) as maxSno FROM ${targetTable}`);
     const nextSno = (result.recordset[0].maxSno || 0) + 1;
     res.json({ nextSno });
-  } catch (error) { res.status(500).json({ message: "Error" }); }
+  } catch (error) { 
+      console.error("SQL Error (Next Sno):", error); 
+      res.status(500).json({ message: "Error" }); 
+  }
 };
 
 // 5. NAME SUGGESTIONS
@@ -136,7 +153,10 @@ export const getNameSuggestions = async (req, res) => {
         .input("search", sql.VarChar, `${query}%`)
         .query(`SELECT DISTINCT TOP 10 B_PName FROM ${targetTable} WHERE B_PName LIKE @search ORDER BY B_PName`);
     res.json(result.recordset);
-  } catch (error) { res.status(500).json({ message: "Error" }); }
+  } catch (error) { 
+      console.error("SQL Error (Name Suggestions):", error); 
+      res.status(500).json({ message: "Error" }); 
+  }
 };
 
 // 6. MOBILE SUGGESTIONS
@@ -150,7 +170,10 @@ export const getMobileSuggestions = async (req, res) => {
       .input("search", sql.VarChar, `${query}%`)
       .query(`SELECT DISTINCT TOP 10 B_Mobile, B_PName FROM ${targetTable} WHERE B_Mobile LIKE @search AND B_Mobile IS NOT NULL AND B_Mobile <> ''`);
     res.json(result.recordset);
-  } catch (error) { res.status(500).json({ message: "Error fetching suggestions" }); }
+  } catch (error) { 
+      console.error("SQL Error (Mobile Suggestions):", error); 
+      res.status(500).json({ message: "Error fetching suggestions" }); 
+  }
 };
 
 // 7. GET BY SNO
@@ -165,7 +188,10 @@ export const getVisitBySno = async (req, res) => {
       
       if (result.recordset.length === 0) return res.status(404).json({ message: "Visit not found" });
       res.json(result.recordset[0]);
-    } catch (error) { res.status(500).json({ message: "Error" }); }
+    } catch (error) { 
+        console.error("SQL Error (Get By Sno):", error); 
+        res.status(500).json({ message: "Error" }); 
+    }
 };
 
 // 8. DELETE VISIT
@@ -178,7 +204,10 @@ export const deleteVisit = async (req, res) => {
         .input("sno", sql.Int, sno)
         .query(`DELETE FROM ${targetTable} WHERE B_Sno = @sno`);
       res.json({ message: "Visit deleted successfully" });
-    } catch (error) { res.status(500).json({ message: "Error" }); }
+    } catch (error) { 
+        console.error("SQL Error (Delete Visit):", error); 
+        res.status(500).json({ message: "Error" }); 
+    }
 };
 
 // 9. GET ALL PATIENTS
@@ -198,5 +227,8 @@ export const getAllPatients = async (req, res) => {
       ORDER BY B_PName ASC
     `);
     res.json(result.recordset);
-  } catch (error) { res.status(500).json({ message: "Error fetching patients" }); }
+  } catch (error) { 
+      console.error("SQL Error (Get All Patients):", error); 
+      res.status(500).json({ message: "Error fetching patients" }); 
+  }
 };
