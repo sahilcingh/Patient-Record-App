@@ -84,7 +84,8 @@
     if (logoutBtn) logoutBtn.addEventListener("click", handleLogout);
 
     if (loginSubmitBtn) {
-        loginSubmitBtn.addEventListener("click", async () => {
+        loginSubmitBtn.addEventListener("click", async (e) => {
+            e.preventDefault();
             const username = loginUsernameInput.value.trim();
             const password = loginPasswordInput.value;
 
